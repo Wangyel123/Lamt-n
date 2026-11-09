@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens: the ONE place colours and type settings live.
+ * Every colour pair was checked against WCAG 2.2 AA (ratios in docs/DESIGN.md).
+ * Colour is never the only signal: each flag level also has an icon and a text label.
+ */
+:root {
+  /* Base: warm off-white page, white cards (figure-ground without heavy borders) */
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --border: #dcdad3;
+  --text: #1e2a32; /* 13.56:1 on --bg; softer than pure black to avoid halation */
+  --text-muted: #4a5866; /* 6.75:1 on --bg, still passes AA for body text */
+
+  /* Primary action: calm, low-saturation teal, distinct from every flag colour */
+  --primary: #1f6f78; /* white on it 5.83:1 */
+  --focus: #1f6f78;
+
+  /* Flag levels: solid = badge background (white text), tint = row background, ink = text on tint */
+  --urgent: #b42318;
+  --urgent-tint: #fef3f2;
+  --urgent-ink: #b42318;
+  --high: #b54708;
+  --high-tint: #fffaeb;
+  --high-ink: #93370d;
+  --review: #6941c6;
+  --review-tint: #f4f3ff;
+  --review-ink: #5925dc;
+  --none: #475467;
+  --none-tint: #f2f4f7;
+  --none-ink: #344054;
+
+  /* Student-facing screens: soft sage, no red anywhere */
+  --student-bg: #eef5f1;
+  --student-accent: #2e6b4f; /* white on it 6.3:1 */
+}
+
+/* Expose the tokens to Tailwind as utilities, e.g. bg-surface, text-urgent-ink */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-urgent: var(--urgent);
+  --color-urgent-tint: var(--urgent-tint);
+  --color-urgent-ink: var(--urgent-ink);
+  --color-high: var(--high);
+  --color-high-tint: var(--high-tint);
+  --color-high-ink: var(--high-ink);
+  --color-review: var(--review);
+  --color-review-tint: var(--review-tint);
+  --color-review-ink: var(--review-ink);
+  --color-none: var(--none);
+  --color-none-tint: var(--none-tint);
+  --color-none-ink: var(--none-ink);
+  --color-student-bg: var(--student-bg);
+  --color-student-accent: var(--student-accent);
+
+  --font-sans: var(--font-atkinson), system-ui, sans-serif;
+  --font-dzongkha: var(--font-jomolhari), var(--font-atkinson), serif;
+}
+
+html {
+  /* 16px minimum body size; 1.5 line height (WCAG 1.4.12 text spacing) */
+  font-size: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+/* Tibetan script has stacked glyphs that need more vertical room */
+:lang(dz) {
+  font-family: var(--font-dzongkha);
+  line-height: 1.8;
+}
+
+/* Counts in tables line up in columns for easy comparison */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visible 3px teal focus ring for keyboard users */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Calm motion: respect users who ask for less movement */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

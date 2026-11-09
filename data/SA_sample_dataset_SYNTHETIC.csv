@@ -1,0 +1,73 @@
+student_id,school,class,q1_sleep_well,q2_safe_at_home,q3_bullied,q4_trusted_adult,q5_sad_most_days,q6_thoughts_of_self_harm,q7_wants_counsellor,comment
+S-001,School A,VI,4,1,Never,Yes,No,No,No,
+S-002,School A,VI,3,1,Never,Yes,No,No,No,Nothing to add
+S-003,School A,VI,3,3,Never,Yes,Yes,No,No,
+S-004,School A,VI,3,3,Sometimes,Yes,No,No,No,
+S-005,School A,VI,4,4,Never,No,No,Yes,No,My friends help me a lot
+S-006,School A,VI,4,3,Never,Yes,No,No,No,I stay with my grandparents now
+S-007,School A,VI,2,2,Never,Yes,No,No,No,
+S-008,School A,VI,4,4,Never,Yes,No,No,No,
+S-009,School A,VI,4,4,Never,Yes,No,No,No,
+S-010,School A,VI,,3,Never,No,No,No,No,Exams are stressful
+S-011,School A,VI,3,4,Never,Yes,No,No,No,My friends help me a lot
+S-012,School A,VI,3,4,Never,No,Yes,No,No,I stay with my grandparents now
+S-013,School A,VII,2,4,Sometimes,Yes,Yes,No,No,Can we have more library time
+S-014,School A,VII,2,4,Often,Yes,Yes,No,No,The new teacher is kind
+S-015,School A,VII,4,2,Never,Yes,No,No,No,Can we have more library time
+S-016,School A,VII,4,4,Never,Yes,Yes,Prefer not to say,Yes,
+S-017,School A,VII,4,4,Sometimes,Yes,Yes,No,Yes,I get tired walking to school
+S-018,School A,VII,3,4,Sometimes,Yes,No,No,Yes,Nothing to add
+S-019,School A,VII,3,2,Sometimes,Yes,Yes,No,No,
+S-020,School A,VII,3,4,Often,No,No,No,No,I like football practice
+S-021,School A,VII,4,4,Never,Yes,Yes,No,No,My friends help me a lot
+S-022,School A,VII,3,4,Never,Yes,Yes,No,Yes,
+S-023,School A,VII,3,3,Never,Yes,No,No,No,Sometimes I don't want to go home
+S-024,School A,VIII,2,4,Never,Yes,No,No,No,I stay with my grandparents now
+S-025,School A,VIII,4,4,Often,Yes,No,No,No,
+S-026,School A,VIII,2,4,Never,Yes,No,No,Yes,The new teacher is kind
+S-027,School B,IX,4,4,Never,No,No,Prefer not to say,No,I stay with my grandparents now
+S-028,School B,IX,2,3,Never,No,No,No,Yes,I like football practice
+S-029,School B,IX,2,4,Never,Yes,No,Prefer not to say,No,Nothing to add
+S-030,School B,IX,3,2,Never,Yes,No,No,No,
+S-031,School B,IX,3,4,Sometimes,Yes,No,No,Yes,My friends help me a lot
+S-032,School B,IX,1,4,Never,No,No,No,Yes,
+S-033,School B,IX,3,4,Never,No,No,No,No,I like football practice
+S-034,School B,IX,2,4,Never,No,No,No,No,My friends help me a lot
+S-035,School B,IX,4,2,Never,Yes,No,No,No,
+S-036,School B,IX,3,3,Never,Yes,No,No,No,I miss my mother who works abroad
+S-037,School B,X,4,3,Sometimes,No,Yes,No,Yes,Can we have more library time
+S-038,School B,X,2,3,Never,Yes,No,Yes,No,
+S-039,School B,X,4,4,Never,Yes,No,No,No,I miss my mother who works abroad
+S-040,School B,X,4,2,Never,Yes,No,No,No,Nothing to add
+S-041,School B,X,4,4,Sometimes,Yes,Yes,No,No,I get tired walking to school
+S-042,School B,X,4,4,Never,Yes,No,No,No,Can we have more library time
+S-043,School B,X,4,3,Sometimes,Yes,No,No,No,The new teacher is kind
+S-044,School B,X,2,3,Never,No,No,No,No,Nothing to add
+S-045,School B,X,4,3,often,Yes,No,No,No,I stay with my grandparents now
+S-046,School B,XI,4,3,Sometimes,No,No,No,No,
+S-047,School B,XI,4,4,Never,Yes,No,Prefer not to say,No,
+S-048,School B,XI,2,4,Never,No,No,No,No,Nothing to add
+S-049,School B,XI,4,3,Often,Yes,No,No,Yes,I like football practice
+S-050,School C,IV,1,4,Never,Yes,No,No,No,
+S-051,School C,IV,4,4,Sometimes,Yes,Yes,Prefer not to say,No,I miss my mother who works abroad
+S-052,School C,IV,3,3,Never,Yes,No,Prefer not to say,No,I get tired walking to school
+S-053,School C,IV,2,4,Never,No,No,No,No,My friends help me a lot
+S-054,School C,IV,4,3,Never,Yes,No,No,No,
+S-055,School C,IV,4,3,Sometimes,Yes,Yes,Prefer not to say,No,
+S-056,School C,IV,2,2,Never,Yes,No,No,Yes,I like football practice
+S-057,School C,IV,4,4,Sometimes,Yes,No,No,No,I get tired walking to school
+S-058,School C,V,4,4,Never,Yes,Yes,Prefer not to say,No,
+S-059,School C,V,3,4,Never,Yes,No,No,No,
+S-060,School C,V,4,4,Never,Yes,No,No,No,I get tired walking to school
+S-061,School C,V,2,4,Never,Yes,No,No,No,Exams are stressful
+S-062,School C,V,3,3,Never,Yes,No,No,No,
+S-063,School C,V,2,3,Never,Yes,No,No,No,
+S-064,School C,V,2,3,Sometimes,Yes,No,No,No,I like football practice
+S-065,School D,XII,3,4,Never,Yes,No,No,No,Nothing to add
+S-066,School D,XII,3,4,Never,Yes,No,No,No,I miss my mother who works abroad
+S-067,School D,XII,4,4,Sometimes,No,No,No,No,My friends help me a lot
+S-068,School D,XII,3,1,Sometimes,Yes,No,No,No,
+S-069,School D,XII,3,3,Sometimes,Yes,No,No,No,Exams are stressful
+S-070,School D,XII,1,4,Often,Yes,No,No,No,The new teacher is kind
+S-071,School D,XI,1,3,Sometimes,Yes,No,No,Yes,
+S-072,School D,XI,3,3,Never,Yes,No,No,No,
