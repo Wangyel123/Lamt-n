@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
       {isDemoMode() && <DemoBanner />}
-      <main className="mx-auto w-full max-w-xl px-4 py-12">
+      <main id="main" tabIndex={-1} className="outline-none mx-auto w-full max-w-xl px-4 py-12">
         <h1 className="text-3xl font-bold">SA Wellbeing — Counsellor Board</h1>
         <p className="mt-2 max-w-prose text-text-muted">
           A prototype to help school counsellors decide who to meet first and keep track of follow-ups. It uses
@@ -22,7 +22,7 @@ export default function Home() {
           <RoleChooser />
         ) : (
           // Reading the login cookie is per-request, so it streams in behind a Suspense boundary.
-          <Suspense fallback={<p className="mt-8 text-text-muted">Loading…</p>}>
+          <Suspense fallback={<p role="status" className="mt-8 text-text-muted">Loading…</p>}>
             <LiveLogin />
           </Suspense>
         )}

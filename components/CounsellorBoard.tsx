@@ -78,6 +78,7 @@ export function CounsellorBoard({ students, report }: Props) {
 
       <p role="status" aria-live="polite" className="text-sm text-text-muted">
         Showing {visible.length} of {rows.length} students
+        {!ready && !loadError && " · Loading saved follow-ups…"}
       </p>
 
       {/* AC-03: Urgent is pinned in its own section at the very top. */}

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AccountBar } from "@/components/AccountBar";
 import { DemoBanner } from "@/components/DemoBanner";
+import { LoadingState } from "@/components/LoadingState";
 import { SupervisorChart } from "@/components/SupervisorChart";
 import { SupervisorTable } from "@/components/SupervisorTable";
 import { requireRole } from "@/lib/auth";
@@ -16,7 +17,7 @@ export const metadata: Metadata = { title: "Supervisor view · SA Wellbeing" };
 
 export default function SupervisorPage() {
   return (
-    <Suspense fallback={<p className="p-6 text-text-muted">Loading counts…</p>}>
+    <Suspense fallback={<LoadingState label="Loading counts…" />}>
       <SupervisorContent />
     </Suspense>
   );
@@ -34,7 +35,7 @@ async function SupervisorContent() {
   return (
     <>
       {profile ? <AccountBar profile={profile} /> : <DemoBanner />}
-      <main className="mx-auto w-full max-w-4xl px-4 py-6">
+      <main id="main" tabIndex={-1} className="outline-none mx-auto w-full max-w-4xl px-4 py-6">
         <header className="mb-6">
           <h1 className="text-2xl font-bold sm:text-3xl">
             <T k="supervisor.title" />

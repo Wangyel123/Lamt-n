@@ -2,7 +2,7 @@
 
 import { useT } from "@/lib/useLang";
 import { Check, Plus } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { FlagLevel } from "@/lib/flags";
 import {
   closingNeedsNote,
@@ -30,6 +30,9 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
   const [confirmingClose, setConfirmingClose] = useState(false);
   const [closingNote, setClosingNote] = useState("");
   const noteId = useId();
+  const groupRef = useRef<HTMLFieldSetElement>(null);
+  // Keyboard users land back on the status control after the confirm box closes.
+  const refocusStatus = () => setTimeout(() => groupRef.current?.querySelector<HTMLInputElement>("input:checked")?.focus(), 0);
 
   async function save(to: FollowUpStatus, eventNote = "") {
     const ok = await onChange(to, eventNote);
@@ -55,6 +58,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
     if (await save("closed", closingNote)) {
       setConfirmingClose(false);
       setClosingNote("");
+      refocusStatus();
     }
   }
 
@@ -90,7 +94,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-3">
-        <fieldset disabled={disabled} className="disabled:opacity-50">
+        <fieldset ref={groupRef} disabled={disabled} className="disabled:opacity-50">
           <legend className="sr-only">Follow-up status for {studentId}</legend>
           <div className="inline-flex rounded-lg border border-border bg-surface p-0.5">
             {FOLLOW_UP_STATUSES.map((option) => {
@@ -127,6 +131,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
           <p className="text-sm text-text-muted">For example: what was done, who else was involved.</p>
           <textarea
             id={noteId}
+            autoFocus // the confirm box just opened: put the cursor where the user must type
             value={closingNote}
             onChange={(e) => setClosingNote(e.target.value)}
             rows={2}
@@ -146,6 +151,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
               onClick={() => {
                 setConfirmingClose(false);
                 setClosingNote("");
+                refocusStatus();
               }}
               className="min-h-11 rounded-lg border border-border px-4 font-bold"
             >

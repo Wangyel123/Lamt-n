@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { AccountBar } from "@/components/AccountBar";
 import { CounsellorBoard } from "@/components/CounsellorBoard";
 import { DemoBanner } from "@/components/DemoBanner";
+import { LoadingState } from "@/components/LoadingState";
 import { requireRole } from "@/lib/auth";
 import { loadStudentsForCounsellor, loadStudentsFromCsv } from "@/lib/loadStudents";
 import { isDemoMode } from "@/lib/mode";
@@ -13,7 +14,7 @@ export const metadata: Metadata = { title: "Counsellor board · SA Wellbeing" };
 // The page shell renders immediately; the data part streams in (it needs the login cookie in live mode).
 export default function CounsellorPage() {
   return (
-    <Suspense fallback={<p className="p-6 text-text-muted">Loading students…</p>}>
+    <Suspense fallback={<LoadingState label="Loading students…" />}>
       <CounsellorContent />
     </Suspense>
   );
@@ -29,7 +30,7 @@ async function CounsellorContent() {
   return (
     <>
       {profile ? <AccountBar profile={profile} /> : <DemoBanner />}
-      <main className="mx-auto w-full max-w-6xl px-4 py-6">
+      <main id="main" tabIndex={-1} className="outline-none mx-auto w-full max-w-6xl px-4 py-6">
         <header className="mb-6">
           <h1 className="text-2xl font-bold sm:text-3xl">
             <T k="board.title" />

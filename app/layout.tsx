@@ -26,7 +26,16 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${atkinson.variable} ${jomolhari.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {/* First thing a keyboard user reaches: jump past the top bar straight to the content */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:inline-flex focus:min-h-11 focus:items-center focus:rounded-lg focus:bg-primary focus:px-4 focus:font-bold focus:text-white"
+        >
+          Skip to main content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
