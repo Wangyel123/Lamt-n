@@ -17,6 +17,35 @@ export type FlagLevel = "Urgent" | "High" | "Review" | "None";
 /** Most serious first. Also used for sorting the board. */
 export const FLAG_LEVELS: FlagLevel[] = ["Urgent", "High", "Review", "None"];
 
+/** What the counsellor sees for each level. "None" reads as "No concerns", which is kinder and clearer. */
+export const LEVEL_NAME: Record<FlagLevel, string> = {
+  Urgent: "Urgent",
+  High: "High",
+  Review: "Review",
+  None: "No concerns",
+};
+
+/**
+ * One plain sentence per level saying which answers put a student there.
+ * KEEP IN SYNC WITH THE RULES BELOW: if you change a rule, change its sentence here too.
+ */
+export function levelMeaning(level: FlagLevel, useExtraRules: boolean): string {
+  switch (level) {
+    case "Urgent":
+      return "Said yes to thoughts of self-harm";
+    case "High":
+      return useExtraRules
+        ? "Bullied often, never feels safe at home, or skipped the self-harm question"
+        : "Bullied often, or never feels safe at home";
+    case "Review":
+      return useExtraRules
+        ? "Several worrying answers, asked to see you, or a worrying comment"
+        : "Several worrying answers, or asked to see you";
+    case "None":
+      return "No worrying answers in the survey";
+  }
+}
+
 /** True if level `a` is less serious than level `b` (e.g. None is less serious than High). */
 export function isLessSerious(a: FlagLevel, b: FlagLevel): boolean {
   return FLAG_LEVELS.indexOf(a) > FLAG_LEVELS.indexOf(b);

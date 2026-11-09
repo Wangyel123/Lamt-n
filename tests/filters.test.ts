@@ -56,10 +56,10 @@ describe("filters (AC-06)", () => {
   it("makes a removable chip for each active filter", () => {
     const chips = activeFilterChips({ ...EMPTY_FILTERS, school: "School A", level: "High", status: "none", search: "01" });
     expect(chips.map((c) => c.label)).toEqual([
-      "School: School A",
-      "Flag: High",
-      "Follow-up: No follow-up",
-      "ID contains “01”",
+      "School A",
+      "High",
+      "No follow-up",
+      "“01”",
     ]);
   });
 

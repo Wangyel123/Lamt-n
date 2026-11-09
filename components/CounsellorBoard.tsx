@@ -1,21 +1,20 @@
 "use client";
 
-import { OctagonAlert } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { buildRows, type BoardRow } from "@/lib/board";
-import { countByLevel, flagStudent } from "@/lib/flags";
+import { countByLevel, flagStudent, FLAG_LEVELS, LEVEL_NAME, levelMeaning, type FlagLevel } from "@/lib/flags";
 import { applyFilters, classOptions, EMPTY_FILTERS, hasActiveFilters, type Filters as FilterValues } from "@/lib/filters";
 import { useFollowUps } from "@/lib/followUpStore";
 import { changeNote, changeStatus, type FollowUpStatus } from "@/lib/followUps";
 import type { DataReport, Student } from "@/lib/parseCsv";
-import { DataCheckPanel } from "./DataCheckPanel";
+import { AboutList } from "./AboutList";
+import { LEVEL_STYLE } from "./FlagBadge";
 import { FilterSheet } from "./FilterSheet";
-import { Filters } from "./Filters";
-import { RulesToggle } from "./RulesToggle";
+import { ActiveFilters, FilterPickers, SearchField } from "./Filters";
 import { StudentDrawer } from "./StudentDrawer";
 import { StudentRow } from "./StudentRow";
 import { SummaryCards } from "./SummaryCards";
-import { T } from "./T";
 
 interface Props {
   students: Student[];
@@ -26,22 +25,21 @@ export function CounsellorBoard({ students, report }: Props) {
   const { followUps, ready, loadError, save } = useFollowUps();
   const [useExtraRules, setUseExtraRules] = useState(true); // default ON, as recommended
   const [filters, setFilters] = useState<FilterValues>(EMPTY_FILTERS);
+  const [showNoConcerns, setShowNoConcerns] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   // Flags are computed here from lib/flags.ts on every change, never stored.
   const rows = useMemo(() => buildRows(students, followUps, { useExtraRules }), [students, followUps, useExtraRules]);
   const visible = applyFilters(rows, filters);
-  // Card counts follow every filter except the level itself, so a card shows what you'd get by clicking it.
+  // Tile counts follow every filter except priority itself, so a tile shows what you'd get by tapping it.
   const counts = countByLevel(applyFilters(rows, { ...filters, level: null }).map((r) => r.flag));
   const extraFlaggedCount = useMemo(
     () => students.filter((s) => { const f = flagStudent(s, { useExtraRules: true }); return f.level !== f.baselineLevel; }).length,
     [students],
   );
-
-  const urgentRows = visible.filter((r) => r.flag.level === "Urgent");
-  const otherRows = visible.filter((r) => r.flag.level !== "Urgent");
   // AC-03 safety net: Urgent students must never disappear silently behind a filter.
-  const hiddenUrgent = rows.filter((r) => r.flag.level === "Urgent").length - urgentRows.length;
+  const hiddenUrgent = rows.filter((r) => r.flag.level === "Urgent").length - visible.filter((r) => r.flag.level === "Urgent").length;
+  const filtering = hasActiveFilters(filters);
 
   const schools = [...new Set(students.map((s) => s.school))].sort();
   const classes = classOptions(rows, filters.school);
@@ -50,87 +48,100 @@ export function CounsellorBoard({ students, report }: Props) {
   const changeStatusFor = (row: BoardRow) => (to: FollowUpStatus, eventNote: string) =>
     save(row.student.studentId, changeStatus(row.followUp, to, eventNote));
 
-  const renderRow = (row: BoardRow) => (
-    <StudentRow
-      key={row.student.studentId}
-      row={row}
-      ready={ready}
-      onOpen={() => setSelectedId(row.student.studentId)}
-      onStatusChange={changeStatusFor(row)}
-    />
+  const groups = FLAG_LEVELS.map((level) => ({ level, rows: visible.filter((r) => r.flag.level === level) })).filter(
+    (g) => g.rows.length > 0,
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {loadError && (
-        <p role="alert" className="rounded-lg border-2 border-urgent bg-urgent-tint p-3 font-bold text-urgent-ink">
-          Couldn&apos;t load follow-up statuses. Please refresh the page. Statuses can&apos;t be changed until they load.
+        <p role="alert" className="rounded-2xl bg-urgent-tint p-4 font-medium text-urgent-ink">
+          Couldn&apos;t load follow-ups. Please refresh the page. You can&apos;t change follow-ups until they load.
         </p>
       )}
-      <SummaryCards counts={counts} selected={filters.level} onSelect={(level) => setFilters({ ...filters, level })} />
-      <RulesToggle enabled={useExtraRules} extraFlaggedCount={extraFlaggedCount} onChange={setUseExtraRules} />
-      <DataCheckPanel report={report} />
-      {/* Inline filters from the sm breakpoint up; a bottom sheet on phones */}
-      <div className="hidden sm:block">
-        <Filters filters={filters} schools={schools} classes={classes} onChange={setFilters} />
-      </div>
-      <FilterSheet filters={filters} schools={schools} classes={classes} onChange={setFilters} />
 
-      <p role="status" aria-live="polite" className="text-sm text-text-muted">
-        Showing {visible.length} of {rows.length} students
-        {!ready && !loadError && " · Loading saved follow-ups…"}
-      </p>
+      <SummaryCards counts={counts} selected={filters.level} useExtraRules={useExtraRules} onSelect={(level) => setFilters({ ...filters, level })} />
 
-      {/* AC-03: Urgent is pinned in its own section at the very top. */}
-      <section aria-labelledby="urgent-heading" className="space-y-3">
-        <h2 id="urgent-heading" className="flex items-center gap-2 text-xl font-bold text-urgent-ink">
-          <OctagonAlert aria-hidden size={22} />
-          <T k="board.urgentHeading" vars={{ n: urgentRows.length }} />
-        </h2>
-        {urgentRows.length > 0 && <ol className="space-y-3">{urgentRows.map(renderRow)}</ol>}
-        {hiddenUrgent > 0 ? (
-          <div className="flex flex-wrap items-center gap-3 rounded-lg border-2 border-dashed border-urgent bg-urgent-tint p-3">
-            <p className="font-bold text-urgent-ink">
-              {hiddenUrgent} urgent {hiddenUrgent === 1 ? "student is" : "students are"} hidden by your filters.
-            </p>
-            <button
-              type="button"
-              onClick={() => setFilters(EMPTY_FILTERS)}
-              className="min-h-11 rounded-lg bg-primary px-4 font-bold text-white"
-            >
-              Clear filters to show them
-            </button>
+      <div className="space-y-3">
+        <div className="flex gap-2">
+          <SearchField value={filters.search} onChange={(search) => setFilters({ ...filters, search })} />
+          <div className="hidden sm:block">
+            <FilterPickers filters={filters} schools={schools} classes={classes} onChange={setFilters} />
           </div>
-        ) : (
-          urgentRows.length === 0 && <p className="text-text-muted">No urgent students.</p>
-        )}
-      </section>
+          <FilterSheet filters={filters} schools={schools} classes={classes} onChange={setFilters} />
+        </div>
+        <ActiveFilters filters={filters} onChange={setFilters} />
+        <p role="status" aria-live="polite" className="px-1 text-[13px] text-text-muted">
+          {filtering ? `${visible.length} of ${rows.length} students` : `${rows.length} students`}
+          {!ready && !loadError && " · Loading follow-ups…"}
+        </p>
+      </div>
 
-      {(otherRows.length > 0 || filters.level !== "Urgent") && (
-        <section aria-labelledby="others-heading" className="space-y-3">
-          <h2 id="others-heading" className="text-xl font-bold">
-            <T k={hasActiveFilters(filters) ? "board.othersFiltered" : "board.others"} vars={{ n: otherRows.length }} />
-          </h2>
-          {otherRows.length > 0 ? (
-            <ol className="space-y-3">{otherRows.map(renderRow)}</ol>
-          ) : (
-            <div className="rounded-lg border border-dashed border-border p-6 text-center">
-              <p className="font-bold">No students match these filters.</p>
+      {hiddenUrgent > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-urgent-tint p-4">
+          <p className="font-medium text-urgent-ink">
+            {hiddenUrgent} urgent {hiddenUrgent === 1 ? "student is" : "students are"} hidden by your search or filters.
+          </p>
+          <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white">
+            Show everyone
+          </button>
+        </div>
+      )}
+
+      {groups.length === 0 && (
+        <div className="rounded-2xl bg-surface p-8 text-center">
+          <p className="font-medium">No students match your search.</p>
+          <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className="mt-2 min-h-11 px-3 font-medium text-primary">
+            Show everyone
+          </button>
+        </div>
+      )}
+
+      {/* One group per priority, most urgent first (AC-03: Urgent is always the top group). */}
+      {groups.map(({ level, rows: groupRows }) => {
+        // "No concerns" is folded away unless you're searching or filtering for someone in it.
+        const folded = level === "None" && !showNoConcerns && !filtering;
+        return (
+          <PriorityGroup key={level} level={level} count={groupRows.length} meaning={levelMeaning(level, useExtraRules)}>
+            {folded ? (
               <button
                 type="button"
-                onClick={() => setFilters(EMPTY_FILTERS)}
-                className="mt-2 min-h-11 font-bold text-primary underline underline-offset-2"
+                onClick={() => setShowNoConcerns(true)}
+                className="flex min-h-12 w-full items-center justify-between rounded-2xl bg-surface px-4 font-medium text-primary"
               >
-                Clear filters
+                Show {groupRows.length} students with no concerns
+                <ChevronDown aria-hidden size={18} />
               </button>
-            </div>
-          )}
-        </section>
-      )}
+            ) : (
+              <>
+                <ol className="divide-y divide-separator overflow-hidden rounded-2xl bg-surface">
+                  {groupRows.map((row) => (
+                    <StudentRow
+                      key={row.student.studentId}
+                      row={row}
+                      ready={ready}
+                      onOpen={() => setSelectedId(row.student.studentId)}
+                      onStatusChange={changeStatusFor(row)}
+                    />
+                  ))}
+                </ol>
+                {level === "None" && !filtering && (
+                  <button type="button" onClick={() => setShowNoConcerns(false)} className="mt-1 min-h-11 px-4 text-[15px] font-medium text-primary">
+                    Hide students with no concerns
+                  </button>
+                )}
+              </>
+            )}
+          </PriorityGroup>
+        );
+      })}
+
+      <AboutList useExtraRules={useExtraRules} extraFlaggedCount={extraFlaggedCount} onToggleExtraRules={setUseExtraRules} report={report} />
 
       <StudentDrawer
         row={selectedRow}
         ready={ready}
+        useExtraRules={useExtraRules}
         onClose={() => setSelectedId(null)}
         onStatusChange={(to, note) => (selectedRow ? changeStatusFor(selectedRow)(to, note) : Promise.resolve(false))}
         onNoteSave={(note) =>
@@ -138,5 +149,24 @@ export function CounsellorBoard({ students, report }: Props) {
         }
       />
     </div>
+  );
+}
+
+/** A section heading in Apple's grouped-list style: priority name, count, and what it means. */
+function PriorityGroup({ level, count, meaning, children }: { level: FlagLevel; count: number; meaning: string; children: React.ReactNode }) {
+  const { icon: Icon, ink } = LEVEL_STYLE[level];
+  const id = `group-${level}`;
+  return (
+    <section aria-labelledby={id} className="space-y-2">
+      <div className="px-4">
+        <h2 id={id} className={`flex items-center gap-2 text-[20px] font-semibold ${level === "Urgent" ? ink : ""}`}>
+          <Icon aria-hidden size={20} strokeWidth={2.25} className={ink} />
+          {LEVEL_NAME[level]}
+          <span className="tabular font-normal text-text-muted">{count}</span>
+        </h2>
+        <p className="text-[15px] text-text-muted">{level === "Urgent" ? `${meaning}. See these students first.` : meaning}</p>
+      </div>
+      {children}
+    </section>
   );
 }

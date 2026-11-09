@@ -4,7 +4,7 @@
 import { compareClasses } from "./classOrder";
 import { flagStudent, type FlagOptions } from "./flags";
 import type { Student } from "./parseCsv";
-import { suppress, type CountRow, type SafeRow } from "./suppression";
+import { MIN_GROUP_SIZE, suppress, type CountRow, type SafeCell, type SafeRow } from "./suppression";
 
 export interface SupervisorSummary {
   rows: SafeRow[];
@@ -53,4 +53,17 @@ export function buildSupervisorSummary(
   options: FlagOptions = { useExtraRules: true },
 ): SupervisorSummary {
   return { rows: suppress(countRows(students, options)), usesExtraRules: options.useExtraRules };
+}
+
+/**
+ * "How many students in this row need follow-up?" = students − students with no concerns.
+ * Worked out ONLY from numbers the page already shows (Total and None), so it reveals nothing
+ * new. If either number is hidden, this is hidden too; a result from 1 to 4 shows as small.
+ */
+export function followUpCell(row: SafeRow): SafeCell {
+  const total = row.cells.Total;
+  const none = row.cells.None;
+  if (total.kind !== "count" || none.kind !== "count") return { kind: "hidden" };
+  const value = total.value - none.value;
+  return value > 0 && value < MIN_GROUP_SIZE ? { kind: "small" } : { kind: "count", value };
 }

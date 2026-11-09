@@ -2,46 +2,51 @@
 
 /*
  * Design tokens: the ONE place colours and type settings live.
- * Every colour pair was checked against WCAG 2.2 AA (ratios in docs/DESIGN.md).
- * Colour is never the only signal: each flag level also has an icon and a text label.
+ * Look: Apple-style grouped lists. Soft grey page, white rounded groups, hairline dividers
+ * instead of boxes, one calm accent (teal), and colour reserved for priority.
+ * Every text pair checked against WCAG 2.2 AA (ratio in the comment).
+ * Colour is never the only signal: each priority also has an icon and a word.
  */
 :root {
-  /* Base: warm off-white page, white cards (figure-ground without heavy borders) */
-  --bg: #f7f6f2;
-  --surface: #ffffff;
-  --border: #dcdad3;
-  --text: #1e2a32; /* 13.56:1 on --bg; softer than pure black to avoid halation */
-  --text-muted: #4a5866; /* 6.75:1 on --bg, still passes AA for body text */
+  /* Surfaces: two shades of background instead of borders (Refactoring UI: fewer borders) */
+  --bg: #f2f2f7; /* page (Apple's grouped background) */
+  --surface: #ffffff; /* grouped lists, cards */
+  --fill: #e9e9ed; /* search field, quiet buttons */
+  --separator: #e5e5ea; /* hairline between rows (decorative, exempt from 3:1) */
+  --border: #8e8e93; /* outline that identifies a control: 3.26:1 on white */
 
-  /* Primary action: calm, low-saturation teal, distinct from every flag colour */
-  --primary: #1f6f78; /* white on it 5.83:1 */
+  /* Text: three levels at most */
+  --text: #1c1c1e; /* 17.0:1 on white, 15.3:1 on page */
+  --text-muted: #636366; /* 6.0:1 on white, 5.4:1 on page, 4.95:1 on fill */
+
+  /* The one accent: calm teal for actions and links (5.8:1 either way with white) */
+  --primary: #1f6f78;
   --focus: #1f6f78;
 
-  /* Flag levels. "Mark" = badge border, chart bar, Urgent's solid badge. tint = background, ink = text on tint.
-     Marks validated together (OKLab ΔE, incl. colour-blind simulation): every pair is distinct.
-     Only Urgent is a SOLID badge (white text 6.57:1), so it is the loudest thing on the page. */
-  --urgent: #b42318;
+  /* Priority colours (validated as a set for colour-blind separation). Only Urgent is loud. */
+  --urgent: #b42318; /* 6.57:1 on white */
   --urgent-tint: #fef3f2;
   --urgent-ink: #b42318;
-  --high: #dc6803; /* was #b54708: too close to Urgent's red (ΔE 6.1; 3.9 for red-green colour-blindness) */
+  --high: #dc6803; /* mark only (bars, dots); text uses --high-ink */
   --high-tint: #fffaeb;
-  --high-ink: #93370d; /* 7.21:1 on tint */
+  --high-ink: #93370d; /* 7.5:1 on white */
   --review: #6941c6;
   --review-tint: #f4f3ff;
-  --review-ink: #5925dc; /* 7.02:1 on tint */
-  --none: #667085; /* neutral grey on purpose: "no action needed", not good or bad */
+  --review-ink: #5925dc; /* 7.7:1 on white */
+  --none: #667085;
   --none-tint: #f2f4f7;
-  --none-ink: #344054; /* 9.49:1 on tint */
+  --none-ink: #475467; /* 7.7:1 on white */
 
-  /* Student-facing screens: soft sage, no red anywhere */
+  /* Student-facing screens (future survey): soft sage, no red anywhere */
   --student-bg: #eef5f1;
-  --student-accent: #2e6b4f; /* white on it 6.3:1 */
+  --student-accent: #2e6b4f;
 }
 
-/* Expose the tokens to Tailwind as utilities, e.g. bg-surface, text-urgent-ink */
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-fill: var(--fill);
+  --color-separator: var(--separator);
   --color-border: var(--border);
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
@@ -56,38 +61,27 @@
   --color-review-tint: var(--review-tint);
   --color-review-ink: var(--review-ink);
   --color-none: var(--none);
-  /* Alias: Tailwind already has `border-none` / `bg-none` utilities, so use `border-none-mark` / `bg-none-mark` */
+  /* Alias: Tailwind already has `border-none` / `bg-none` utilities */
   --color-none-mark: var(--none);
   --color-none-tint: var(--none-tint);
   --color-none-ink: var(--none-ink);
   --color-student-bg: var(--student-bg);
   --color-student-accent: var(--student-accent);
 
-  --font-sans: var(--font-atkinson), system-ui, sans-serif;
-  --font-dzongkha: var(--font-jomolhari), var(--font-atkinson), serif;
-}
-
-html {
-  /* 16px minimum body size; 1.5 line height (WCAG 1.4.12 text spacing) */
-  font-size: 100%;
+  /* Apple's own system font on Apple devices (SF Pro), the platform font elsewhere.
+     Familiar, highly legible, no download. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  line-height: 1.5;
+  font-size: 17px; /* Apple's default reading size */
+  line-height: 1.47;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Tibetan script has stacked glyphs that need more vertical room */
-:lang(dz) {
-  font-family: var(--font-dzongkha);
-  line-height: 1.8;
-  /* Tibetan letters stack vertically and look much smaller than Latin text at the same size */
-  font-size: 1.2em;
-}
-
-/* Counts in tables line up in columns for easy comparison */
 .tabular {
   font-variant-numeric: tabular-nums;
 }

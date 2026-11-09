@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { AccountBar } from "@/components/AccountBar";
 import { CounsellorBoard } from "@/components/CounsellorBoard";
-import { DemoBanner } from "@/components/DemoBanner";
 import { LoadingState } from "@/components/LoadingState";
+import { TopBar } from "@/components/TopBar";
 import { requireRole } from "@/lib/auth";
 import { loadStudentsForCounsellor, loadStudentsFromCsv } from "@/lib/loadStudents";
 import { isDemoMode } from "@/lib/mode";
-import { T } from "@/components/T";
 
-export const metadata: Metadata = { title: "Counsellor board · SA Wellbeing" };
+export const metadata: Metadata = { title: "Students to see · Student Wellbeing" };
 
-// The page shell renders immediately; the data part streams in (it needs the login cookie in live mode).
+// The page shell renders immediately; the data streams in (it needs the login cookie in live mode).
 export default function CounsellorPage() {
   return (
     <Suspense fallback={<LoadingState label="Loading students…" />}>
@@ -29,14 +27,13 @@ async function CounsellorContent() {
 
   return (
     <>
-      {profile ? <AccountBar profile={profile} /> : <DemoBanner />}
-      <main id="main" tabIndex={-1} className="outline-none mx-auto w-full max-w-6xl px-4 py-6">
-        <header className="mb-6">
-          <h1 className="text-2xl font-bold sm:text-3xl">
-            <T k="board.title" />
-          </h1>
-          <p className="mt-1 max-w-prose text-sm text-text-muted">
-            <T k="board.screening" />
+      <TopBar profile={profile} />
+      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl space-y-8 px-4 py-8 outline-none">
+        <header className="space-y-2 px-1">
+          <h1 className="text-[34px] leading-tight font-bold tracking-tight">Students to see</h1>
+          <p className="max-w-prose text-text-muted">
+            From this year&apos;s wellbeing survey. These flags come from students&apos; answers and help you decide who to
+            see first. They are not a diagnosis. Your own judgement comes first.
           </p>
         </header>
         <CounsellorBoard students={students} report={report} />

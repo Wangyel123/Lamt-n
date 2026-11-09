@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { GET } from "@/app/api/supervisor/summary/route";
 import { COLUMNS, LEVEL_COLUMNS, MIN_GROUP_SIZE, suppress, type CountRow, type SafeCell, type SafeRow } from "@/lib/suppression";
 import { romanToNumber } from "@/lib/classOrder";
-import { buildSupervisorSummary, countRows } from "@/lib/supervisorSummary";
+import { buildSupervisorSummary, countRows, followUpCell } from "@/lib/supervisorSummary";
 import { loadDataset } from "./helpers";
 
 const { students } = loadDataset();
@@ -201,5 +201,19 @@ describe("GET /api/supervisor/summary", () => {
     const body = JSON.parse(text);
     expect(Object.keys(body)).toEqual(["rows", "usesExtraRules"]);
     expect(body.rows).toEqual(summaries.extras.rows);
+  });
+});
+
+describe("followUpCell: students who need follow-up, per school", () => {
+  const rows = summaries.extras.rows;
+  it("is worked out from shown numbers only (students − no concerns)", () => {
+    expect(followUpCell(row(rows, "School A", null))).toEqual({ kind: "count", value: 14 });
+    expect(followUpCell(row(rows, "All schools", null))).toEqual({ kind: "count", value: 36 });
+  });
+  it("shows a result from 1 to 4 as small (School D: 8 − 5 = 3)", () => {
+    expect(followUpCell(row(rows, "School D", null))).toEqual({ kind: "small" });
+  });
+  it("is hidden when either number it needs is hidden", () => {
+    expect(followUpCell(row(rows, "School A", "VIII"))).toEqual({ kind: "hidden" });
   });
 });

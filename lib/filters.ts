@@ -2,7 +2,7 @@
 
 import type { BoardRow } from "./board";
 import { compareClasses } from "./classOrder";
-import type { FlagLevel } from "./flags";
+import { LEVEL_NAME, type FlagLevel } from "./flags";
 import { STATUS_LABELS, type FollowUpStatus } from "./followUps";
 
 /** "none" = students with no follow-up at all (None students nobody has added). */
@@ -44,11 +44,11 @@ export const hasActiveFilters = (f: Filters) =>
 /** Removable chips for the active filters, e.g. "School: School A". */
 export function activeFilterChips(f: Filters): { key: keyof Filters; label: string }[] {
   const chips: { key: keyof Filters; label: string }[] = [];
-  if (f.school) chips.push({ key: "school", label: `School: ${f.school}` });
-  if (f.className) chips.push({ key: "className", label: `Class: ${f.className}` });
-  if (f.level) chips.push({ key: "level", label: `Flag: ${f.level}` });
-  if (f.status) chips.push({ key: "status", label: `Follow-up: ${STATUS_FILTER_LABELS[f.status]}` });
-  if (f.search.trim()) chips.push({ key: "search", label: `ID contains “${f.search.trim()}”` });
+  if (f.school) chips.push({ key: "school", label: f.school });
+  if (f.className) chips.push({ key: "className", label: `Class ${f.className}` });
+  if (f.level) chips.push({ key: "level", label: LEVEL_NAME[f.level] });
+  if (f.status) chips.push({ key: "status", label: STATUS_FILTER_LABELS[f.status] });
+  if (f.search.trim()) chips.push({ key: "search", label: `“${f.search.trim()}”` });
   return chips;
 }
 

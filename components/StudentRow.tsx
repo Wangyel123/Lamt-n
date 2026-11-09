@@ -4,7 +4,7 @@ import { ChevronRight, CircleAlert } from "lucide-react";
 import type { BoardRow } from "@/lib/board";
 import { formatTime } from "@/lib/format";
 import type { FollowUpStatus } from "@/lib/followUps";
-import { FlagBadge, LEVEL_STYLE } from "./FlagBadge";
+import { LevelIcon } from "./FlagBadge";
 import { Reasons } from "./Reasons";
 import { StatusControl } from "./StatusControl";
 
@@ -15,59 +15,40 @@ interface Props {
   onStatusChange: (to: FollowUpStatus, eventNote: string) => Promise<boolean>;
 }
 
-// One student as a card. Cards (not a wide table) work at every screen width.
-// Urgent cards use several cues at once so they are noticed without reading:
-// top position + tinted background + thick left border + icon + bold "URGENT" label.
+// One student as a row in a grouped list (Apple style). Left: who and why. Right: your follow-up.
+// Tap the left part for full details. Urgent rows also get a red edge (never colour alone:
+// the section heading, icon and word "Urgent" say it too).
 export function StudentRow({ row, ready, onOpen, onStatusChange }: Props) {
   const { student, flag, followUp, status } = row;
-  const isUrgent = flag.level === "Urgent";
-  const style = LEVEL_STYLE[flag.level];
 
   return (
-    <li
-      className={`rounded-lg border p-4 ${
-        isUrgent ? `border-l-[6px] ${style.border} ${style.tint}` : "border-border bg-surface"
-      }`}
-    >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <FlagBadge level={flag.level} />
-        <button
-          type="button"
-          onClick={onOpen}
-          className="inline-flex min-h-11 items-center gap-1 rounded-md text-left font-bold underline-offset-2 hover:underline"
-          aria-label={`Open details for ${student.studentId}`}
-        >
-          <span className="tabular">{student.studentId}</span>
-          <ChevronRight aria-hidden size={18} className="text-text-muted" />
-        </button>
-        <span className="text-text-muted">
-          {student.school} · Class {student.className}
-        </span>
-        {flag.needsCheck && (
-          <span
-            className="inline-flex items-center gap-1 rounded-md border border-dashed border-text-muted px-2 py-0.5 text-sm"
-            title={student.dataIssues.join("; ")}
-          >
-            <CircleAlert aria-hidden size={14} />
-            Needs check
-            <span className="sr-only">: {student.dataIssues.join("; ")}</span>
+    <li className="relative flex flex-col gap-2 py-3 pr-4 pl-4 sm:flex-row sm:items-center sm:gap-4">
+      {flag.level === "Urgent" && <span aria-hidden className="absolute inset-y-0 left-0 w-1 bg-urgent" />}
+
+      <button type="button" onClick={onOpen} className="flex min-h-11 flex-1 items-start gap-3 rounded-xl text-left">
+        <LevelIcon level={flag.level} />
+        <span className="min-w-0 flex-1">
+          <span className="sr-only">Open details for </span>
+          <span className="tabular font-semibold">{student.studentId}</span>
+          <span className="text-text-muted">
+            {" "}
+            · {student.school} · Class {student.className}
           </span>
-        )}
-      </div>
+          {flag.needsCheck && (
+            <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-fill px-2 py-0.5 align-middle text-[12px] font-medium text-text-muted">
+              <CircleAlert aria-hidden size={12} /> Answer missing
+            </span>
+          )}
+          <span className="mt-0.5 block text-[15px] leading-snug">
+            <Reasons reasons={flag.reasons} />
+          </span>
+        </span>
+        <ChevronRight aria-hidden size={18} className="mt-2.5 shrink-0 text-border sm:hidden" />
+      </button>
 
-      <div className="mt-2">
-        <Reasons reasons={flag.reasons} />
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <StatusControl
-          studentId={student.studentId}
-          level={flag.level}
-          status={status}
-          disabled={!ready}
-          onChange={onStatusChange}
-        />
-        {followUp && <span className="text-sm text-text-muted">Updated {formatTime(followUp.updatedAt)}</span>}
+      <div className="flex flex-col items-start gap-1 pl-12 sm:items-end sm:pl-0">
+        <StatusControl studentId={student.studentId} level={flag.level} status={status} disabled={!ready} onChange={onStatusChange} />
+        {followUp && <span className="text-[12px] text-text-muted">Updated {formatTime(followUp.updatedAt)}</span>}
       </div>
     </li>
   );
