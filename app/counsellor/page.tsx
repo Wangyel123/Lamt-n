@@ -1,19 +1,33 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { AccountBar } from "@/components/AccountBar";
 import { CounsellorBoard } from "@/components/CounsellorBoard";
 import { DemoBanner } from "@/components/DemoBanner";
-import { loadStudentsFromCsv } from "@/lib/loadStudents";
+import { requireRole } from "@/lib/auth";
+import { loadStudentsForCounsellor, loadStudentsFromCsv } from "@/lib/loadStudents";
 import { isDemoMode } from "@/lib/mode";
 
 export const metadata: Metadata = { title: "Counsellor board · SA Wellbeing" };
 
-// Server component: reads and parses the CSV on the server, then hands the
-// clean rows to the interactive board. (Phase 5: live mode reads Supabase instead.)
-export default async function CounsellorPage() {
-  const { students, report } = await loadStudentsFromCsv();
+// The page shell renders immediately; the data part streams in (it needs the login cookie in live mode).
+export default function CounsellorPage() {
+  return (
+    <Suspense fallback={<p className="p-6 text-text-muted">Loading students…</p>}>
+      <CounsellorContent />
+    </Suspense>
+  );
+}
+
+// Server component: loads students on the server, then hands clean rows to the interactive board.
+//   Demo: the CSV.   Live: Supabase, as the logged-in counsellor, so RLS limits it to their school.
+async function CounsellorContent() {
+  const demo = isDemoMode();
+  const profile = demo ? null : await requireRole("counsellor");
+  const { students, report } = demo ? await loadStudentsFromCsv() : await loadStudentsForCounsellor();
 
   return (
     <>
-      {isDemoMode() && <DemoBanner />}
+      {profile ? <AccountBar profile={profile} /> : <DemoBanner />}
       <main className="mx-auto w-full max-w-6xl px-4 py-6">
         <header className="mb-6">
           <h1 className="text-2xl font-bold sm:text-3xl">Counsellor board</h1>

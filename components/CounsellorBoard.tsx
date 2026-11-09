@@ -21,7 +21,7 @@ interface Props {
 }
 
 export function CounsellorBoard({ students, report }: Props) {
-  const { followUps, ready, save } = useFollowUps();
+  const { followUps, ready, loadError, save } = useFollowUps();
   const [useExtraRules, setUseExtraRules] = useState(true); // default ON, as recommended
   const [filters, setFilters] = useState<FilterValues>(EMPTY_FILTERS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -60,6 +60,11 @@ export function CounsellorBoard({ students, report }: Props) {
 
   return (
     <div className="space-y-6">
+      {loadError && (
+        <p role="alert" className="rounded-lg border-2 border-urgent bg-urgent-tint p-3 font-bold text-urgent-ink">
+          Couldn&apos;t load follow-up statuses. Please refresh the page. Statuses can&apos;t be changed until they load.
+        </p>
+      )}
       <SummaryCards counts={counts} selected={filters.level} onSelect={(level) => setFilters({ ...filters, level })} />
       <RulesToggle enabled={useExtraRules} extraFlaggedCount={extraFlaggedCount} onChange={setUseExtraRules} />
       <DataCheckPanel report={report} />

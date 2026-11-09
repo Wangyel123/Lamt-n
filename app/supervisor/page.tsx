@@ -1,24 +1,37 @@
 import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { AccountBar } from "@/components/AccountBar";
 import { DemoBanner } from "@/components/DemoBanner";
 import { SupervisorTable } from "@/components/SupervisorTable";
-import { loadStudentsFromCsv } from "@/lib/loadStudents";
+import { requireRole } from "@/lib/auth";
+import { loadStudentsForAggregation, loadStudentsFromCsv } from "@/lib/loadStudents";
 import { isDemoMode } from "@/lib/mode";
 import { MIN_GROUP_SIZE } from "@/lib/suppression";
 import { buildSupervisorSummary } from "@/lib/supervisorSummary";
 
 export const metadata: Metadata = { title: "Supervisor view · SA Wellbeing" };
 
+export default function SupervisorPage() {
+  return (
+    <Suspense fallback={<p className="p-6 text-text-muted">Loading counts…</p>}>
+      <SupervisorContent />
+    </Suspense>
+  );
+}
+
 // Server component. Student rows are loaded and counted HERE, on the server, and only
 // the suppressed summary is rendered. The browser never receives any student-level data.
-// (Phase 5: live mode checks the signed-in user is a supervisor.)
-export default async function SupervisorPage() {
-  const { students } = await loadStudentsFromCsv();
+async function SupervisorContent() {
+  const demo = isDemoMode();
+  // Live: check the role BEFORE touching any data (the loader uses the secret key).
+  const profile = demo ? null : await requireRole("supervisor");
+  const { students } = demo ? await loadStudentsFromCsv() : await loadStudentsForAggregation();
   const summary = buildSupervisorSummary(students);
 
   return (
     <>
-      {isDemoMode() && <DemoBanner />}
+      {profile ? <AccountBar profile={profile} /> : <DemoBanner />}
       <main className="mx-auto w-full max-w-4xl px-4 py-6">
         <header className="mb-6">
           <h1 className="text-2xl font-bold sm:text-3xl">Supervisor view</h1>
@@ -44,7 +57,8 @@ export default async function SupervisorPage() {
             someone could subtract to work out a small one.
           </p>
           <p>
-            Flag levels use the {summary.usesExtraRules ? "recommended rules (baseline plus proposed extra rules)" : "baseline rules"}.
+            Flag levels use the{" "}
+            {summary.usesExtraRules ? "recommended rules (baseline plus proposed extra rules)" : "baseline rules"}.
           </p>
         </section>
       </main>

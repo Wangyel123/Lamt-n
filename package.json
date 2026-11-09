@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dev:demo": "NEXT_PUBLIC_FORCE_DEMO=true next dev",
+    "seed": "tsx scripts/seed.ts",
+    "verify:rls": "tsx scripts/verify-rls.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
