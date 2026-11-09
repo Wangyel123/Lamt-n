@@ -9,11 +9,13 @@ import { useFollowUps } from "@/lib/followUpStore";
 import { changeNote, changeStatus, type FollowUpStatus } from "@/lib/followUps";
 import type { DataReport, Student } from "@/lib/parseCsv";
 import { DataCheckPanel } from "./DataCheckPanel";
+import { FilterSheet } from "./FilterSheet";
 import { Filters } from "./Filters";
 import { RulesToggle } from "./RulesToggle";
 import { StudentDrawer } from "./StudentDrawer";
 import { StudentRow } from "./StudentRow";
 import { SummaryCards } from "./SummaryCards";
+import { T } from "./T";
 
 interface Props {
   students: Student[];
@@ -68,7 +70,11 @@ export function CounsellorBoard({ students, report }: Props) {
       <SummaryCards counts={counts} selected={filters.level} onSelect={(level) => setFilters({ ...filters, level })} />
       <RulesToggle enabled={useExtraRules} extraFlaggedCount={extraFlaggedCount} onChange={setUseExtraRules} />
       <DataCheckPanel report={report} />
-      <Filters filters={filters} schools={schools} classes={classes} onChange={setFilters} />
+      {/* Inline filters from the sm breakpoint up; a bottom sheet on phones */}
+      <div className="hidden sm:block">
+        <Filters filters={filters} schools={schools} classes={classes} onChange={setFilters} />
+      </div>
+      <FilterSheet filters={filters} schools={schools} classes={classes} onChange={setFilters} />
 
       <p role="status" aria-live="polite" className="text-sm text-text-muted">
         Showing {visible.length} of {rows.length} students
@@ -78,7 +84,7 @@ export function CounsellorBoard({ students, report }: Props) {
       <section aria-labelledby="urgent-heading" className="space-y-3">
         <h2 id="urgent-heading" className="flex items-center gap-2 text-xl font-bold text-urgent-ink">
           <OctagonAlert aria-hidden size={22} />
-          Urgent: see these students first ({urgentRows.length})
+          <T k="board.urgentHeading" vars={{ n: urgentRows.length }} />
         </h2>
         {urgentRows.length > 0 && <ol className="space-y-3">{urgentRows.map(renderRow)}</ol>}
         {hiddenUrgent > 0 ? (
@@ -102,7 +108,7 @@ export function CounsellorBoard({ students, report }: Props) {
       {(otherRows.length > 0 || filters.level !== "Urgent") && (
         <section aria-labelledby="others-heading" className="space-y-3">
           <h2 id="others-heading" className="text-xl font-bold">
-            {hasActiveFilters(filters) ? "Other matching students" : "All other students"} ({otherRows.length})
+            <T k={hasActiveFilters(filters) ? "board.othersFiltered" : "board.others"} vars={{ n: otherRows.length }} />
           </h2>
           {otherRows.length > 0 ? (
             <ol className="space-y-3">{otherRows.map(renderRow)}</ol>

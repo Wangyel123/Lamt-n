@@ -1,6 +1,8 @@
 import { LogOut, UserRound } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
 import type { Profile } from "@/lib/auth";
+import { LanguageToggle } from "./LanguageToggle";
+import { T } from "./T";
 
 // Live mode: who is signed in, with what role and scope, plus sign out.
 export function AccountBar({ profile }: { profile: Profile }) {
@@ -15,11 +17,14 @@ export function AccountBar({ profile }: { profile: Profile }) {
             <strong>{profile.email}</strong> <span className="text-text-muted">· {scope}</span>
           </span>
         </p>
+        <span className="flex flex-wrap items-center gap-3">
+        <LanguageToggle />
         <form action={signOut}>
           <button type="submit" className="inline-flex min-h-11 items-center gap-1 font-bold text-primary">
-            <LogOut aria-hidden size={16} /> Sign out
+            <LogOut aria-hidden size={16} /> <T k="action.signOut" />
           </button>
         </form>
+        </span>
       </div>
     </div>
   );

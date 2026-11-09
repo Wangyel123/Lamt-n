@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/useLang";
 import { Check, Plus } from "lucide-react";
 import { useId, useState } from "react";
 import type { FlagLevel } from "@/lib/flags";
@@ -8,7 +9,6 @@ import {
   FOLLOW_UP_STATUSES,
   isValidClosingNote,
   MIN_CLOSING_NOTE_LENGTH,
-  STATUS_LABELS,
   type FollowUpStatus,
 } from "@/lib/followUps";
 
@@ -25,6 +25,7 @@ interface Props {
 // AC-04: a 3-option segmented control. Only 3 choices keeps decisions quick (Hick's Law).
 // Built from real radio buttons, so keyboard and screen readers work out of the box.
 export function StatusControl({ studentId, level, status, disabled, onChange }: Props) {
+  const t = useT();
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [confirmingClose, setConfirmingClose] = useState(false);
   const [closingNote, setClosingNote] = useState("");
@@ -79,7 +80,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
           onClick={() => void save("not_started")}
           className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-border bg-surface px-3 text-sm font-bold text-primary hover:bg-bg disabled:opacity-50"
         >
-          <Plus aria-hidden size={16} /> Add follow-up anyway
+          <Plus aria-hidden size={16} /> {t("action.addFollowUp")}
         </button>
         {feedback}
       </div>
@@ -109,7 +110,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
                     checked={checked}
                     onChange={() => choose(option)}
                   />
-                  {STATUS_LABELS[option]}
+                  {t(`status.${option}`)}
                 </label>
               );
             })}
@@ -138,7 +139,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
               disabled={!isValidClosingNote(closingNote)}
               className="min-h-11 rounded-lg bg-primary px-4 font-bold text-white disabled:opacity-50"
             >
-              Close case
+              {t("action.closeCase")}
             </button>
             <button
               type="button"
@@ -148,7 +149,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange }: 
               }}
               className="min-h-11 rounded-lg border border-border px-4 font-bold"
             >
-              Cancel
+              {t("action.cancel")}
             </button>
           </div>
           {!isValidClosingNote(closingNote) && closingNote.length > 0 && (

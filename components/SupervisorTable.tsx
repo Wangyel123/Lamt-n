@@ -1,6 +1,7 @@
 import { FLAG_LEVELS } from "@/lib/flags";
 import { COLUMNS, MIN_GROUP_SIZE, type SafeCell, type SafeRow } from "@/lib/suppression";
 import { LEVEL_STYLE } from "./FlagBadge";
+import { T } from "./T";
 
 // Server component (no "use client"): it renders already-suppressed counts to HTML.
 // It never receives student rows, so it cannot leak them.
@@ -43,7 +44,7 @@ export function SupervisorTable({ rows }: { rows: SafeRow[] }) {
         <thead>
           <tr className="border-b border-border">
             <th scope="col" className={`${cellPad} text-xs font-bold sm:text-sm`}>
-              School / class
+              <T k="table.schoolClass" />
             </th>
             {FLAG_LEVELS.map((level) => {
               const { icon: Icon, ink } = LEVEL_STYLE[level];
@@ -52,13 +53,13 @@ export function SupervisorTable({ rows }: { rows: SafeRow[] }) {
                   {/* Icon above the label on phones, beside it on wider screens */}
                   <span className="inline-flex flex-col items-end gap-0.5 sm:flex-row sm:items-center sm:gap-1">
                     <Icon aria-hidden size={14} />
-                    {level}
+                    <T k={`level.${level}`} />
                   </span>
                 </th>
               );
             })}
             <th scope="col" className={`${cellPad} text-right text-xs font-bold sm:text-sm`}>
-              Total
+              <T k="table.total" />
             </th>
           </tr>
         </thead>

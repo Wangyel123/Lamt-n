@@ -1,5 +1,6 @@
 import { FLAG_LEVELS, type FlagLevel } from "@/lib/flags";
 import { LEVEL_STYLE } from "./FlagBadge";
+import { T } from "./T";
 
 interface Props {
   counts: Record<FlagLevel, number>;
@@ -33,7 +34,7 @@ export function SummaryCards({ counts, selected, onSelect }: Props) {
                 <span className={`rounded p-1 ${tint}`}>
                   <Icon aria-hidden size={16} />
                 </span>
-                {level}
+                <T k={`level.${level}`} />
               </span>
               <span className="tabular mt-1 block text-3xl font-bold">{counts[level]}</span>
               <span className="sr-only">students. {isSelected ? "Showing only these. Press to show all." : "Press to show only these."}</span>

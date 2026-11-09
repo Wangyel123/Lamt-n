@@ -6,6 +6,7 @@ import { DemoBanner } from "@/components/DemoBanner";
 import { requireRole } from "@/lib/auth";
 import { loadStudentsForCounsellor, loadStudentsFromCsv } from "@/lib/loadStudents";
 import { isDemoMode } from "@/lib/mode";
+import { T } from "@/components/T";
 
 export const metadata: Metadata = { title: "Counsellor board · SA Wellbeing" };
 
@@ -30,10 +31,11 @@ async function CounsellorContent() {
       {profile ? <AccountBar profile={profile} /> : <DemoBanner />}
       <main className="mx-auto w-full max-w-6xl px-4 py-6">
         <header className="mb-6">
-          <h1 className="text-2xl font-bold sm:text-3xl">Counsellor board</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">
+            <T k="board.title" />
+          </h1>
           <p className="mt-1 max-w-prose text-sm text-text-muted">
-            Flags are a screening aid to help you decide who to meet first. They are not a diagnosis. Your
-            professional judgement comes first.
+            <T k="board.screening" />
           </p>
         </header>
         <CounsellorBoard students={students} report={report} />

@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/useLang";
+import { T } from "./T";
 import { Search, X } from "lucide-react";
 import { FLAG_LEVELS, type FlagLevel } from "@/lib/flags";
 import {
@@ -23,6 +25,7 @@ const selectClass = "min-h-11 w-full rounded-lg border border-border bg-surface 
 // AC-06: filter by school, class, flag level, follow-up status, and search by ID.
 // Plain <select>s: familiar, keyboard-friendly and native on phones.
 export function Filters({ filters, schools, classes, onChange }: Props) {
+  const t = useT();
   const set = (patch: Partial<FilterValues>) => onChange({ ...filters, ...patch });
   const chips = activeFilterChips(filters);
 
@@ -30,7 +33,7 @@ export function Filters({ filters, schools, classes, onChange }: Props) {
     <section aria-label="Filters" className="space-y-3 rounded-lg border border-border bg-surface p-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <label className="block text-sm font-bold lg:col-span-1">
-          Search ID
+          {t("filters.search")}
           <span className="relative mt-1 block font-normal">
             <Search aria-hidden size={16} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-text-muted" />
             <input
@@ -44,14 +47,14 @@ export function Filters({ filters, schools, classes, onChange }: Props) {
         </label>
 
         <label className="block text-sm font-bold">
-          School
+          <T k="filters.school" />
           <select
             value={filters.school ?? ""}
             // A class like "XI" may not exist in the new school, so reset the class too.
             onChange={(e) => set({ school: e.target.value || null, className: null })}
             className={`${selectClass} mt-1 font-normal`}
           >
-            <option value="">All schools</option>
+            <option value="">{t("filters.allSchools")}</option>
             {schools.map((s) => (
               <option key={s}>{s}</option>
             ))}
@@ -59,13 +62,13 @@ export function Filters({ filters, schools, classes, onChange }: Props) {
         </label>
 
         <label className="block text-sm font-bold">
-          Class
+          <T k="filters.class" />
           <select
             value={filters.className ?? ""}
             onChange={(e) => set({ className: e.target.value || null })}
             className={`${selectClass} mt-1 font-normal`}
           >
-            <option value="">All classes</option>
+            <option value="">{t("filters.allClasses")}</option>
             {classes.map((c) => (
               <option key={c}>{c}</option>
             ))}
@@ -73,27 +76,29 @@ export function Filters({ filters, schools, classes, onChange }: Props) {
         </label>
 
         <label className="block text-sm font-bold">
-          Flag level
+          {t("filters.level")}
           <select
             value={filters.level ?? ""}
             onChange={(e) => set({ level: (e.target.value || null) as FlagLevel | null })}
             className={`${selectClass} mt-1 font-normal`}
           >
-            <option value="">All levels</option>
+            <option value="">{t("filters.allLevels")}</option>
             {FLAG_LEVELS.map((l) => (
-              <option key={l}>{l}</option>
+              <option key={l} value={l}>
+                {t(`level.${l}`)}
+              </option>
             ))}
           </select>
         </label>
 
         <label className="block text-sm font-bold">
-          Follow-up
+          {t("filters.followUp")}
           <select
             value={filters.status ?? ""}
             onChange={(e) => set({ status: (e.target.value || null) as StatusFilter | null })}
             className={`${selectClass} mt-1 font-normal`}
           >
-            <option value="">Any status</option>
+            <option value="">{t("filters.anyStatus")}</option>
             {(Object.keys(STATUS_FILTER_LABELS) as StatusFilter[]).map((s) => (
               <option key={s} value={s}>
                 {STATUS_FILTER_LABELS[s]}
@@ -123,7 +128,7 @@ export function Filters({ filters, schools, classes, onChange }: Props) {
             onClick={() => onChange(EMPTY_FILTERS)}
             className="min-h-11 px-2 text-sm font-bold text-primary underline underline-offset-2"
           >
-            Clear filters
+            {t("filters.clear")}
           </button>
         </div>
       )}

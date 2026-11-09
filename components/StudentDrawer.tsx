@@ -9,6 +9,7 @@ import type { Student } from "@/lib/parseCsv";
 import { FlagBadge } from "./FlagBadge";
 import { Reasons } from "./Reasons";
 import { StatusControl } from "./StatusControl";
+import { T } from "./T";
 
 interface Props {
   row: BoardRow | null;
@@ -189,7 +190,7 @@ function DrawerContent({ row, ready, onClose, onStatusChange, onNoteSave }: Prop
               disabled={!ready}
               className="min-h-11 rounded-lg bg-primary px-4 font-bold text-white disabled:opacity-50"
             >
-              Save note
+              <T k="action.saveNote" />
             </button>
             <span role="status" aria-live="polite" className="text-sm">
               {noteState === "saved" && <span className="text-primary">Saved ✓</span>}

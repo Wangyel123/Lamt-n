@@ -1,5 +1,7 @@
 import { FlaskConical } from "lucide-react";
 import Link from "next/link";
+import { LanguageToggle } from "./LanguageToggle";
+import { T } from "./T";
 
 // Always visible in demo mode, so nobody mistakes this for a real system with real data.
 export function DemoBanner() {
@@ -12,9 +14,12 @@ export function DemoBanner() {
             <strong>Demo mode:</strong> synthetic data, saved only in this browser.
           </span>
         </p>
-        <Link href="/" className="font-bold text-primary underline underline-offset-2">
-          Switch role
-        </Link>
+        <span className="flex flex-wrap items-center gap-3">
+          <LanguageToggle />
+          <Link href="/" className="inline-flex min-h-11 items-center font-bold text-primary underline underline-offset-2">
+            <T k="action.switchRole" />
+          </Link>
+        </span>
       </div>
     </div>
   );
