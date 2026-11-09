@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { GET } from "@/app/api/supervisor/summary/route";
 import { COLUMNS, LEVEL_COLUMNS, MIN_GROUP_SIZE, suppress, type CountRow, type SafeCell, type SafeRow } from "@/lib/suppression";
-import { buildSupervisorSummary, countRows, romanToNumber } from "@/lib/supervisorSummary";
+import { romanToNumber } from "@/lib/classOrder";
+import { buildSupervisorSummary, countRows } from "@/lib/supervisorSummary";
 import { loadDataset } from "./helpers";
 
 const { students } = loadDataset();

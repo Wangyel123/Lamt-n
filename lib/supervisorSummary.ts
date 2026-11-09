@@ -1,6 +1,7 @@
 // SERVER ONLY: turns student rows into the supervisor's table of counts.
 // Student IDs and answers go in; only suppressed counts come out (AC-05).
 
+import { compareClasses } from "./classOrder";
 import { flagStudent, type FlagOptions } from "./flags";
 import type { Student } from "./parseCsv";
 import { suppress, type CountRow, type SafeRow } from "./suppression";
@@ -13,20 +14,6 @@ export interface SupervisorSummary {
 export const ALL_SCHOOLS = "All schools";
 
 const emptyCounts = () => ({ Urgent: 0, High: 0, Review: 0, None: 0, Total: 0 });
-
-// Class names are Roman numerals (IV … XII), so sort them by value, not alphabetically.
-const ROMAN: Record<string, number> = { I: 1, V: 5, X: 10, L: 50, C: 100 };
-export function romanToNumber(roman: string): number {
-  let total = 0;
-  for (let i = 0; i < roman.length; i++) {
-    const value = ROMAN[roman[i]] ?? NaN;
-    const next = ROMAN[roman[i + 1]] ?? 0;
-    total += value < next ? -value : value;
-  }
-  return total;
-}
-const compareClasses = (a: string, b: string) =>
-  romanToNumber(a) - romanToNumber(b) || a.localeCompare(b);
 
 /** Raw counts: one row per class, one per school, one for all schools. Never sent to the browser. */
 export function countRows(students: Student[], options: FlagOptions): CountRow[] {
