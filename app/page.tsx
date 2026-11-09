@@ -29,16 +29,16 @@ export default function Home() {
             </Link>
           </li>
           <li>
-            <div
-              aria-disabled="true"
-              className="flex min-h-11 items-center gap-3 rounded-lg border border-dashed border-border p-4 text-text-muted"
+            <Link
+              href="/supervisor"
+              className="flex min-h-11 items-center gap-3 rounded-lg border border-border bg-surface p-4 hover:border-primary"
             >
-              <Users aria-hidden />
+              <Users aria-hidden className="text-primary" />
               <span>
                 <span className="block font-bold">View as supervisor</span>
-                <span className="text-sm">Counts by school and class, no student identities (coming next)</span>
+                <span className="text-sm text-text-muted">Counts by school and class, no student identities</span>
               </span>
-            </div>
+            </Link>
           </li>
         </ul>
       </main>
