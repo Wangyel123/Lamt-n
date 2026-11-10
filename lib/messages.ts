@@ -21,8 +21,11 @@ export const REPLY_WITHIN_SCHOOL_DAYS = 2;
 // Fixed, pre-written text. Shown to the student; never generated.
 export const CARING_REPLY =
   "Thank you for telling us. Your counsellor will see this. If you are in danger now, please tell a trusted adult or use Get help now.";
-export const AWAY_NOTE = `Your counsellor is away right now (${COUNSELLOR_HOURS.label}). They'll read your message when they're back. If you need help now, tap Get help now.`;
-export const EMPTY_STATE = `Your counsellor usually replies within ${REPLY_WITHIN_SCHOOL_DAYS} school days. If you need help right now, tap Get help now.`;
+// Written to reassure, not to warn: lead with "a real person reads this", mention hours once, quietly.
+export const EMPTY_STATE = "You can write about anything on your mind, big or small. Your counsellor reads every message themselves and will write back to you.";
+export const REPLY_NOTE = `Your counsellor usually replies within ${REPLY_WITHIN_SCHOOL_DAYS} school days.`;
+export const AWAY_NOTE = `Your counsellor reads messages on school days, ${COUNSELLOR_HOURS.startHour}:00 to ${COUNSELLOR_HOURS.endHour}:00. You can still write now: your message will be waiting for them.`;
+export const RIGHT_NOW_NOTE = "If you need someone right now, tap Get help now at the top.";
 
 export function isWithinCounsellorHours(now = new Date()): boolean {
   const hour = now.getHours();

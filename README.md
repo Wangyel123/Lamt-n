@@ -1,6 +1,6 @@
 # Student Wellbeing: Counsellor Flag Board
 
-Helps school counsellors see which students may need support first, from the Situational Analysis (SA) survey, and track every follow-up. Supervisors see numbers by school, never a student's identity. **Synthetic data only.** It supports counsellors; it is not an emergency service and does not diagnose ([safeguarding](docs/SAFEGUARDING.md)).
+Helps school counsellors see which students may need support first, from the Situational Analysis (SA) survey, and track every follow-up. Supervisors see numbers by school, never a student's identity. **Synthetic data only.** It supports counsellors; it is not an emergency service and does not diagnose ([safeguarding](docs/SAFEGUARDING.md)). Anyone can get help at `/help` with no sign-in: PEMA Helpline 1098, free and open 24/7.
 
 **Live:** https://lamtoen.vercel.app · **Demo logins** (synthetic data, so passwords are shared here on purpose): `counsellor@demo.bt` / `Counsellor-Demo-2026` (all schools, demo only) · `counsellor.b@demo.bt` / same (School B only) · `supervisor@demo.bt` / `Supervisor-Demo-2026` (counts only). Students sign in with a one-time code from a counsellor.
 
@@ -42,4 +42,4 @@ From **Kooth** (UK, anonymous support for young people): anonymous code sign-in,
 
 The **survey itself** inside the student space (one question per screen, same code sign-in). Per-school counsellor accounts. Verified Dzongkha with a native speaker. Encrypted counsellor notes. A referral pathway to health services. Offline support for rural schools. Rules and keyword lists tuned with CECD counsellors.
 
-[Design](docs/DESIGN.md) · [Acceptance criteria → code](docs/AC_TRACE.md) · [Safeguarding](docs/SAFEGUARDING.md)
+[Design](docs/DESIGN.md) · [Research: what the system needs](docs/RESEARCH.md) · [Acceptance criteria → code](docs/AC_TRACE.md) · [Safeguarding](docs/SAFEGUARDING.md)

@@ -8,7 +8,7 @@ import { DEMO_SURVEY_LOADED_AT } from "@/lib/interventions";
 import { loadStudentsForCounsellor, loadStudentsFromCsv, loadSurveyDate } from "@/lib/loadStudents";
 import { isDemoMode } from "@/lib/mode";
 
-export const metadata: Metadata = { title: "Students to see · Student Wellbeing" };
+export const metadata: Metadata = { title: "Students to see · Lamtön" };
 
 // The page shell renders immediately; the data streams in (it needs the login cookie in live mode).
 export default function CounsellorPage() {

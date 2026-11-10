@@ -61,4 +61,9 @@ Supervisors see counts, a heat map, support given and check-in response rates, a
 
 ## Contacts
 
-Counsellor office hours and the helpline shown under "Get help now" are placeholders: `TODO(confirm with CECD)`. No phone number has been invented.
+"Get help now" (in the student area) and the public page `/help` (no sign-in, no code) show only numbers taken from official sources, checked on 10 November 2026:
+
+- **PEMA Helpline 1098**: free, confidential, 24/7, supports children ([thepema.gov.bt](https://thepema.gov.bt/response-services)). Email helpline@thepema.gov.bt.
+- **113** police (general emergency) and **112** ambulance ([Royal Bhutan Police](https://rbp.gov.bt/?p=9641)).
+
+They live in one file, `lib/helpContacts.ts`, and a unit test fails if they change. Each school's counsellor office and hours are still `TODO(confirm with CECD)`. Re-check the numbers every term. See `docs/RESEARCH.md` for why help is public.

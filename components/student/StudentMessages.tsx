@@ -1,10 +1,10 @@
 "use client";
 
-import { Clock, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useState } from "react";
 import { newId } from "@/lib/collectionStore";
 import { formatTime } from "@/lib/format";
-import { AWAY_NOTE, CARING_REPLY, EMPTY_STATE, isWithinCounsellorHours, MESSAGE_MAX_LENGTH, underRateLimit } from "@/lib/messages";
+import { AWAY_NOTE, CARING_REPLY, EMPTY_STATE, isWithinCounsellorHours, MESSAGE_MAX_LENGTH, REPLY_NOTE, RIGHT_NOW_NOTE, underRateLimit } from "@/lib/messages";
 import { needsAlert, scanText } from "@/lib/sensitiveText";
 import { messages } from "@/lib/stores";
 import { SignedInOnly } from "./SignedInOnly";
@@ -40,16 +40,13 @@ function Chat({ studentId }: { studentId: string }) {
     <div className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-[32px] leading-tight font-semibold tracking-tight">Talk to my counsellor</h1>
-        <p className="flex items-start gap-2 text-[16px] text-text-muted">
-          <Clock aria-hidden size={18} className="mt-0.5 shrink-0" />
-          Only your school counsellor reads these messages. Hours: Monday to Friday, 9:00 to 16:00.
-        </p>
+        <p className="text-text-muted">A private space to write to your school counsellor. Only they read it.</p>
       </header>
 
       {loadError && <p role="alert">We couldn&apos;t load your messages. Please try again in a moment.</p>}
 
       <ol aria-label="Messages" className="space-y-3">
-        {ready && mine.length === 0 && <li className="rounded-[18px] border border-separator bg-surface p-5 text-text-muted">{EMPTY_STATE}</li>}
+        {ready && mine.length === 0 && <li>{EMPTY_STATE}</li>}
         {mine.map((m) => (
           <li key={m.id} className={`flex ${m.sender === "student" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[85%] rounded-[18px] px-4 py-3 ${m.sender === "student" ? "bg-student-accent text-white" : "bg-surface"}`}>
@@ -65,7 +62,6 @@ function Chat({ studentId }: { studentId: string }) {
           {CARING_REPLY}
         </p>
       )}
-      {away && <p className="rounded-[18px] border border-separator bg-surface p-5 text-[16px] text-text-muted">{AWAY_NOTE}</p>}
 
       <form
         className="space-y-3 rounded-[18px] border border-separator bg-surface p-5"
@@ -95,6 +91,10 @@ function Chat({ studentId }: { studentId: string }) {
         >
           <Send aria-hidden size={18} /> {status === "sending" ? "Sending…" : "Send"}
         </button>
+        <div className="space-y-1 pt-1 text-[16px] text-text-muted">
+          <p>{away ? AWAY_NOTE : REPLY_NOTE}</p>
+          <p>{RIGHT_NOW_NOTE}</p>
+        </div>
       </form>
     </div>
   );

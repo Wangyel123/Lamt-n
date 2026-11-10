@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LifeBuoy } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -28,6 +28,15 @@ export default function Home() {
             </Suspense>
           )}
         </div>
+        {/* Always shown, in every mode, with no sign-in: help must never sit behind a login. */}
+        <Link href="/help" className="mt-10 flex items-center gap-3 rounded-[14px] border border-separator bg-surface px-5 py-4 transition-colors duration-150 hover:bg-fill">
+          <LifeBuoy aria-hidden size={20} className="shrink-0 text-student-accent" />
+          <span className="flex-1">
+            <span className="block font-medium">Need help right now?</span>
+            <span className="text-[14px] text-text-muted">Call the PEMA Helpline, 1098. Free, private, day and night.</span>
+          </span>
+          <ArrowRight aria-hidden size={18} className="text-text-muted" />
+        </Link>
       </main>
       <footer className="px-5 pb-8 text-center text-[13px] text-text-muted">Prototype · synthetic data only · no real student is shown</footer>
     </div>

@@ -1,13 +1,14 @@
 "use client";
 
-import { LifeBuoy, Phone, School, UserRound, X } from "lucide-react";
+import { LifeBuoy, X } from "lucide-react";
+import { HelpContacts } from "@/components/HelpContacts";
 import { useRef } from "react";
 
 // K-05: "Get help now", always in the student header. Calm green, never red: we want a student
 // to feel safe opening it, not alarmed. It points to REAL people first (a trusted adult, the
 // counsellor), because this app is not an emergency service.
 //
-// NEVER invent phone numbers. Every contact detail below is a placeholder until CECD confirms it.
+// Contacts come from lib/helpContacts.ts (official sources only). Also public at /help, no code needed.
 export function GetHelpSheet() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const close = () => dialogRef.current?.close();
@@ -39,33 +40,9 @@ export function GetHelpSheet() {
             </button>
           </div>
 
-          <p>If you feel unsafe or very upset right now, you don&apos;t have to wait. Here is who can help.</p>
+          <p>If you feel unsafe or very upset right now, you don&apos;t have to wait. You can reach someone any time.</p>
 
-          <ul className="space-y-3">
-            <li className="flex gap-3 rounded-[14px] border border-separator bg-surface p-4">
-              <UserRound aria-hidden className="mt-1 shrink-0 text-student-accent" />
-              <span>
-                <strong className="block">Talk to a trusted adult now</strong>
-                <span className="text-text-muted">A teacher, a parent, a family member, or another adult you trust.</span>
-              </span>
-            </li>
-            <li className="flex gap-3 rounded-[14px] border border-separator bg-surface p-4">
-              <School aria-hidden className="mt-1 shrink-0 text-student-accent" />
-              <span>
-                <strong className="block">Your school counsellor</strong>
-                {/* TODO(confirm with CECD): each school's counsellor office and hours */}
-                <span className="text-text-muted">Office and hours: to be added by your school.</span>
-              </span>
-            </li>
-            <li className="flex gap-3 rounded-[14px] border border-separator bg-surface p-4">
-              <Phone aria-hidden className="mt-1 shrink-0 text-student-accent" />
-              <span>
-                <strong className="block">Helpline</strong>
-                {/* TODO(confirm with CECD): the official helpline name and number. Never invent one. */}
-                <span className="text-text-muted">Number to be confirmed with CECD.</span>
-              </span>
-            </li>
-          </ul>
+          <HelpContacts />
 
           <p className="text-[16px] text-text-muted">This app is not an emergency service. A real person is always the first place to go.</p>
 

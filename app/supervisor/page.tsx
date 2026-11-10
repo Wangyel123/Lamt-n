@@ -15,7 +15,7 @@ import { isDemoMode } from "@/lib/mode";
 import type { SafeCell } from "@/lib/suppression";
 import { buildSupervisorSummary, checkInRateTable, followUpCell, interventionTable } from "@/lib/supervisorSummary";
 
-export const metadata: Metadata = { title: "Schools overview · Student Wellbeing" };
+export const metadata: Metadata = { title: "Schools overview · Lamtön" };
 
 export default function SupervisorPage() {
   return (

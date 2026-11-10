@@ -93,6 +93,15 @@ export function CodeForm({ mode }: { mode: "demo" | "live" }) {
         </button>
       </form>
 
+      {/* For students with no code: the research says not knowing where to go is a top barrier. */}
+      <section className="space-y-1 px-1">
+        <h2 className="font-semibold">No code, or lost it?</h2>
+        <p className="text-text-muted">
+          Ask your school counsellor or any teacher, and they&apos;ll give you a new one. You don&apos;t need a code to get help: tap
+          &ldquo;Get help now&rdquo; at the top, any time.
+        </p>
+      </section>
+
       {mode === "demo" && (
         <div className="space-y-2 rounded-[18px] border border-dashed border-border p-5">
           <p className="text-[16px] text-text-muted">
