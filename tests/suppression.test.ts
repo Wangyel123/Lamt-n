@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { GET } from "@/app/api/supervisor/summary/route";
 import { COLUMNS, LEVEL_COLUMNS, MIN_GROUP_SIZE, suppress, type CountRow, type SafeCell, type SafeRow } from "@/lib/suppression";
 import { romanToNumber } from "@/lib/classOrder";
+import { heatCell, percent } from "@/lib/heatmap";
 import { buildSupervisorSummary, countRows, followUpCell, interventionTable } from "@/lib/supervisorSummary";
 import { loadDataset } from "./helpers";
 
@@ -242,5 +243,32 @@ describe("support given, by school (P-01): counts only, same suppression rules",
 
   it("shows bigger counts (School A: 6 meetings)", () => {
     expect(table.find((r) => r.school === "School A")!.cells.check_in_meeting).toEqual({ kind: "count", value: 6 });
+  });
+});
+
+describe("heat map (P-03) reuses the suppressed cells", () => {
+  const rows = summaries.extras.rows;
+  const a = row(rows, "School A", null);
+
+  it("shares are worked out only from shown numbers (School A Review: 7 of 26 = 27%)", () => {
+    const c = heatCell(a.cells.Review, a.cells.Total);
+    expect(c.kind === "count" && percent(c.share!)).toBe("27%");
+    expect(c.kind === "count" && c.step).toBe(2); // 25–50% band
+  });
+
+  it("hidden cells stay hidden as numbers AND as percentages", () => {
+    expect(heatCell(a.cells.High, a.cells.Total)).toEqual({ kind: "hidden" });
+    expect(heatCell(a.cells.Urgent, a.cells.Total)).toEqual({ kind: "small" });
+  });
+
+  it("no share is shown when the total itself is hidden (Class VII)", () => {
+    const vii = row(rows, "School A", "VII");
+    expect(heatCell(vii.cells.Review, vii.cells.Total)).toEqual({ kind: "count", value: 5, share: null, step: null });
+  });
+
+  it("zero has no shade, and every heat cell carries no student data", () => {
+    const c = row(rows, "School C", null);
+    expect(heatCell(c.cells.Urgent, c.cells.Total)).toEqual({ kind: "count", value: 0, share: 0, step: null });
+    expect(JSON.stringify(rows.map((r) => heatCell(r.cells.None, r.cells.Total)))).not.toMatch(/S-\d/);
   });
 });

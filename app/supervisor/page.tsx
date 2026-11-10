@@ -2,6 +2,7 @@ import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoadingState } from "@/components/LoadingState";
+import { HeatMap } from "@/components/HeatMap";
 import { InterventionCounts } from "@/components/InterventionCounts";
 import { SupervisorChart } from "@/components/SupervisorChart";
 import { SupervisorTable } from "@/components/SupervisorTable";
@@ -69,7 +70,14 @@ async function SupervisorContent() {
         </ul>
 
         <SupervisorChart rows={summary.rows} />
-        <SupervisorTable rows={summary.rows} />
+        {/* P-03: the heat map gets only the already-suppressed rows (never raw counts) */}
+        <HeatMap rows={summary.rows} />
+        <details className="group">
+          <summary className="min-h-11 cursor-pointer px-4 py-2 font-medium text-primary">See all the numbers as a table</summary>
+          <div className="mt-2">
+            <SupervisorTable rows={summary.rows} />
+          </div>
+        </details>
         <InterventionCounts rows={support} demo={demo} />
 
         <p className="px-1 text-[13px] text-text-muted">
