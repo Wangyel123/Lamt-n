@@ -23,6 +23,9 @@ export interface CollectionConfig<T extends { id: string }> {
   columns: string; // columns to read (live mode)
   fromRow: (row: Record<string, unknown>) => T;
   toRow: (item: T) => Record<string, unknown>; // what to write; leave out columns the database sets
+  // Live updates send ONLY these columns (some tables allow changing just one column, e.g. a
+  // counsellor may mark a message read but never edit its words). Defaults to toRow.
+  patchRow?: (patch: Partial<T>) => Record<string, unknown>;
   pollMs?: number; // live mode: re-read every N ms while someone is looking (e.g. messages)
 }
 
@@ -110,7 +113,7 @@ export function createCollection<T extends { id: string }>(cfg: CollectionConfig
       if (isDemoMode()) return writeDemo(readDemo().map((x) => (x.id === id ? { ...x, ...patch } : x)));
       const current = state.items.find((x) => x.id === id);
       if (!current) return false;
-      const row = cfg.toRow({ ...current, ...patch });
+      const row = cfg.patchRow ? cfg.patchRow(patch) : cfg.toRow({ ...current, ...patch });
       const { error } = await getBrowserSupabase().from(cfg.table).update(row).eq("id", id);
       if (!error) await loadLive();
       return !error;

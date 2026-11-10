@@ -9,11 +9,13 @@ import { useFollowUps } from "@/lib/followUpStore";
 import { changeNote, changeStatus, type FollowUpStatus } from "@/lib/followUps";
 import type { DataReport, Student } from "@/lib/parseCsv";
 import { overdueUrgentStudents, URGENT_CONTACT_WINDOW_HOURS } from "@/lib/interventions";
-import { interventions } from "@/lib/stores";
+import { isEnabled } from "@/lib/features";
+import { interventions, messages } from "@/lib/stores";
 import { useReadingQueue } from "@/lib/useReadingQueue";
 import { AboutList } from "./AboutList";
 import { AlertBanner } from "./AlertBanner";
 import { CaseloadView } from "./CaseloadView";
+import { InboxView } from "./InboxView";
 import { LEVEL_STYLE } from "./FlagBadge";
 import { FilterSheet } from "./FilterSheet";
 import { ActiveFilters, FilterPickers, SearchField } from "./Filters";
@@ -28,7 +30,7 @@ interface Props {
   flaggedSince: string; // when the survey was loaded: the start of the urgent-contact window
 }
 
-type Tab = "board" | "caseload";
+type Tab = "board" | "caseload" | "inbox";
 
 export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   const { followUps, ready, loadError, save } = useFollowUps();
@@ -38,7 +40,14 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("board");
   const logged = interventions.use();
-  const reading = useReadingQueue(students);
+  // K-02: messages (only when the feature is on). Student messages also go through "Needs reading".
+  const allMessages = messages.use().items;
+  const studentMessages = isEnabled("messaging") ? allMessages.filter((m) => m.sender === "student") : [];
+  const reading = useReadingQueue(
+    students,
+    studentMessages.map((m) => ({ sourceId: `message:${m.id}`, studentId: m.studentId, at: m.createdAt, source: { kind: "message" as const, text: m.body } })),
+  );
+  const unreadMessages = studentMessages.filter((m) => !m.readAt).length;
 
   // Flags are computed here from lib/flags.ts on every change, never stored.
   const rows = useMemo(() => buildRows(students, followUps, { useExtraRules }), [students, followUps, useExtraRules]);
@@ -99,6 +108,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
         tabs={[
           { key: "board", label: "Board" },
           { key: "caseload", label: "My caseload", count: openCount },
+          ...(isEnabled("messaging") ? [{ key: "inbox" as const, label: "Inbox", count: unreadMessages }] : []),
         ]}
         active={tab}
         onChange={setTab}
@@ -115,6 +125,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
             chips={reading.chips}
           />
         )}
+        {tab === "inbox" && <InboxView rows={rows} messages={allMessages} onOpenStudent={setSelectedId} />}
         {tab === "board" && (
           <>
             <SummaryCards
@@ -223,6 +234,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
 
       <StudentDrawer
         row={selectedRow}
+        messages={allMessages.filter((m) => m.studentId === selectedId)}
         reading={reading.items.filter((i) => i.studentId === selectedId)}
         onMarkRead={reading.markRead}
         ready={ready}

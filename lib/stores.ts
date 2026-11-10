@@ -6,6 +6,7 @@
 
 import { createCollection } from "./collectionStore";
 import type { Intervention, InterventionOutcome, InterventionType } from "./interventions";
+import type { Message } from "./messages";
 
 const str = (v: unknown) => (v == null ? "" : String(v));
 const strOrNull = (v: unknown) => (v == null ? null : String(v));
@@ -41,4 +42,23 @@ export const textReviews = createCollection<TextReview>({
   columns: "id, student_id, source_id, reviewed_at",
   fromRow: (r) => ({ id: str(r.id), studentId: str(r.student_id), sourceId: str(r.source_id), reviewedAt: str(r.reviewed_at) }),
   toRow: (r) => ({ id: r.id, student_id: r.studentId, source_id: r.sourceId }), // reviewed_by/at set by the database
+});
+
+// K-02: messages between a student and their counsellor. Students: own rows only. Counsellors: their
+// school. Supervisors: no access at all. Re-read every 25 s while open (simple, no realtime needed).
+export const messages = createCollection<Message>({
+  key: "sa-messages-v1",
+  table: "messages",
+  columns: "id, student_id, sender_role, body, created_at, read_at",
+  pollMs: 25_000,
+  fromRow: (r) => ({
+    id: str(r.id),
+    studentId: str(r.student_id),
+    sender: r.sender_role as Message["sender"],
+    body: str(r.body),
+    createdAt: str(r.created_at),
+    readAt: strOrNull(r.read_at),
+  }),
+  toRow: (m) => ({ id: m.id, student_id: m.studentId, sender_role: m.sender, body: m.body }), // created_at set by the database
+  patchRow: (p) => ({ read_at: p.readAt }), // the only column anyone may change afterwards
 });

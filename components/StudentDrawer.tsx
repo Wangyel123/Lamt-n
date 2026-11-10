@@ -19,6 +19,7 @@ import { StatusControl } from "./StatusControl";
 
 interface Props {
   row: BoardRow | null;
+  messages: { createdAt: string; sender: "student" | "counsellor" }[]; // timeline shows WHEN only
   reading: ReadingItem[]; // P-02: unread items for the open student
   onMarkRead: (item: ReadingItem) => Promise<boolean>;
   ready: boolean;
@@ -78,10 +79,14 @@ export function StudentDrawer({ row, onClose, ...rest }: Props) {
   );
 }
 
-function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead }: Props & { row: BoardRow }) {
+function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead, messages }: Props & { row: BoardRow }) {
   const { student, flag, followUp, status } = row;
   const allInterventions = interventions.use().items;
-  const timeline = buildTimeline({ followUp, interventions: allInterventions.filter((i) => i.studentId === student.studentId) });
+  const timeline = buildTimeline({
+    followUp,
+    interventions: allInterventions.filter((i) => i.studentId === student.studentId),
+    messages, // metadata only: the timeline never shows message words
+  });
   const [note, setNote] = useState(followUp?.note ?? "");
   const [noteState, setNoteState] = useState<"idle" | "saved" | "error">("idle");
 

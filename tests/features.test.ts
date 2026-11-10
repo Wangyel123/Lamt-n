@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import { FEATURES, isEnabled } from "@/lib/features";
 
 describe("feature switches (lib/features.ts)", () => {
-  it("the student area is on (Step 1 built it)", () => {
+  it("built features are on", () => {
     expect(isEnabled("studentPortal")).toBe(true);
+    expect(isEnabled("messaging")).toBe(true);
   });
 
   it("features that are not built yet stay OFF, so nothing half-built reaches a child", () => {
-    expect(FEATURES.messaging).toBe(false);
     expect(FEATURES.activities).toBe(false);
     expect(FEATURES.journal).toBe(false);
     expect(FEATURES.checkIns).toBe(false);

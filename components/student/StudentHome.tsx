@@ -1,6 +1,11 @@
-import { ChevronRight, Info } from "lucide-react";
+import { ChevronRight, Info, MessageCircle, type LucideIcon } from "lucide-react";
+import { isEnabled, type FeatureName } from "@/lib/features";
 import Link from "next/link";
 import { STUDENT_IDLE_MINUTES } from "@/lib/accessCodes";
+
+const TILES: { feature: FeatureName; href: string; icon: LucideIcon; title: string; text: string }[] = [
+  { feature: "messaging", href: "/student/messages", icon: MessageCircle, title: "Talk to my counsellor", text: "Send a private message. A real person replies." },
+];
 
 // The signed-in student's home. It never shows a flag, a reason, or anything counsellor-only.
 // Phase 2 adds tiles here (talk to my counsellor, check-in, activities, journal) as each is built,
@@ -14,6 +19,21 @@ export function StudentHome() {
       </header>
 
       <ul className="space-y-3">
+        {/* Phase 2 tiles, each shown only when its feature switch is on (at most 4 big tiles) */}
+        {TILES.filter((t) => isEnabled(t.feature)).map(({ href, icon: Icon, title, text }) => (
+          <li key={href}>
+            <Link href={href} className="flex min-h-12 items-center gap-4 rounded-3xl bg-surface p-5">
+              <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-student-bg text-student-accent">
+                <Icon size={24} />
+              </span>
+              <span className="flex-1">
+                <span className="block font-semibold">{title}</span>
+                <span className="text-[16px] text-text-muted">{text}</span>
+              </span>
+              <ChevronRight aria-hidden className="text-border" />
+            </Link>
+          </li>
+        ))}
         <li>
           <Link href="/student/about" className="flex min-h-12 items-center gap-4 rounded-3xl bg-surface p-5">
             <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-student-bg text-student-accent">

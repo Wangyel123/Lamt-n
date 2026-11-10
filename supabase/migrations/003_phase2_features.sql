@@ -52,3 +52,45 @@ create policy "counsellors read reviews" on public.text_reviews
 create policy "counsellors mark as read" on public.text_reviews
   for insert to authenticated with check (public.can_see_student(student_id) and reviewed_by = (select auth.uid()));
 revoke update, delete on public.text_reviews from authenticated;
+
+-- ===========================================================================
+-- K-02: messages between a student and a HUMAN counsellor (one conversation per student).
+-- ===========================================================================
+create table public.messages (
+  id uuid primary key default gen_random_uuid(),
+  student_id text not null references public.students (student_id) on delete cascade,
+  sender_role text not null check (sender_role in ('student', 'counsellor')),
+  body text not null check (char_length(body) between 1 and 1000),
+  sent_by uuid null references auth.users (id) default auth.uid(),
+  created_at timestamptz not null default now(),
+  read_at timestamptz null
+);
+create index messages_student_idx on public.messages (student_id, created_at);
+
+alter table public.messages enable row level security;
+revoke all on public.messages from anon;
+
+-- Students: their own conversation only, writing as "student", at most 30 messages an hour.
+create policy "students read own messages" on public.messages
+  for select to authenticated using (student_id = public.current_student_id());
+create policy "students send messages" on public.messages
+  for insert to authenticated
+  with check (
+    student_id = public.current_student_id()
+    and sender_role = 'student'
+    and (select count(*) from public.messages m
+         where m.student_id = public.current_student_id() and m.sender_role = 'student'
+           and m.created_at > now() - interval '1 hour') < 30
+  );
+
+-- Counsellors: their school's students, writing as "counsellor".
+create policy "counsellors read messages" on public.messages
+  for select to authenticated using (public.can_see_student(student_id));
+create policy "counsellors reply" on public.messages
+  for insert to authenticated with check (public.can_see_student(student_id) and sender_role = 'counsellor');
+create policy "counsellors mark read" on public.messages
+  for update to authenticated using (public.can_see_student(student_id)) with check (public.can_see_student(student_id));
+
+-- Nobody can edit the words of a message or delete it; a counsellor can only mark it read.
+revoke update, delete on public.messages from authenticated;
+grant update (read_at) on public.messages to authenticated;

@@ -5,8 +5,8 @@
 export const FEATURES = {
   /** K-01/K-05: the student area at /student (About this space, Get help now). */
   studentPortal: true,
-  /** K-02: "Talk to my counsellor" messaging. Not built yet. */
-  messaging: false,
+  /** K-02: "Talk to my counsellor" messaging. */
+  messaging: true,
   /** K-03: self-care activities library. Not built yet. */
   activities: false,
   /** K-04: private journal and goals. Not built yet. */
