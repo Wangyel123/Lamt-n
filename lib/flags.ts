@@ -11,6 +11,7 @@
 // changes the board straight away.
 
 import type { Student } from "./parseCsv";
+import { FLAG_RAISING_WORDS } from "./sensitiveText";
 
 export type FlagLevel = "Urgent" | "High" | "Review" | "None";
 
@@ -148,7 +149,8 @@ export function applyBaselineRules(s: Student): RuleOutcome {
 // E2 keyword list. Matched as WHOLE words, ignoring case.
 // This is a crude screen, NOT language understanding: "hurts" will not match "hurt",
 // and "home" can appear in harmless comments. A person must read the comment.
-export const COMMENT_KEYWORDS = ["home", "hit", "hurt", "scared", "afraid", "unsafe", "alone", "die", "kill", "beat"];
+// The list now lives in lib/sensitiveText.ts (Phase 2), unchanged, next to the "Needs reading" categories.
+export const COMMENT_KEYWORDS = FLAG_RAISING_WORDS;
 
 export function findCommentKeywords(comment: string): string[] {
   return COMMENT_KEYWORDS.filter((word) => new RegExp(`\\b${word}\\b`, "i").test(comment));

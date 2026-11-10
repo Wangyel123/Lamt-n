@@ -14,11 +14,12 @@ interface Props {
   ready: boolean;
   onOpen: (studentId: string) => void;
   onStatusChange: (row: BoardRow) => (to: FollowUpStatus, note: string) => Promise<boolean>;
+  chips: Map<string, string[]>;
 }
 
 // P-01 "My caseload": everyone with an open follow-up, most urgent first, then the most overdue
 // check-in date. Overdue is shown with an icon AND words, never colour alone.
-export function CaseloadView({ rows, interventions, ready, onOpen, onStatusChange }: Props) {
+export function CaseloadView({ rows, interventions, ready, onOpen, onStatusChange, chips }: Props) {
   const list = caseload(rows, interventions);
   if (list.length === 0) return <p className="rounded-2xl bg-surface p-8 text-center font-medium">No open follow-ups. Everything is closed.</p>;
   return (
@@ -47,6 +48,7 @@ export function CaseloadView({ rows, interventions, ready, onOpen, onStatusChang
               onOpen={() => onOpen(row.student.studentId)}
               onStatusChange={onStatusChange(row)}
               note={note}
+              reading={chips.get(row.student.studentId)}
             />
           );
         })}

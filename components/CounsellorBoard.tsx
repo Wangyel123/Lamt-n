@@ -10,6 +10,7 @@ import { changeNote, changeStatus, type FollowUpStatus } from "@/lib/followUps";
 import type { DataReport, Student } from "@/lib/parseCsv";
 import { overdueUrgentStudents, URGENT_CONTACT_WINDOW_HOURS } from "@/lib/interventions";
 import { interventions } from "@/lib/stores";
+import { useReadingQueue } from "@/lib/useReadingQueue";
 import { AboutList } from "./AboutList";
 import { AlertBanner } from "./AlertBanner";
 import { CaseloadView } from "./CaseloadView";
@@ -37,6 +38,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("board");
   const logged = interventions.use();
+  const reading = useReadingQueue(students);
 
   // Flags are computed here from lib/flags.ts on every change, never stored.
   const rows = useMemo(() => buildRows(students, followUps, { useExtraRules }), [students, followUps, useExtraRules]);
@@ -86,6 +88,12 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
         studentIds={overdue}
         onOpen={setSelectedId}
       />
+      <AlertBanner
+        title="Please read now: possible self-harm, violence or abuse mentioned"
+        help="Keyword matching found these. It can be wrong, so read the words in context. Nothing has been changed automatically."
+        studentIds={[...new Set(reading.items.filter((i) => i.alert).map((i) => i.studentId))]}
+        onOpen={setSelectedId}
+      />
 
       <WorkspaceTabs<Tab>
         tabs={[
@@ -104,6 +112,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
             ready={ready}
             onOpen={setSelectedId}
             onStatusChange={changeStatusFor}
+            chips={reading.chips}
           />
         )}
         {tab === "board" && (
@@ -183,6 +192,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
                             ready={ready}
                             onOpen={() => setSelectedId(row.student.studentId)}
                             onStatusChange={changeStatusFor(row)}
+                          reading={reading.chips.get(row.student.studentId)}
                           />
                         ))}
                       </ol>
@@ -213,6 +223,8 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
 
       <StudentDrawer
         row={selectedRow}
+        reading={reading.items.filter((i) => i.studentId === selectedId)}
+        onMarkRead={reading.markRead}
         ready={ready}
         useExtraRules={useExtraRules}
         onClose={() => setSelectedId(null)}

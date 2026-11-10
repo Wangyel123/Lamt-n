@@ -31,3 +31,24 @@ create policy "counsellors log interventions" on public.interventions
 create policy "counsellors edit interventions" on public.interventions
   for update to authenticated using (public.can_see_student(student_id)) with check (public.can_see_student(student_id));
 revoke delete on public.interventions from authenticated; -- a record of support is never deleted from the app
+
+-- ===========================================================================
+-- P-02: "Needs reading" items a counsellor has marked as read (who + when). Counsellors only.
+-- source_id says which text: 'survey:S-023', 'message:<uuid>', 'checkin:<uuid>', 'journal:<uuid>', 'post:<uuid>'.
+-- ===========================================================================
+create table public.text_reviews (
+  id uuid primary key default gen_random_uuid(),
+  student_id text not null references public.students (student_id) on delete cascade,
+  source_id text not null unique,
+  reviewed_by uuid null references auth.users (id) default auth.uid(),
+  reviewed_at timestamptz not null default now()
+);
+create index text_reviews_student_idx on public.text_reviews (student_id);
+
+alter table public.text_reviews enable row level security;
+revoke all on public.text_reviews from anon;
+create policy "counsellors read reviews" on public.text_reviews
+  for select to authenticated using (public.can_see_student(student_id));
+create policy "counsellors mark as read" on public.text_reviews
+  for insert to authenticated with check (public.can_see_student(student_id) and reviewed_by = (select auth.uid()));
+revoke update, delete on public.text_reviews from authenticated;

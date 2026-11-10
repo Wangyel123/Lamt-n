@@ -10,13 +10,17 @@ import { buildTimeline } from "@/lib/timeline";
 import type { Student } from "@/lib/parseCsv";
 import { isEnabled } from "@/lib/features";
 import { AccessCodePanel } from "./AccessCodePanel";
+import type { ReadingItem } from "@/lib/readingQueue";
 import { FlagBadge } from "./FlagBadge";
+import { NeedsReadingList } from "./NeedsReading";
 import { InterventionForm } from "./InterventionForm";
 import { Timeline } from "./Timeline";
 import { StatusControl } from "./StatusControl";
 
 interface Props {
   row: BoardRow | null;
+  reading: ReadingItem[]; // P-02: unread items for the open student
+  onMarkRead: (item: ReadingItem) => Promise<boolean>;
   ready: boolean;
   useExtraRules: boolean;
   onClose: () => void;
@@ -74,7 +78,7 @@ export function StudentDrawer({ row, onClose, ...rest }: Props) {
   );
 }
 
-function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave }: Props & { row: BoardRow }) {
+function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead }: Props & { row: BoardRow }) {
   const { student, flag, followUp, status } = row;
   const allInterventions = interventions.use().items;
   const timeline = buildTimeline({ followUp, interventions: allInterventions.filter((i) => i.studentId === student.studentId) });
@@ -109,6 +113,13 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
           <p className="text-[13px] text-text-muted">The basic rules alone would say: {LEVEL_NAME[flag.baselineLevel]}.</p>
         )}
       </div>
+
+      {/* P-02: words a counsellor should read. Never changes the flag; the counsellor decides. */}
+      {reading.length > 0 && (
+        <Group title="Needs reading">
+          <NeedsReadingList items={reading} onMarkRead={onMarkRead} />
+        </Group>
+      )}
 
       {flag.reasons.length > 0 && (
         <Group title={flag.level === "None" ? "Also noted" : "Why this student is on the list"}>

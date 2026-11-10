@@ -27,3 +27,18 @@ export const interventions = createCollection<Intervention>({
   // created_at and created_by are set by the database (created_by = whoever is signed in)
   toRow: (i) => ({ id: i.id, student_id: i.studentId, type: i.type, notes: i.notes, outcome: i.outcome, follow_up_date: i.followUpDate }),
 });
+
+// P-02: which "Needs reading" items a counsellor has marked as read (who + when), so chips don't nag.
+export interface TextReview {
+  id: string;
+  studentId: string;
+  sourceId: string; // e.g. "survey:S-023", "message:<uuid>"
+  reviewedAt: string;
+}
+export const textReviews = createCollection<TextReview>({
+  key: "sa-text-reviews-v1",
+  table: "text_reviews",
+  columns: "id, student_id, source_id, reviewed_at",
+  fromRow: (r) => ({ id: str(r.id), studentId: str(r.student_id), sourceId: str(r.source_id), reviewedAt: str(r.reviewed_at) }),
+  toRow: (r) => ({ id: r.id, student_id: r.studentId, source_id: r.sourceId }), // reviewed_by/at set by the database
+});
