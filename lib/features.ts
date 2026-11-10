@@ -7,10 +7,10 @@ export const FEATURES = {
   studentPortal: true,
   /** K-02: "Talk to my counsellor" messaging. */
   messaging: true,
-  /** K-03: self-care activities library. Not built yet. */
-  activities: false,
-  /** K-04: private journal and goals. Not built yet. */
-  journal: false,
+  /** K-03: self-care activities library. */
+  activities: true,
+  /** K-04: private journal and goals. */
+  journal: true,
   /** P-04: short check-ins between surveys. */
   checkIns: true,
   /** K-06: pre-moderated peer board. Optional; default OFF. */

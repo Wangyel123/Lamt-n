@@ -10,7 +10,8 @@ import { changeNote, changeStatus, type FollowUpStatus } from "@/lib/followUps";
 import type { DataReport, Student } from "@/lib/parseCsv";
 import { overdueUrgentStudents, URGENT_CONTACT_WINDOW_HOURS } from "@/lib/interventions";
 import { isEnabled } from "@/lib/features";
-import { checkInResponses, checkIns, interventions, messages } from "@/lib/stores";
+import { visibleToCounsellor } from "@/lib/journal";
+import { checkInResponses, checkIns, interventions, journalEntries, messages } from "@/lib/stores";
 import { useReadingQueue } from "@/lib/useReadingQueue";
 import { AboutList } from "./AboutList";
 import { AlertBanner } from "./AlertBanner";
@@ -48,11 +49,14 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   const sentCheckIns = checkIns.use().items;
   const allAnswers = checkInResponses.use().items; // hooks are always called; the switch only filters
   const answers = isEnabled("checkIns") ? allAnswers : [];
+  // K-04: only entries the student CHOSE to share ever reach the counsellor's screens.
+  const sharedJournal = visibleToCounsellor(journalEntries.use().items);
   const reading = useReadingQueue(students, [
     ...studentMessages.map((m) => ({ sourceId: `message:${m.id}`, studentId: m.studentId, at: m.createdAt, source: { kind: "message" as const, text: m.body } })),
     ...answers
       .filter((a) => a.comment)
       .map((a) => ({ sourceId: `checkin:${a.id}`, studentId: a.studentId, at: a.createdAt, source: { kind: "checkin" as const, text: a.comment } })),
+    ...sharedJournal.map((e) => ({ sourceId: `journal:${e.id}`, studentId: e.studentId, at: e.createdAt, source: { kind: "journal" as const, text: e.body, shared: e.shared } })),
   ]);
   const checkInReasonsFor = (studentId: string) => checkInReasons(answers.filter((a) => a.studentId === studentId));
   const unreadMessages = studentMessages.filter((m) => !m.readAt).length;
@@ -247,6 +251,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
         row={selectedRow}
         messages={allMessages.filter((m) => m.studentId === selectedId)}
         checkIns={answers.filter((a) => a.studentId === selectedId)}
+        sharedJournal={sharedJournal.filter((e) => e.studentId === selectedId)}
         extraReasons={selectedId ? checkInReasonsFor(selectedId) : []}
         reading={reading.items.filter((i) => i.studentId === selectedId)}
         onMarkRead={reading.markRead}

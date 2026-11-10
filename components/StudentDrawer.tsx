@@ -12,6 +12,8 @@ import { isEnabled } from "@/lib/features";
 import { AccessCodePanel } from "./AccessCodePanel";
 import type { ReadingItem } from "@/lib/readingQueue";
 import { summarise, type CheckInResponse } from "@/lib/checkins";
+import { formatTime } from "@/lib/format";
+import type { JournalEntry } from "@/lib/journal";
 import type { Reason } from "@/lib/flags";
 import { FlagBadge } from "./FlagBadge";
 import { NeedsReadingList } from "./NeedsReading";
@@ -23,6 +25,7 @@ interface Props {
   row: BoardRow | null;
   messages: { createdAt: string; sender: "student" | "counsellor" }[]; // timeline shows WHEN only
   checkIns: CheckInResponse[]; // P-04 answers, summarised on the timeline
+  sharedJournal: JournalEntry[]; // K-04: ONLY entries the student chose to share
   extraReasons: Reason[]; // P-04: e.g. "Check-in: needs follow-up"
   reading: ReadingItem[]; // P-02: unread items for the open student
   onMarkRead: (item: ReadingItem) => Promise<boolean>;
@@ -83,7 +86,7 @@ export function StudentDrawer({ row, onClose, ...rest }: Props) {
   );
 }
 
-function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead, messages, checkIns, extraReasons }: Props & { row: BoardRow }) {
+function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead, messages, checkIns, extraReasons, sharedJournal }: Props & { row: BoardRow }) {
   const { student, flag, followUp, status } = row;
   const allInterventions = interventions.use().items;
   const timeline = buildTimeline({
@@ -91,6 +94,7 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
     interventions: allInterventions.filter((i) => i.studentId === student.studentId),
     messages, // metadata only: the timeline never shows message words
     checkIns: checkIns.map((c) => ({ createdAt: c.createdAt, summary: summarise(c) })),
+    sharedJournal,
   });
   const reasons = [...flag.reasons, ...extraReasons];
   const [note, setNote] = useState(followUp?.note ?? "");
@@ -171,6 +175,19 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
           )}
         </div>
       </Group>
+
+      {sharedJournal.length > 0 && (
+        <Group title="Shared journal entries">
+          <ul className="divide-y divide-separator">
+            {sharedJournal.map((e) => (
+              <li key={e.id} className="px-4 py-3">
+                <p className="text-[13px] text-text-muted">The student chose to share this · {formatTime(e.createdAt)}</p>
+                <p className="whitespace-pre-wrap">{e.body}</p>
+              </li>
+            ))}
+          </ul>
+        </Group>
+      )}
 
       {(student.dataIssues.length > 0 || student.fixes.length > 0) && (
         <Group title="Please check">

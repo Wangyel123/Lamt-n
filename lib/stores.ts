@@ -7,6 +7,7 @@
 import { createCollection } from "./collectionStore";
 import type { Intervention, InterventionOutcome, InterventionType } from "./interventions";
 import type { CheckIn, CheckInResponse, Feeling, QuestionId, Worry } from "./checkins";
+import type { Goal, JournalEntry } from "./journal";
 import type { Message } from "./messages";
 
 const str = (v: unknown) => (v == null ? "" : String(v));
@@ -88,4 +89,24 @@ export const checkInResponses = createCollection<CheckInResponse>({
     createdAt: str(r.created_at),
   }),
   toRow: (r) => ({ id: r.id, checkin_id: r.checkInId, student_id: r.studentId, feeling: r.feeling, worry: r.worry, comment: r.comment }),
+});
+
+// K-04: journal and goals. Students: their own rows. Counsellors: ONLY journal entries the
+// student chose to share (enforced in the database too). Goals are for the student alone.
+export const journalEntries = createCollection<JournalEntry>({
+  key: "sa-journal-v1",
+  table: "journal_entries",
+  columns: "id, student_id, body, mood, shared, created_at",
+  fromRow: (r) => ({ id: str(r.id), studentId: str(r.student_id), body: str(r.body), mood: (r.mood as JournalEntry["mood"]) ?? null, shared: Boolean(r.shared), createdAt: str(r.created_at) }),
+  toRow: (e) => ({ id: e.id, student_id: e.studentId, body: e.body, mood: e.mood, shared: e.shared }),
+  patchRow: (p) => ({ shared: p.shared }), // the only change allowed after writing: share / unshare
+});
+
+export const goals = createCollection<Goal>({
+  key: "sa-goals-v1",
+  table: "goals",
+  columns: "id, student_id, title, done, created_at",
+  fromRow: (r) => ({ id: str(r.id), studentId: str(r.student_id), title: str(r.title), done: Boolean(r.done), createdAt: str(r.created_at) }),
+  toRow: (g) => ({ id: g.id, student_id: g.studentId, title: g.title, done: g.done }),
+  patchRow: (p) => ({ done: p.done }),
 });

@@ -1,4 +1,4 @@
-import { ChevronRight, Info, MessageCircle, type LucideIcon } from "lucide-react";
+import { ChevronRight, Info, MessageCircle, NotebookPen, Sparkles, type LucideIcon } from "lucide-react";
 import { isEnabled, type FeatureName } from "@/lib/features";
 import Link from "next/link";
 import { STUDENT_IDLE_MINUTES } from "@/lib/accessCodes";
@@ -6,6 +6,8 @@ import { CheckInTile } from "./CheckInTile";
 
 const TILES: { feature: FeatureName; href: string; icon: LucideIcon; title: string; text: string }[] = [
   { feature: "messaging", href: "/student/messages", icon: MessageCircle, title: "Talk to my counsellor", text: "Send a private message. A real person replies." },
+  { feature: "activities", href: "/student/activities", icon: Sparkles, title: "Self-care activities", text: "Short things to try when you feel worried or stressed" },
+  { feature: "journal", href: "/student/journal", icon: NotebookPen, title: "My journal", text: "Private, unless you choose to share an entry" },
 ];
 
 // The signed-in student's home. It never shows a flag, a reason, or anything counsellor-only.
@@ -36,19 +38,11 @@ export function StudentHome({ liveStudentId }: { liveStudentId?: string }) {
             </Link>
           </li>
         ))}
-        <li>
-          <Link href="/student/about" className="flex min-h-12 items-center gap-4 rounded-3xl bg-surface p-5">
-            <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-student-bg text-student-accent">
-              <Info size={24} />
-            </span>
-            <span className="flex-1">
-              <span className="block font-semibold">About this space</span>
-              <span className="text-[16px] text-text-muted">What it is, what it isn&apos;t, and who can see what</span>
-            </span>
-            <ChevronRight aria-hidden className="text-border" />
-          </Link>
-        </li>
       </ul>
+
+      <Link href="/student/about" className="inline-flex min-h-12 items-center gap-2 font-medium text-student-accent">
+        <Info aria-hidden size={18} /> About this space: what it is, and who can see what
+      </Link>
 
       <p className="text-[16px] text-text-muted">
         When you&apos;re done, tap &ldquo;Leave&rdquo;. If you forget, you&apos;ll be signed out after {STUDENT_IDLE_MINUTES} minutes.

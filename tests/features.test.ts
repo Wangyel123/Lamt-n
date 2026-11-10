@@ -6,11 +6,8 @@ describe("feature switches (lib/features.ts)", () => {
     expect(isEnabled("studentPortal")).toBe(true);
     expect(isEnabled("messaging")).toBe(true);
     expect(isEnabled("checkIns")).toBe(true);
-  });
-
-  it("features that are not built yet stay OFF, so nothing half-built reaches a child", () => {
-    expect(FEATURES.activities).toBe(false);
-    expect(FEATURES.journal).toBe(false);
+    expect(isEnabled("activities")).toBe(true);
+    expect(isEnabled("journal")).toBe(true);
   });
 
   it("the peer board is OFF by default (optional, needs pre-moderation)", () => {

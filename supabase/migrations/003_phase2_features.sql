@@ -149,3 +149,44 @@ create policy "students answer their check-ins" on public.checkin_responses
     and exists (select 1 from public.checkins c where c.id = checkin_id and public.checkin_is_for_me(c.school, c.class))
   );
 revoke update, delete on public.checkins, public.checkin_responses from authenticated;
+
+-- ===========================================================================
+-- K-04: private journal and goals. PRIVATE BY DEFAULT.
+-- A counsellor can read a journal entry ONLY if the student shared it. Goals are the student's alone.
+-- ===========================================================================
+create table public.journal_entries (
+  id uuid primary key default gen_random_uuid(),
+  student_id text not null references public.students (student_id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 2000),
+  mood smallint null check (mood between 1 and 4),
+  shared boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index journal_student_idx on public.journal_entries (student_id, created_at);
+
+create table public.goals (
+  id uuid primary key default gen_random_uuid(),
+  student_id text not null references public.students (student_id) on delete cascade,
+  title text not null check (char_length(title) between 1 and 120),
+  done boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.journal_entries enable row level security;
+alter table public.goals enable row level security;
+revoke all on public.journal_entries, public.goals from anon;
+
+create policy "students read own journal" on public.journal_entries for select to authenticated using (student_id = public.current_student_id());
+create policy "students write own journal" on public.journal_entries for insert to authenticated with check (student_id = public.current_student_id());
+create policy "students share or unshare" on public.journal_entries
+  for update to authenticated using (student_id = public.current_student_id()) with check (student_id = public.current_student_id());
+-- The privacy promise, enforced by the database: shared entries only.
+create policy "counsellors read SHARED entries only" on public.journal_entries
+  for select to authenticated using (shared and public.can_see_student(student_id));
+revoke update, delete on public.journal_entries from authenticated;
+grant update (shared) on public.journal_entries to authenticated; -- the only thing that can change: share / unshare
+
+create policy "students manage own goals" on public.goals
+  for all to authenticated using (student_id = public.current_student_id()) with check (student_id = public.current_student_id());
+revoke update on public.goals from authenticated;
+grant update (done) on public.goals to authenticated;

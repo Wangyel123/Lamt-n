@@ -101,3 +101,16 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* K-03: gentle box-breathing circle (in 4 · hold 4 · out 4 · hold 4). Turned off by the
+   reduced-motion rule above; the written steps carry the same guidance. */
+@keyframes breathe {
+  0% { transform: scale(0.6); }
+  25% { transform: scale(1); }
+  50% { transform: scale(1); }
+  75% { transform: scale(0.6); }
+  100% { transform: scale(0.6); }
+}
+.breathe {
+  animation: breathe 16s ease-in-out infinite;
+}
