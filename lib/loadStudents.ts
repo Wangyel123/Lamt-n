@@ -53,3 +53,14 @@ export async function loadInterventionsForAggregation(): Promise<{ studentId: st
   if (error) return []; // table not created yet (migration 003): show nothing rather than fail
   return (data ?? []).map((r) => ({ studentId: r.student_id as string, type: r.type as InterventionType }));
 }
+
+/** Live mode, supervisor RATES ONLY: who was sent a check-in and who answered (no answers read). */
+export async function loadCheckInsForAggregation(): Promise<{ sent: { school: string; className: string | null }[]; answeredBy: string[] }> {
+  const admin = getAdminSupabase();
+  const [sent, answers] = await Promise.all([admin.from("checkins").select("school, class"), admin.from("checkin_responses").select("student_id")]);
+  if (sent.error || answers.error) return { sent: [], answeredBy: [] }; // migration 003 not run yet
+  return {
+    sent: (sent.data ?? []).map((c) => ({ school: c.school as string, className: (c.class as string | null) ?? null })),
+    answeredBy: (answers.data ?? []).map((a) => a.student_id as string),
+  };
+}

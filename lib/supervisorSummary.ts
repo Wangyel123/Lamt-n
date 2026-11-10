@@ -96,3 +96,32 @@ export function interventionTable(
   rows.push({ kind: "all", school: ALL_SCHOOLS, className: null, counts: all });
   return suppressTable(rows, INTERVENTION_TYPE_KEYS);
 }
+
+// ---------------------------------------------------------------------------
+// P-04: check-in response RATES by school (never answers). Of the students a check-in was sent
+// to, how many answered at least once. Same suppression rules; a rate is shown only from shown numbers.
+// ---------------------------------------------------------------------------
+export type RateColumn = "Answered" | "NotYet";
+
+export function checkInRateTable(
+  students: { studentId: string; school: string; className: string }[],
+  sent: { school: string; className: string | null }[],
+  answeredBy: string[],
+): SafeTableRow<RateColumn>[] {
+  const answered = new Set(answeredBy);
+  const isAsked = (s: { school: string; className: string }) => sent.some((c) => c.school === s.school && (c.className === null || c.className === s.className));
+  const bySchool = new Map<string, Record<RateColumn | "Total", number>>();
+  const all = { Answered: 0, NotYet: 0, Total: 0 };
+  for (const s of students.filter(isAsked)) {
+    const counts = bySchool.get(s.school) ?? { Answered: 0, NotYet: 0, Total: 0 };
+    bySchool.set(s.school, counts);
+    const col: RateColumn = answered.has(s.studentId) ? "Answered" : "NotYet";
+    for (const c of [counts, all]) {
+      c[col] += 1;
+      c.Total += 1;
+    }
+  }
+  const rows: TableRow<RateColumn>[] = [...bySchool.keys()].sort().map((school) => ({ kind: "school", school, className: null, counts: bySchool.get(school)! }));
+  if (rows.length) rows.push({ kind: "all", school: ALL_SCHOOLS, className: null, counts: all });
+  return suppressTable(rows, ["Answered", "NotYet"]);
+}

@@ -11,6 +11,8 @@ import type { Student } from "@/lib/parseCsv";
 import { isEnabled } from "@/lib/features";
 import { AccessCodePanel } from "./AccessCodePanel";
 import type { ReadingItem } from "@/lib/readingQueue";
+import { summarise, type CheckInResponse } from "@/lib/checkins";
+import type { Reason } from "@/lib/flags";
 import { FlagBadge } from "./FlagBadge";
 import { NeedsReadingList } from "./NeedsReading";
 import { InterventionForm } from "./InterventionForm";
@@ -20,6 +22,8 @@ import { StatusControl } from "./StatusControl";
 interface Props {
   row: BoardRow | null;
   messages: { createdAt: string; sender: "student" | "counsellor" }[]; // timeline shows WHEN only
+  checkIns: CheckInResponse[]; // P-04 answers, summarised on the timeline
+  extraReasons: Reason[]; // P-04: e.g. "Check-in: needs follow-up"
   reading: ReadingItem[]; // P-02: unread items for the open student
   onMarkRead: (item: ReadingItem) => Promise<boolean>;
   ready: boolean;
@@ -79,14 +83,16 @@ export function StudentDrawer({ row, onClose, ...rest }: Props) {
   );
 }
 
-function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead, messages }: Props & { row: BoardRow }) {
+function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead, messages, checkIns, extraReasons }: Props & { row: BoardRow }) {
   const { student, flag, followUp, status } = row;
   const allInterventions = interventions.use().items;
   const timeline = buildTimeline({
     followUp,
     interventions: allInterventions.filter((i) => i.studentId === student.studentId),
     messages, // metadata only: the timeline never shows message words
+    checkIns: checkIns.map((c) => ({ createdAt: c.createdAt, summary: summarise(c) })),
   });
+  const reasons = [...flag.reasons, ...extraReasons];
   const [note, setNote] = useState(followUp?.note ?? "");
   const [noteState, setNoteState] = useState<"idle" | "saved" | "error">("idle");
 
@@ -126,10 +132,10 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
         </Group>
       )}
 
-      {flag.reasons.length > 0 && (
+      {reasons.length > 0 && (
         <Group title={flag.level === "None" ? "Also noted" : "Why this student is on the list"}>
           <ul className="divide-y divide-separator">
-            {flag.reasons.map((r) => (
+            {reasons.map((r) => (
               <li key={r.id} className={`px-4 py-3 ${r.primary ? "font-medium" : "text-text-muted"}`}>
                 {r.text}
                 {r.extra && <span className="text-text-muted"> (extra check)</span>}

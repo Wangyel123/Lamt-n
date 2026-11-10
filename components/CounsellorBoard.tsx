@@ -3,18 +3,19 @@
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { buildRows, type BoardRow } from "@/lib/board";
-import { countByLevel, flagStudent, FLAG_LEVELS, LEVEL_NAME, levelMeaning, type FlagLevel } from "@/lib/flags";
+import { checkInReasons, countByLevel, flagStudent, FLAG_LEVELS, LEVEL_NAME, levelMeaning, type FlagLevel } from "@/lib/flags";
 import { applyFilters, classOptions, EMPTY_FILTERS, hasActiveFilters, type Filters as FilterValues } from "@/lib/filters";
 import { useFollowUps } from "@/lib/followUpStore";
 import { changeNote, changeStatus, type FollowUpStatus } from "@/lib/followUps";
 import type { DataReport, Student } from "@/lib/parseCsv";
 import { overdueUrgentStudents, URGENT_CONTACT_WINDOW_HOURS } from "@/lib/interventions";
 import { isEnabled } from "@/lib/features";
-import { interventions, messages } from "@/lib/stores";
+import { checkInResponses, checkIns, interventions, messages } from "@/lib/stores";
 import { useReadingQueue } from "@/lib/useReadingQueue";
 import { AboutList } from "./AboutList";
 import { AlertBanner } from "./AlertBanner";
 import { CaseloadView } from "./CaseloadView";
+import { CheckInsView } from "./CheckInsView";
 import { InboxView } from "./InboxView";
 import { LEVEL_STYLE } from "./FlagBadge";
 import { FilterSheet } from "./FilterSheet";
@@ -30,7 +31,7 @@ interface Props {
   flaggedSince: string; // when the survey was loaded: the start of the urgent-contact window
 }
 
-type Tab = "board" | "caseload" | "inbox";
+type Tab = "board" | "caseload" | "inbox" | "checkins";
 
 export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   const { followUps, ready, loadError, save } = useFollowUps();
@@ -43,10 +44,17 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   // K-02: messages (only when the feature is on). Student messages also go through "Needs reading".
   const allMessages = messages.use().items;
   const studentMessages = isEnabled("messaging") ? allMessages.filter((m) => m.sender === "student") : [];
-  const reading = useReadingQueue(
-    students,
-    studentMessages.map((m) => ({ sourceId: `message:${m.id}`, studentId: m.studentId, at: m.createdAt, source: { kind: "message" as const, text: m.body } })),
-  );
+  // P-04: check-ins and answers (only when on). Answers add a reason and feed "Needs reading" and the timeline.
+  const sentCheckIns = checkIns.use().items;
+  const allAnswers = checkInResponses.use().items; // hooks are always called; the switch only filters
+  const answers = isEnabled("checkIns") ? allAnswers : [];
+  const reading = useReadingQueue(students, [
+    ...studentMessages.map((m) => ({ sourceId: `message:${m.id}`, studentId: m.studentId, at: m.createdAt, source: { kind: "message" as const, text: m.body } })),
+    ...answers
+      .filter((a) => a.comment)
+      .map((a) => ({ sourceId: `checkin:${a.id}`, studentId: a.studentId, at: a.createdAt, source: { kind: "checkin" as const, text: a.comment } })),
+  ]);
+  const checkInReasonsFor = (studentId: string) => checkInReasons(answers.filter((a) => a.studentId === studentId));
   const unreadMessages = studentMessages.filter((m) => !m.readAt).length;
 
   // Flags are computed here from lib/flags.ts on every change, never stored.
@@ -109,6 +117,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
           { key: "board", label: "Board" },
           { key: "caseload", label: "My caseload", count: openCount },
           ...(isEnabled("messaging") ? [{ key: "inbox" as const, label: "Inbox", count: unreadMessages }] : []),
+          ...(isEnabled("checkIns") ? [{ key: "checkins" as const, label: "Check-ins" }] : []),
         ]}
         active={tab}
         onChange={setTab}
@@ -126,6 +135,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
           />
         )}
         {tab === "inbox" && <InboxView rows={rows} messages={allMessages} onOpenStudent={setSelectedId} />}
+        {tab === "checkins" && <CheckInsView rows={rows} sent={sentCheckIns} responses={answers} />}
         {tab === "board" && (
           <>
             <SummaryCards
@@ -204,6 +214,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
                             onOpen={() => setSelectedId(row.student.studentId)}
                             onStatusChange={changeStatusFor(row)}
                           reading={reading.chips.get(row.student.studentId)}
+                          extraReasons={checkInReasonsFor(row.student.studentId)}
                           />
                         ))}
                       </ol>
@@ -235,6 +246,8 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
       <StudentDrawer
         row={selectedRow}
         messages={allMessages.filter((m) => m.studentId === selectedId)}
+        checkIns={answers.filter((a) => a.studentId === selectedId)}
+        extraReasons={selectedId ? checkInReasonsFor(selectedId) : []}
         reading={reading.items.filter((i) => i.studentId === selectedId)}
         onMarkRead={reading.markRead}
         ready={ready}

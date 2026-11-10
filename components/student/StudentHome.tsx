@@ -2,6 +2,7 @@ import { ChevronRight, Info, MessageCircle, type LucideIcon } from "lucide-react
 import { isEnabled, type FeatureName } from "@/lib/features";
 import Link from "next/link";
 import { STUDENT_IDLE_MINUTES } from "@/lib/accessCodes";
+import { CheckInTile } from "./CheckInTile";
 
 const TILES: { feature: FeatureName; href: string; icon: LucideIcon; title: string; text: string }[] = [
   { feature: "messaging", href: "/student/messages", icon: MessageCircle, title: "Talk to my counsellor", text: "Send a private message. A real person replies." },
@@ -10,7 +11,7 @@ const TILES: { feature: FeatureName; href: string; icon: LucideIcon; title: stri
 // The signed-in student's home. It never shows a flag, a reason, or anything counsellor-only.
 // Phase 2 adds tiles here (talk to my counsellor, check-in, activities, journal) as each is built,
 // each behind its switch in lib/features.ts. At most 4 big tiles (Hick's law).
-export function StudentHome() {
+export function StudentHome({ liveStudentId }: { liveStudentId?: string }) {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
@@ -20,6 +21,7 @@ export function StudentHome() {
 
       <ul className="space-y-3">
         {/* Phase 2 tiles, each shown only when its feature switch is on (at most 4 big tiles) */}
+        {isEnabled("checkIns") && <CheckInTile liveStudentId={liveStudentId} />}
         {TILES.filter((t) => isEnabled(t.feature)).map(({ href, icon: Icon, title, text }) => (
           <li key={href}>
             <Link href={href} className="flex min-h-12 items-center gap-4 rounded-3xl bg-surface p-5">

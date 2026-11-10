@@ -22,7 +22,7 @@ async function LiveStudentGate() {
   if (!session) return <CodeForm mode="live" />;
   return (
     <>
-      <StudentHome />
+      <StudentHome liveStudentId={session.studentId} />
       <IdleSignOut mode="live" />
     </>
   );

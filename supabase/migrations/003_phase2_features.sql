@@ -94,3 +94,58 @@ create policy "counsellors mark read" on public.messages
 -- Nobody can edit the words of a message or delete it; a counsellor can only mark it read.
 revoke update, delete on public.messages from authenticated;
 grant update (read_at) on public.messages to authenticated;
+
+-- ===========================================================================
+-- P-04: check-ins (2–3 short questions sent to a school or class) and students' answers.
+-- ===========================================================================
+create table public.checkins (
+  id uuid primary key default gen_random_uuid(),
+  school text not null,
+  class text null, -- null = the whole school
+  questions text[] not null check (questions <@ array['feeling', 'worry', 'comment'] and cardinality(questions) between 1 and 3),
+  created_by uuid null references auth.users (id) default auth.uid(),
+  created_at timestamptz not null default now()
+);
+
+create table public.checkin_responses (
+  id uuid primary key default gen_random_uuid(),
+  checkin_id uuid not null references public.checkins (id) on delete cascade,
+  student_id text not null references public.students (student_id) on delete cascade,
+  feeling smallint null check (feeling between 1 and 4),
+  worry text null check (worry in ('Yes', 'No', 'Prefer not to say')),
+  comment text not null default '' check (char_length(comment) <= 500),
+  created_at timestamptz not null default now(),
+  unique (checkin_id, student_id) -- one answer per student per check-in
+);
+create index checkin_responses_student_idx on public.checkin_responses (student_id, created_at);
+
+/** Is this check-in for the signed-in student's own school/class? (students can't read the students table) */
+create function public.checkin_is_for_me(p_school text, p_class text)
+returns boolean language sql stable security definer set search_path = '' as $$
+  select exists (
+    select 1 from public.students s
+    where s.student_id = public.current_student_id()
+      and s.school = p_school and (p_class is null or s.class = p_class)
+  );
+$$;
+revoke all on function public.checkin_is_for_me(text, text) from public, anon;
+grant execute on function public.checkin_is_for_me(text, text) to authenticated;
+
+alter table public.checkins enable row level security;
+alter table public.checkin_responses enable row level security;
+revoke all on public.checkins, public.checkin_responses from anon;
+
+create policy "counsellors read check-ins" on public.checkins for select to authenticated using (public.can_see_school(school));
+create policy "counsellors send check-ins" on public.checkins
+  for insert to authenticated with check (public.can_see_school(school) and created_by = (select auth.uid()));
+create policy "students see their check-ins" on public.checkins for select to authenticated using (public.checkin_is_for_me(school, class));
+
+create policy "counsellors read answers" on public.checkin_responses for select to authenticated using (public.can_see_student(student_id));
+create policy "students read own answers" on public.checkin_responses for select to authenticated using (student_id = public.current_student_id());
+create policy "students answer their check-ins" on public.checkin_responses
+  for insert to authenticated
+  with check (
+    student_id = public.current_student_id()
+    and exists (select 1 from public.checkins c where c.id = checkin_id and public.checkin_is_for_me(c.school, c.class))
+  );
+revoke update, delete on public.checkins, public.checkin_responses from authenticated;

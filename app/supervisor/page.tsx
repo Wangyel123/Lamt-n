@@ -2,16 +2,18 @@ import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoadingState } from "@/components/LoadingState";
+import { CheckInRates } from "@/components/CheckInRates";
 import { HeatMap } from "@/components/HeatMap";
 import { InterventionCounts } from "@/components/InterventionCounts";
 import { SupervisorChart } from "@/components/SupervisorChart";
 import { SupervisorTable } from "@/components/SupervisorTable";
 import { TopBar } from "@/components/TopBar";
 import { requireRole } from "@/lib/auth";
-import { loadInterventionsForAggregation, loadStudentsForAggregation, loadStudentsFromCsv } from "@/lib/loadStudents";
+import { loadCheckInsForAggregation, loadInterventionsForAggregation, loadStudentsForAggregation, loadStudentsFromCsv } from "@/lib/loadStudents";
+import { isEnabled } from "@/lib/features";
 import { isDemoMode } from "@/lib/mode";
 import type { SafeCell } from "@/lib/suppression";
-import { buildSupervisorSummary, followUpCell, interventionTable } from "@/lib/supervisorSummary";
+import { buildSupervisorSummary, checkInRateTable, followUpCell, interventionTable } from "@/lib/supervisorSummary";
 
 export const metadata: Metadata = { title: "Schools overview · Student Wellbeing" };
 
@@ -40,6 +42,15 @@ async function SupervisorContent() {
         students.map((s) => ({ studentId: s.studentId, school: s.school })),
         await loadInterventionsForAggregation(),
       );
+  // P-04: check-in response rates (live mode only)
+  const checkInData = demo ? null : await loadCheckInsForAggregation();
+  const rates = checkInData
+    ? checkInRateTable(
+        students.map((s) => ({ studentId: s.studentId, school: s.school, className: s.className })),
+        checkInData.sent,
+        checkInData.answeredBy,
+      )
+    : [];
   const all = summary.rows.find((r) => r.kind === "all")!;
   const schoolCount = summary.rows.filter((r) => r.kind === "school").length;
 
@@ -79,6 +90,7 @@ async function SupervisorContent() {
           </div>
         </details>
         <InterventionCounts rows={support} demo={demo} />
+        {isEnabled("checkIns") && <CheckInRates rows={rates} demo={demo} />}
 
         <p className="px-1 text-[13px] text-text-muted">
           Priorities use the recommended rules, including the extra checks for skipped and worrying answers.

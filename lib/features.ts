@@ -11,8 +11,8 @@ export const FEATURES = {
   activities: false,
   /** K-04: private journal and goals. Not built yet. */
   journal: false,
-  /** P-04: short check-ins between surveys. Not built yet. */
-  checkIns: false,
+  /** P-04: short check-ins between surveys. */
+  checkIns: true,
   /** K-06: pre-moderated peer board. Optional; default OFF. */
   peerBoard: false,
 } as const;

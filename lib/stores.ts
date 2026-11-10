@@ -6,6 +6,7 @@
 
 import { createCollection } from "./collectionStore";
 import type { Intervention, InterventionOutcome, InterventionType } from "./interventions";
+import type { CheckIn, CheckInResponse, Feeling, QuestionId, Worry } from "./checkins";
 import type { Message } from "./messages";
 
 const str = (v: unknown) => (v == null ? "" : String(v));
@@ -61,4 +62,30 @@ export const messages = createCollection<Message>({
   }),
   toRow: (m) => ({ id: m.id, student_id: m.studentId, sender_role: m.sender, body: m.body }), // created_at set by the database
   patchRow: (p) => ({ read_at: p.readAt }), // the only column anyone may change afterwards
+});
+
+// P-04: check-ins a counsellor sends, and students' answers. Students: only check-ins for their
+// group and their own answers. Counsellors: their school. Supervisors: response RATES via the server.
+export const checkIns = createCollection<CheckIn>({
+  key: "sa-checkins-v1",
+  table: "checkins",
+  columns: "id, school, class, questions, created_at",
+  fromRow: (r) => ({ id: str(r.id), school: str(r.school), className: strOrNull(r.class), questions: (r.questions as QuestionId[]) ?? [], createdAt: str(r.created_at) }),
+  toRow: (c) => ({ id: c.id, school: c.school, class: c.className, questions: c.questions }),
+});
+
+export const checkInResponses = createCollection<CheckInResponse>({
+  key: "sa-checkin-responses-v1",
+  table: "checkin_responses",
+  columns: "id, checkin_id, student_id, feeling, worry, comment, created_at",
+  fromRow: (r) => ({
+    id: str(r.id),
+    checkInId: str(r.checkin_id),
+    studentId: str(r.student_id),
+    feeling: (r.feeling as Feeling | null) ?? null,
+    worry: (r.worry as Worry | null) ?? null,
+    comment: str(r.comment),
+    createdAt: str(r.created_at),
+  }),
+  toRow: (r) => ({ id: r.id, checkin_id: r.checkInId, student_id: r.studentId, feeling: r.feeling, worry: r.worry, comment: r.comment }),
 });

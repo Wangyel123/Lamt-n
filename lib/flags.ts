@@ -78,7 +78,8 @@ export type ConditionId =
   | "noTrustedAdult"
   | "wantsCounsellor"
   | "skippedSelfHarm"
-  | "worryingComment";
+  | "worryingComment"
+  | "checkInConcern";
 
 // Plain, kind words the counsellor reads. Never codes like "q3".
 export const REASON_TEXT: Record<ConditionId, string> = {
@@ -91,6 +92,7 @@ export const REASON_TEXT: Record<ConditionId, string> = {
   wantsCounsellor: "Asked to see the counsellor",
   skippedSelfHarm: "Chose not to answer the self-harm question. Check in gently.",
   worryingComment: "Comment may need reading",
+  checkInConcern: "Check-in: needs follow-up",
 };
 
 // Display order of reasons, and which conditions are our proposal (not the brief's).
@@ -234,4 +236,16 @@ export function countByLevel(results: { level: FlagLevel }[]): Record<FlagLevel,
   const counts: Record<FlagLevel, number> = { Urgent: 0, High: 0, Review: 0, None: 0 };
   for (const r of results) counts[r.level] += 1;
   return counts;
+}
+
+// ---------------------------------------------------------------------------
+// 5. CHECK-IN RULE (Phase 2, P-04), clearly labelled extra. It ADDS a reason, but NEVER changes
+// the survey flag level: a check-in is a short pulse, not a survey, and the counsellor decides.
+// ---------------------------------------------------------------------------
+
+/** "Check-in: needs follow-up" if the student's LATEST check-in says "Not good" (1) or worried "Yes". */
+export function checkInReasons(responses: { feeling: number | null; worry: string | null; createdAt: string }[]): Reason[] {
+  const latest = [...responses].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  if (!latest || !(latest.feeling === 1 || latest.worry === "Yes")) return [];
+  return [{ id: "checkInConcern", text: REASON_TEXT.checkInConcern, primary: false, extra: true }];
 }

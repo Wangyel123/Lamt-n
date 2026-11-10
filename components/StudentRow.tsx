@@ -2,6 +2,7 @@
 
 import { ChevronRight, CircleAlert } from "lucide-react";
 import type { BoardRow } from "@/lib/board";
+import type { Reason } from "@/lib/flags";
 import { formatTime } from "@/lib/format";
 import type { FollowUpStatus } from "@/lib/followUps";
 import { LevelIcon } from "./FlagBadge";
@@ -16,12 +17,13 @@ interface Props {
   onStatusChange: (to: FollowUpStatus, eventNote: string) => Promise<boolean>;
   note?: React.ReactNode; // extra line under the reasons (e.g. the next check-in date in My caseload)
   reading?: string[]; // P-02: unread "Needs reading" categories for this student
+  extraReasons?: Reason[]; // P-04: e.g. "Check-in: needs follow-up" (never changes the level)
 }
 
 // One student as a row in a grouped list (Apple style). Left: who and why. Right: your follow-up.
 // Tap the left part for full details. Urgent rows also get a red edge (never colour alone:
 // the section heading, icon and word "Urgent" say it too).
-export function StudentRow({ row, ready, onOpen, onStatusChange, note, reading }: Props) {
+export function StudentRow({ row, ready, onOpen, onStatusChange, note, reading, extraReasons = [] }: Props) {
   const { student, flag, followUp, status } = row;
 
   return (
@@ -44,7 +46,7 @@ export function StudentRow({ row, ready, onOpen, onStatusChange, note, reading }
           )}
           {reading && reading.length > 0 && <NeedsReadingChip categories={reading} />}
           <span className="mt-0.5 block text-[15px] leading-snug">
-            <Reasons reasons={flag.reasons} />
+            <Reasons reasons={[...flag.reasons, ...extraReasons]} />
           </span>
           {note && <span className="mt-1 block text-[13px]">{note}</span>}
         </span>
