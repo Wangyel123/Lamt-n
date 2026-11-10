@@ -1,9 +1,10 @@
-import { BarChart3, ChevronRight, HeartHandshake, UserRound } from "lucide-react";
+import { BarChart3, ChevronRight, HeartHandshake, Sprout, UserRound } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/LoginForm";
 import { getCurrentProfile } from "@/lib/auth";
+import { isEnabled } from "@/lib/features";
 import { isDemoMode } from "@/lib/mode";
 
 // Start page: choose a role (demo mode) or sign in (live mode).
@@ -35,13 +36,29 @@ export default function Home() {
 async function LiveLogin() {
   const profile = await getCurrentProfile();
   if (profile) redirect(`/${profile.role}`); // already signed in
-  return <LoginForm />;
+  return (
+    <>
+      <LoginForm />
+      {isEnabled("studentPortal") && (
+        <p className="mt-6 text-center text-[15px] text-text-muted">
+          Are you a student?{" "}
+          <Link href="/student" className="font-medium text-primary underline-offset-2 hover:underline">
+            Go to your space
+          </Link>
+        </p>
+      )}
+    </>
+  );
 }
 
 function RoleChooser() {
   const roles = [
     { href: "/counsellor", icon: UserRound, title: "I'm a counsellor", text: "See which students to meet first and track follow-ups" },
     { href: "/supervisor", icon: BarChart3, title: "I'm a supervisor", text: "See numbers for each school. No names." },
+    // Phase 2 (K-01/K-05): the student area, shown only when its feature switch is on
+    ...(isEnabled("studentPortal")
+      ? [{ href: "/student", icon: Sprout, title: "I'm a student", text: "A private space to check in with your counsellor" }]
+      : []),
   ];
   return (
     <>
