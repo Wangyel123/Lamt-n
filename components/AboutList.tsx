@@ -5,6 +5,7 @@ import { useId } from "react";
 import { FLAG_LEVELS, LEVEL_NAME, levelMeaning } from "@/lib/flags";
 import type { DataReport } from "@/lib/parseCsv";
 import { LevelIcon } from "./FlagBadge";
+import { Switch } from "./Switch";
 
 interface Props {
   useExtraRules: boolean;
@@ -36,21 +37,7 @@ export function AboutList({ useExtraRules, extraFlaggedCount, onToggleExtraRules
               worrying words become Review. This raises {extraFlaggedCount} students.
             </p>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={useExtraRules}
-            aria-describedby={helpId}
-            aria-label="Also flag students the basic rules miss"
-            onClick={() => onToggleExtraRules(!useExtraRules)}
-            className="flex min-h-11 shrink-0 items-center"
-          >
-            <span aria-hidden className={`relative inline-block h-[31px] w-[51px] rounded-full transition-colors duration-150 ${useExtraRules ? "bg-primary" : "bg-separator"}`}>
-              <span
-                className={`absolute top-0.5 size-[27px] rounded-full bg-white shadow-[0_2px_4px_hsla(0,0%,0%,.2)] transition-transform duration-150 ${useExtraRules ? "translate-x-[22px]" : "translate-x-0.5"}`}
-              />
-            </span>
-          </button>
+          <Switch checked={useExtraRules} onChange={onToggleExtraRules} label="Also flag students the basic rules miss" describedBy={helpId} />
         </div>
 
         <details className="group">

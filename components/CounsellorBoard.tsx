@@ -125,10 +125,10 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
       <WorkspaceTabs<Tab>
         tabs={[
           { key: "board", label: "Board" },
-          { key: "caseload", label: "My caseload", count: openCount },
+          { key: "caseload", label: "My caseload", shortLabel: "Caseload", count: openCount },
           ...(isEnabled("messaging") ? [{ key: "inbox" as const, label: "Inbox", count: unreadMessages }] : []),
           ...(isEnabled("checkIns") ? [{ key: "checkins" as const, label: "Check-ins" }] : []),
-          ...(isEnabled("peerBoard") ? [{ key: "moderation" as const, label: "Moderation", count: pendingPosts.length }] : []),
+          ...(isEnabled("peerBoard") ? [{ key: "moderation" as const, label: "Moderation", shortLabel: "Posts", count: pendingPosts.length }] : []),
         ]}
         active={tab}
         onChange={setTab}

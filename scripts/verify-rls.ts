@@ -94,6 +94,8 @@ async function main() {
 
   // 6. Phase 2: students signing in with a one-time code (needs migration 002 + anonymous sign-ins)
   await studentChecks(admin, counsellorB, supervisor);
+  // 7. Phase 2 features (needs migration 003 too)
+  await phase2Checks(admin, counsellorB, supervisor);
 
   console.log(failures === 0 ? "\nAll RLS checks passed." : `\n${failures} RLS check(s) FAILED.`);
   process.exit(failures === 0 ? 0 : 1);
@@ -149,6 +151,63 @@ async function studentChecks(admin: SupabaseClient, counsellorB: SupabaseClient,
     if (codes.length) await admin.from("access_codes").delete().in("code", codes);
     await admin.from("student_accounts").delete().in("auth_uid", anonIds);
     await admin.from("code_attempts").delete().in("auth_uid", anonIds);
+    for (const id of anonIds) await admin.auth.admin.deleteUser(id);
+  }
+}
+
+async function phase2Checks(admin: SupabaseClient, counsellorB: SupabaseClient, supervisor: SupabaseClient) {
+  const { error: missing } = await admin.from("messages").select("id").limit(1);
+  if (missing) return console.log("SKIP  Phase 2 checks: run supabase/migrations/003_phase2_features.sql first");
+  const tables = ["interventions", "messages", "journal_entries", "goals", "checkins", "checkin_responses", "text_reviews", "board_posts"];
+  for (const t of tables) check(`supervisor sees 0 rows in ${t}`, (await visible(supervisor, t)) === 0);
+
+  const { data: me } = await counsellorB.auth.getUser();
+  const ids: { table: string; id: string }[] = [];
+  const anonIds: string[] = [];
+  const codes: string[] = [];
+  const studentFor = async (studentId: string) => {
+    const code = generateCode();
+    await counsellorB.from("access_codes").insert({ code, student_id: studentId, created_by: me.user!.id });
+    codes.push(code);
+    const c = newClient();
+    const { data, error } = await c.auth.signInAnonymously();
+    if (error) return null;
+    anonIds.push(data.user!.id);
+    await c.rpc("redeem_access_code", { p_code: code });
+    return c;
+  };
+  try {
+    const i1 = crypto.randomUUID();
+    check("counsellor logs an intervention for their school", !(await counsellorB.from("interventions").insert({ id: i1, student_id: "S-038", type: "check_in_meeting", created_by: me.user!.id })).error);
+    ids.push({ table: "interventions", id: i1 });
+    check("counsellor can't log one for another school", Boolean((await counsellorB.from("interventions").insert({ student_id: "S-001", type: "other", created_by: me.user!.id })).error));
+
+    const student = await studentFor("S-038");
+    const other = await studentFor("S-039");
+    if (!student || !other) return console.log("SKIP  Phase 2 student checks: turn on anonymous sign-ins");
+    const m1 = crypto.randomUUID();
+    check("student sends a message to their counsellor", !(await student.from("messages").insert({ id: m1, student_id: "S-038", sender_role: "student", body: "hello (RLS check)" })).error);
+    ids.push({ table: "messages", id: m1 });
+    check("student can't send as someone else", Boolean((await student.from("messages").insert({ student_id: "S-039", sender_role: "student", body: "x" })).error));
+    check("student can't pretend to be the counsellor", Boolean((await student.from("messages").insert({ student_id: "S-038", sender_role: "counsellor", body: "x" })).error));
+    check("another student can't read this conversation", (await other.from("messages").select("id").eq("id", m1)).data?.length === 0);
+    check("counsellor can read it", (await counsellorB.from("messages").select("id").eq("id", m1)).data?.length === 1);
+    check("nobody can edit a message's words", ((await counsellorB.from("messages").update({ body: "changed" }).eq("id", m1).select()).data?.length ?? 0) === 0);
+    check("student sees 0 interventions (counsellor notes)", (await visible(student, "interventions")) === 0);
+
+    const j1 = crypto.randomUUID();
+    await student.from("journal_entries").insert({ id: j1, student_id: "S-038", body: "private thought (RLS check)", shared: false });
+    ids.push({ table: "journal_entries", id: j1 });
+    check("counsellor CANNOT read a private journal entry", (await counsellorB.from("journal_entries").select("id").eq("id", j1)).data?.length === 0);
+    await student.from("journal_entries").update({ shared: true }).eq("id", j1);
+    check("…but can once the student shares it", (await counsellorB.from("journal_entries").select("id").eq("id", j1)).data?.length === 1);
+    check("a journal entry's words can't be edited", ((await student.from("journal_entries").update({ body: "changed" }).eq("id", j1).select()).data?.length ?? 0) === 0);
+
+    check("a student can't publish a board post directly", Boolean((await student.from("board_posts").insert({ student_id: "S-038", topic: "Friendships", body: "hi", alias: "Blue Lake", status: "approved" })).error));
+  } finally {
+    for (const { table, id } of ids) await admin.from(table).delete().eq("id", id);
+    if (codes.length) await admin.from("access_codes").delete().in("code", codes);
+    await admin.from("student_accounts").delete().in("auth_uid", anonIds);
     for (const id of anonIds) await admin.auth.admin.deleteUser(id);
   }
 }

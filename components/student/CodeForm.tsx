@@ -8,7 +8,7 @@ import { createDemoCodeFor, redeemDemoCode } from "@/lib/accessCodeStore";
 import { signInDemoStudent } from "@/lib/studentSession";
 import { IDLE_FLAG } from "./StudentSessionControls";
 
-/** The student who appears when a reviewer taps "Try as a demo student". A student with no concerns. */
+/** The student who appears when a reviewer taps "Try as a demo student" (School A, Class VI). */
 export const DEMO_STUDENT_ID = "S-012";
 
 // Was the student just signed out for being idle? Live mode says so in the address bar (server

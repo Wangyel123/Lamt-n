@@ -5,6 +5,7 @@ import { useRef } from "react";
 export interface TabDef<K extends string> {
   key: K;
   label: string;
+  shortLabel?: string; // used on phones so every tab fits without scrolling
   count?: number; // shown as text ("Inbox 3"), never as a colour-only dot
 }
 
@@ -18,7 +19,7 @@ export function WorkspaceTabs<K extends string>({ tabs, active, onChange }: { ta
     refs.current[next]?.focus();
   };
   return (
-    <div role="tablist" aria-label="Views" className="flex gap-1 overflow-x-auto rounded-[12px] bg-fill p-1">
+    <div role="tablist" aria-label="Views" className="flex gap-1 rounded-[12px] bg-fill p-1">
       {tabs.map((t, i) => {
         const selected = t.key === active;
         return (
@@ -38,13 +39,20 @@ export function WorkspaceTabs<K extends string>({ tabs, active, onChange }: { ta
               if (e.key === "ArrowRight") move(i, 1);
               if (e.key === "ArrowLeft") move(i, -1);
             }}
-            className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-[9px] px-4 text-[15px] whitespace-nowrap ${
+            className={`inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-[9px] px-2 text-[14px] whitespace-nowrap sm:flex-none sm:px-4 sm:text-[15px] ${
               selected ? "bg-surface font-semibold shadow-[0_1px_3px_hsla(0,0%,0%,.12)]" : "text-text"
             }`}
           >
-            {t.label}
+            {t.shortLabel ? (
+              <>
+                <span className="sm:hidden">{t.shortLabel}</span>
+                <span className="hidden sm:inline">{t.label}</span>
+              </>
+            ) : (
+              t.label
+            )}
             {t.count !== undefined && t.count > 0 && (
-              <span className="tabular rounded-full bg-primary px-2 text-[12px] font-semibold text-white">{t.count}</span>
+              <span className="tabular rounded-full bg-primary px-1.5 text-[12px] font-semibold text-white">{t.count}</span>
             )}
           </button>
         );

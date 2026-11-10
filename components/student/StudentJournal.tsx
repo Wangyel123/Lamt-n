@@ -6,6 +6,7 @@ import { newId } from "@/lib/collectionStore";
 import { formatTime } from "@/lib/format";
 import { GOAL_ENCOURAGEMENT, type JournalEntry } from "@/lib/journal";
 import { goals as goalStore, journalEntries } from "@/lib/stores";
+import { Switch } from "../Switch";
 import { SignedInOnly } from "./SignedInOnly";
 
 const MOODS: { value: 1 | 2 | 3 | 4; icon: LucideIcon; label: string }[] = [
@@ -31,13 +32,7 @@ export function StudentJournal({ liveStudentId }: { liveStudentId?: string }) {
 }
 
 function ShareSwitch({ shared, onChange, id }: { shared: boolean; onChange: (v: boolean) => void; id: string }) {
-  return (
-    <button type="button" role="switch" aria-checked={shared} aria-labelledby={id} onClick={() => onChange(!shared)} className="flex min-h-12 shrink-0 items-center">
-      <span aria-hidden className={`relative inline-block h-[31px] w-[51px] rounded-full transition-colors ${shared ? "bg-student-accent" : "bg-separator"}`}>
-        <span className={`absolute top-0.5 size-[27px] rounded-full bg-white shadow-[0_2px_4px_hsla(0,0%,0%,.2)] transition-transform ${shared ? "translate-x-[22px]" : "translate-x-0.5"}`} />
-      </span>
-    </button>
-  );
+  return <Switch checked={shared} onChange={onChange} labelledBy={id} tone="student" />;
 }
 
 function Journal({ studentId }: { studentId: string }) {

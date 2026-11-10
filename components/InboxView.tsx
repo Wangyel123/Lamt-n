@@ -29,7 +29,7 @@ export function InboxView({ rows, messages, onOpenStudent }: Props) {
 
   return (
     <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-      <ul className={`divide-y divide-separator overflow-hidden rounded-2xl bg-surface ${open ? "hidden md:block" : ""}`} aria-label="Conversations">
+      <ul className={`divide-y divide-separator self-start overflow-hidden rounded-2xl bg-surface ${open ? "hidden md:block" : ""}`} aria-label="Conversations">
         {list.map((c) => {
           const row = rowOf(c.studentId);
           const urgentWords = c.messages.some((m) => m.sender === "student" && !m.readAt && needsAlert(scanText(m.body)));
@@ -39,7 +39,7 @@ export function InboxView({ rows, messages, onOpenStudent }: Props) {
                 type="button"
                 onClick={() => setOpenId(c.studentId)}
                 aria-current={c.studentId === openId}
-                className={`flex min-h-11 w-full items-start gap-3 px-4 py-3 text-left ${c.studentId === openId ? "bg-bg" : ""}`}
+                className={`flex min-h-11 w-full items-start gap-3 px-4 py-3 text-left ${c.studentId === openId ? "bg-fill" : "hover:bg-bg"}`}
               >
                 <span className="flex-1">
                   <span className="flex flex-wrap items-center gap-2">
