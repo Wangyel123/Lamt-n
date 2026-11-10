@@ -16,30 +16,43 @@ The first version worked but users found it confusing: engineer words ("flag lev
 | Borders everywhere | "Too many borders → use two background colours or spacing" (Refactoring UI) | White grouped lists on a soft grey page, thin dividers instead of boxes |
 | Supervisor saw a grid of hidden numbers first | Lead with the answer | Three headline numbers, then "need follow-up by school", then the detailed table |
 
+## The Lamtön look (second redesign)
+
+Feedback on the first redesign: "looks AI generated", "not a system I would want to log into". The causes were generic: an icon in a tinted square on every card, pill buttons, floating white cards on grey, bright teal, and uppercase labels. The second redesign aims for something closer to a well-made clinical or banking tool: calm, warm and precise.
+
+- **Name and mark:** "Lamtön" (Dzongkha: guidance). The mark is a hand-drawn winding path to a point, in `components/Wordmark.tsx`, not an icon-set glyph.
+- **One source of styles:** `lib/ui.ts` defines the buttons, fields, labels and panels, so every screen matches.
+- **Panels, not floating cards:** white surfaces with a 1 px hairline edge on a warm paper background. Radii come from one family: 10 px controls, 14 px panels, 18 px student cards.
+- **Priority is shown with a small dot and a word**, not coloured pills. Urgent alone gets red text, a ring on its dot and a red left edge on its row, so it is the only loud thing on the screen.
+- **Counts sit in one segmented panel**; tabs are underlined; the top of the board is a single sentence saying what needs doing ("2 urgent students have no contact logged yet").
+- **Supervisor heat map** uses one cypress-green ramp (light to dark), matching the accent, and every cell prints its number.
+
 ## Colour
 
 | Token | Hex | Use | Contrast |
 |---|---|---|---|
-| `--bg` | `#F2F2F7` | Page (Apple's grouped background) | text 15.3:1 |
-| `--surface` | `#FFFFFF` | Lists and cards | text 17.0:1 |
-| `--text` / `--text-muted` | `#1C1C1E` / `#636366` | Primary / secondary text | muted 6.0:1 on white, 5.4:1 on page |
-| `--primary` | `#1F6F78` | The one accent: actions, links, focus ring | 5.8:1 with white either way |
-| `--urgent` | `#B42318` | Urgent only (solid badge, red edge) | white on it 6.57:1 |
-| `--high` / `--high-ink` | `#DC6803` / `#93370D` | High marks / High text | ink 7.5:1 |
+| `--bg` | `#F4F3EF` | Page: warm paper, not cold grey | text 15.9:1 |
+| `--surface` | `#FFFFFF` | Panels and lists | text 17.6:1 |
+| `--text` / `--text-muted` | `#16191D` / `#5B6067` | Primary / secondary text | muted 6.3:1 on white, 5.7:1 on page |
+| `--border` | `#8C8880` | Field edges (non-text, needs 3:1) | 3.5:1 on white |
+| `--primary` | `#234E45` | The one accent (deep cypress): actions, links, focus ring | white on it 9.3:1 |
+| `--urgent` | `#B42318` | Urgent only: red text, dot ring, row edge | 6.6:1 on white |
+| `--high` / `--high-ink` | `#DC6803` / `#93370D` | High dot / High text | ink 7.5:1 |
 | `--review` / ink | `#6941C6` / `#5925DC` | Review | ink 7.7:1 |
-| `--none` / ink | `#667085` / `#475467` | No concerns: neutral grey on purpose (not "good" or "bad" about a child) | ink 7.7:1 |
+| `--none` / ink | `#9A968E` / `#5B6067` | No concerns: neutral grey on purpose (not "good" or "bad" about a child) | ink 6.3:1 |
+| `--student-bg` / `--student-accent` | `#EEF3EF` / `#2B5F4E` | Student area only | white on accent 7.4:1 |
+| Heat ramp | `#EEF4F1` to `#2F5F53` | Supervisor heat map (5 steps) | dark text on step 4: 6.7:1; white on step 5: 7.3:1 |
 
-- **A real flaw, found by measurement:** the build prompt's High colour (`#B54708`) was almost identical to Urgent red (OKLab ΔE 6.1 with full colour vision, 3.9 for red-green colour-blindness; 15 is the floor). High became `#DC6803` (ΔE 16). Checked with a palette validator, not by eye.
-- **Visual weight follows urgency:** Urgent is the *only* solid badge. Other priorities are soft tinted pills.
-- **Never colour alone** (WCAG 1.4.1): every priority also has its own icon and word; Urgent also has its own group heading, position and red edge.
-- **Colour-blind simulation** (Chrome: deuteranopia, protanopia, tritanopia, full greyscale): Urgent stays unmistakable in all four.
+- **A real flaw, found by measurement:** the build prompt's High colour (`#B54708`) was almost identical to Urgent red (OKLab ΔE 6.1 with full colour vision, 3.9 for red-green colour-blindness; 15 is the floor). High became `#DC6803` (ΔE 16). This was checked with a palette validator, not by eye.
+- **Visual weight follows urgency:** only Urgent uses red text, a ringed dot and a row edge.
+- **Never colour alone** (WCAG 1.4.1): every priority is written out as a word, and Urgent also has its own group heading, position and red edge.
 
 ## Type and layout
 
-- **System font** (SF Pro on Apple devices, the platform font elsewhere): familiar, highly legible, nothing to download. *(Changed from Atkinson Hyperlegible in the redesign, to match the Apple look users asked for. Atkinson remains a good choice for low-vision users.)*
-- 17 px body (Apple's reading size), 34 px large titles, 13 px footnotes; tabular numbers in counts so columns line up.
-- Line length about 65 characters for paragraphs; one rounded radius family; generous spacing between groups, tighter within them.
-- The only translucent "glass" is the top bar (Apple: glass belongs on the floating navigation layer, never on content).
+- **Geist** (sans and mono, loaded through `next/font`, so it is self-hosted with no layout shift). It is calm and exact, and the mono version is used for student IDs and access codes so they read like reference numbers.
+- 15 px body on staff screens (dense working tool), 28 px page titles, 13 px notes; tabular numbers in counts. The student area uses 18 px text and 48 px targets.
+- Paragraphs run to about 65 characters; spacing is generous between groups and tight within them.
+- A focus ring shows for keyboard users everywhere, except on headings and `<main>`, which receive focus only from code (to move screen readers).
 
 ## Interaction
 
@@ -75,7 +88,7 @@ Trauma-informed: say plainly who sees the answers and the honest limits ("If you
 | **"Get help now" is calm green, always in the header**, and lists real people first | It should feel safe to open, and the app is not an emergency service |
 | **One question per screen** in check-ins, progress shown, every question skippable, faces always with words | Lower effort, visible end, choice and control (trauma-informed); never colour or icon alone |
 | **Codes avoid look-alike characters** (no 0/O, 1/I/L) and are shown large in a monospace font | Read off paper by children; fewer typing mistakes |
-| **Tabs (Board · Caseload · Inbox · Check-ins)** as an Apple-style segmented control; short labels on phones | Familiar pattern; every tab fits at 360 px; counts shown as numbers, not colour dots |
+| **Tabs (Board · Caseload · Inbox · Check-ins)** as underlined tabs; short labels on phones | Familiar pattern; every tab fits at 360 px; counts shown as numbers, not colour dots |
 | **Safety banners are the only red on the counsellor's board**, with an icon, words and a button per student | Red keeps its meaning (alarm fatigue is real) and is never the only cue |
 | **"Needs reading" chips are violet, not red** | Calls for reading, not panic; the counsellor decides what it means |
 | **Heat map: one teal hue, light → dark, every cell prints its number; hidden cells are hatched grey** | Single-hue scales read in order and are colour-blind safe; a pattern + words mark hidden cells |

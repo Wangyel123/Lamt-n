@@ -23,7 +23,7 @@ export function LeaveButton({ mode }: { mode: Mode }) {
           void signOutStudent();
         }
       }}
-      className="inline-flex min-h-12 items-center gap-1.5 rounded-full px-3 font-medium text-student-accent hover:bg-surface"
+      className="inline-flex min-h-12 items-center gap-1.5 rounded-[12px] px-3 font-medium text-student-accent hover:bg-surface"
     >
       <DoorOpen aria-hidden size={18} />
       Leave

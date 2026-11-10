@@ -25,9 +25,9 @@ function Flow({ studentId }: { studentId: string }) {
   if (!checkIn)
     return (
       <div className="space-y-4">
-        <h1 className="text-[32px] leading-tight font-bold">Check-in</h1>
-        <p className="rounded-3xl bg-surface p-5">There&apos;s no check-in waiting for you right now. Thank you!</p>
-        <Link href="/student" className="inline-flex min-h-12 items-center rounded-full bg-student-accent px-5 font-semibold text-white">
+        <h1 className="text-[32px] leading-tight font-semibold">Check-in</h1>
+        <p className="rounded-[18px] border border-separator bg-surface p-5">There&apos;s no check-in waiting for you right now. Thank you!</p>
+        <Link href="/student" className="inline-flex min-h-12 items-center rounded-[12px] bg-student-accent px-5 font-semibold text-white">
           Back to my space
         </Link>
       </div>
@@ -56,10 +56,10 @@ function Questions({ checkIn, studentId }: { checkIn: CheckIn; studentId: string
   if (done)
     return (
       <div className="space-y-4">
-        <h1 className="text-[32px] leading-tight font-bold">Thank you</h1>
-        <p className="rounded-3xl bg-surface p-5">Thanks for checking in. If you want to talk, your counsellor is here for you any time.</p>
-        {done.caring && <p className="rounded-3xl border-2 border-student-accent bg-surface p-5">{CARING_REPLY}</p>}
-        <Link href="/student" className="inline-flex min-h-12 items-center rounded-full bg-student-accent px-5 font-semibold text-white">
+        <h1 className="text-[32px] leading-tight font-semibold">Thank you</h1>
+        <p className="rounded-[18px] border border-separator bg-surface p-5">Thanks for checking in. If you want to talk, your counsellor is here for you any time.</p>
+        {done.caring && <p className="rounded-[18px] border-2 border-student-accent bg-surface p-5">{CARING_REPLY}</p>}
+        <Link href="/student" className="inline-flex min-h-12 items-center rounded-[12px] bg-student-accent px-5 font-semibold text-white">
           Back to my space
         </Link>
       </div>
@@ -76,7 +76,7 @@ function Questions({ checkIn, studentId }: { checkIn: CheckIn; studentId: string
       </div>
 
       <fieldset className="space-y-4">
-        <legend className="mb-4 text-[26px] leading-tight font-bold">{QUESTION_BANK[question].text}</legend>
+        <legend className="mb-4 text-[26px] leading-tight font-semibold">{QUESTION_BANK[question].text}</legend>
         {question === "feeling" && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {([1, 2, 3, 4] as Feeling[]).map((f) => {
@@ -87,7 +87,7 @@ function Questions({ checkIn, studentId }: { checkIn: CheckIn; studentId: string
                   type="button"
                   aria-pressed={feeling === f}
                   onClick={() => setFeeling(f)}
-                  className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-3xl bg-surface p-3 font-semibold ${feeling === f ? "ring-3 ring-student-accent" : ""}`}
+                  className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-[18px] border border-separator bg-surface p-3 font-semibold ${feeling === f ? "ring-3 ring-student-accent" : ""}`}
                 >
                   <Face aria-hidden size={36} className="text-student-accent" />
                   {FEELING_LABELS[f]}
@@ -104,7 +104,7 @@ function Questions({ checkIn, studentId }: { checkIn: CheckIn; studentId: string
                 type="button"
                 aria-pressed={worry === w}
                 onClick={() => setWorry(w)}
-                className={`block min-h-14 w-full rounded-3xl bg-surface px-5 text-left font-semibold ${worry === w ? "ring-3 ring-student-accent" : ""}`}
+                className={`block min-h-14 w-full rounded-[18px] border border-separator bg-surface px-5 text-left font-semibold ${worry === w ? "ring-3 ring-student-accent" : ""}`}
               >
                 {w}
               </button>
@@ -114,7 +114,7 @@ function Questions({ checkIn, studentId }: { checkIn: CheckIn; studentId: string
         {question === "comment" && (
           <label className="block">
             <span className="sr-only">Your answer</span>
-            <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={4} maxLength={500} className="w-full rounded-3xl border border-border bg-surface p-4" />
+            <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={4} maxLength={500} className="w-full rounded-[18px] border border-border bg-surface p-4" />
           </label>
         )}
       </fieldset>
@@ -122,11 +122,11 @@ function Questions({ checkIn, studentId }: { checkIn: CheckIn; studentId: string
       {error && <p role="alert">That didn&apos;t save. Please try again.</p>}
       <div className="flex flex-wrap gap-3">
         {step > 0 && (
-          <button type="button" onClick={() => setStep(step - 1)} className="min-h-12 rounded-full bg-surface px-5 font-semibold">
+          <button type="button" onClick={() => setStep(step - 1)} className="min-h-12 rounded-[12px] border border-separator bg-surface px-5 font-semibold">
             Back
           </button>
         )}
-        <button type="button" onClick={next} className="min-h-12 flex-1 rounded-full bg-student-accent px-5 font-semibold text-white">
+        <button type="button" onClick={next} className="min-h-12 flex-1 rounded-[12px] bg-student-accent px-5 font-semibold text-white">
           {last ? "Send" : "Next"}
         </button>
         <button
@@ -137,7 +137,7 @@ function Questions({ checkIn, studentId }: { checkIn: CheckIn; studentId: string
             if (question === "comment") setComment("");
             next();
           }}
-          className="min-h-12 rounded-full px-5 font-semibold text-student-accent"
+          className="min-h-12 rounded-[12px] px-5 font-semibold text-student-accent"
         >
           Skip
         </button>

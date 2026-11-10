@@ -8,38 +8,41 @@
  * Colour is never the only signal: each priority also has an icon and a word.
  */
 :root {
-  /* Surfaces: two shades of background instead of borders (Refactoring UI: fewer borders) */
-  --bg: #f2f2f7; /* page (Apple's grouped background) */
-  --surface: #ffffff; /* grouped lists, cards */
-  --fill: #e9e9ed; /* search field, quiet buttons */
-  --separator: #e5e5ea; /* hairline between rows (decorative, exempt from 3:1) */
-  --border: #8e8e93; /* outline that identifies a control: 3.26:1 on white */
+  /* Lamtön design tokens. Quiet materials: stone-paper page, white surfaces, hairlines instead
+     of boxes, ink text, ONE accent (deep cypress green: calm, safe, distinct from every alarm colour).
+     Contrast checked against WCAG 2.2 AA; ratios in the comments. */
+  --bg: #f4f3ef; /* stone paper */
+  --surface: #ffffff;
+  --fill: #f1f0ec; /* quiet fills: hover, inactive segments */
+  --separator: #e6e3dc; /* hairlines between rows (decorative) */
+  --separator-strong: #d8d4cb; /* outline of secondary buttons (their text identifies them) */
+  --border: #8c8880; /* outline that identifies an input: 3.5:1 on white */
 
-  /* Text: three levels at most */
-  --text: #1c1c1e; /* 17.0:1 on white, 15.3:1 on page */
-  --text-muted: #636366; /* 6.0:1 on white, 5.4:1 on page, 4.95:1 on fill */
+  --text: #16191d; /* 17.6:1 on white, 15.9:1 on stone */
+  --text-muted: #5b6067; /* 6.3:1 on white, 5.7:1 on stone */
 
-  /* The one accent: calm teal for actions and links (5.8:1 either way with white) */
-  --primary: #1f6f78;
-  --focus: #1f6f78;
+  --primary: #234e45; /* cypress: white on it 9.4:1 */
+  --primary-hover: #1b3d36;
+  --primary-soft: #e7efec; /* cypress text on it 8.0:1 */
+  --focus: #234e45;
 
   /* Priority colours (validated as a set for colour-blind separation). Only Urgent is loud. */
   --urgent: #b42318; /* 6.57:1 on white */
-  --urgent-tint: #fef3f2;
+  --urgent-tint: #fdf3f2;
   --urgent-ink: #b42318;
-  --high: #dc6803; /* mark only (bars, dots); text uses --high-ink */
-  --high-tint: #fffaeb;
-  --high-ink: #93370d; /* 7.5:1 on white */
+  --high: #dc6803;
+  --high-tint: #fff8eb;
+  --high-ink: #93370d;
   --review: #6941c6;
-  --review-tint: #f4f3ff;
-  --review-ink: #5925dc; /* 7.7:1 on white */
-  --none: #667085;
-  --none-tint: #f2f4f7;
-  --none-ink: #475467; /* 7.7:1 on white */
+  --review-tint: #f5f3ff;
+  --review-ink: #5925dc;
+  --none: #9a968e;
+  --none-tint: #f3f2ee;
+  --none-ink: #5b6067;
 
-  /* Student-facing screens (future survey): soft sage, no red anywhere */
-  --student-bg: #eef5f1;
-  --student-accent: #2e6b4f;
+  /* Student space: softer sage, the same family; no red anywhere */
+  --student-bg: #eef3ef; /* ink 15.7:1, muted 5.6:1 */
+  --student-accent: #2b5f4e; /* white on it 7.4:1 */
 }
 
 @theme inline {
@@ -51,6 +54,9 @@
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-separator-strong: var(--separator-strong);
   --color-urgent: var(--urgent);
   --color-urgent-tint: var(--urgent-tint);
   --color-urgent-ink: var(--urgent-ink);
@@ -68,17 +74,19 @@
   --color-student-bg: var(--student-bg);
   --color-student-accent: var(--student-accent);
 
-  /* Apple's own system font on Apple devices (SF Pro), the platform font elsewhere.
-     Familiar, highly legible, no download. */
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Geist, self-hosted at build time: the same crafted look on the Windows PCs schools use as on Macs. */
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: 17px; /* Apple's default reading size */
-  line-height: 1.47;
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: -0.006em;
+  font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
 }
 
@@ -86,10 +94,14 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Visible 3px teal focus ring for keyboard users */
+/* Visible 3px focus ring for keyboard users */
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
+}
+/* Headings and <main> get focus only from code (to move screen readers): no ring there. */
+[tabindex="-1"]:focus-visible {
+  outline: none;
 }
 
 /* Calm motion: respect users who ask for less movement */

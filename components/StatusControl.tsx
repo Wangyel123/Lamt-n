@@ -88,7 +88,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange, va
           type="button"
           disabled={disabled}
           onClick={() => void save("not_started")}
-          className="inline-flex min-h-11 items-center gap-1 rounded-full px-3 text-[15px] font-medium text-primary hover:bg-fill disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-1 rounded-[10px] px-3 text-[14px] font-medium text-primary hover:bg-fill disabled:opacity-50"
         >
           <Plus aria-hidden size={16} /> Add follow-up
         </button>
@@ -107,7 +107,7 @@ export function StatusControl({ studentId, level, status, disabled, onChange, va
               value={status}
               disabled={disabled}
               onChange={(e) => choose(e.target.value as FollowUpStatus)}
-              className="min-h-11 appearance-none rounded-full bg-fill py-2 pr-9 pl-4 text-[15px] font-medium disabled:opacity-50"
+              className="min-h-11 appearance-none rounded-[10px] border border-separator-strong bg-surface py-2 pr-9 pl-3 text-[14px] font-medium transition-colors hover:border-border disabled:opacity-50"
             >
               {FOLLOW_UP_STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -121,14 +121,14 @@ export function StatusControl({ studentId, level, status, disabled, onChange, va
           <fieldset disabled={disabled} className="disabled:opacity-50">
             <legend className="sr-only">Follow-up for {studentId}</legend>
             {/* Apple-style segmented control built from real radio buttons (keyboard + screen readers) */}
-            <div className="inline-flex rounded-[10px] bg-fill p-0.5">
+            <div className="inline-flex rounded-[10px] border border-separator bg-fill p-0.5">
               {FOLLOW_UP_STATUSES.map((option) => {
                 const checked = option === status;
                 return (
                   <label
                     key={option}
-                    className={`flex min-h-11 cursor-pointer items-center rounded-lg px-4 text-[15px] transition-colors duration-150 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-primary ${
-                      checked ? "bg-surface font-semibold shadow-[0_1px_3px_hsla(0,0%,0%,.15)]" : "text-text"
+                    className={`flex min-h-11 cursor-pointer items-center rounded-[8px] px-4 text-[14px] transition-colors duration-150 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-primary ${
+                      checked ? "bg-surface font-medium shadow-[0_1px_2px_hsla(0,0%,0%,.08)]" : "text-text-muted"
                     }`}
                   >
                     <input
@@ -150,7 +150,8 @@ export function StatusControl({ studentId, level, status, disabled, onChange, va
       </div>
 
       {confirmingClose && (
-        <div className="max-w-md rounded-2xl bg-urgent-tint p-4">
+        <div className="relative max-w-md overflow-hidden rounded-[14px] border border-separator bg-surface p-4 pl-5">
+          <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-urgent" />
           <label htmlFor={noteId} className="block text-[15px] font-semibold">
             Closing an urgent case needs a short note
           </label>
@@ -161,18 +162,18 @@ export function StatusControl({ studentId, level, status, disabled, onChange, va
             value={closingNote}
             onChange={(e) => setClosingNote(e.target.value)}
             rows={2}
-            className="mt-2 w-full rounded-xl border border-border bg-surface p-3 text-[15px]"
+            className="mt-2 w-full rounded-[10px] border border-border bg-surface p-3 text-[15px]"
           />
           <div className="mt-2 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => void confirmClose()}
               disabled={!isValidClosingNote(closingNote)}
-              className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white disabled:opacity-50"
+              className="min-h-11 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover disabled:opacity-40"
             >
               Close case
             </button>
-            <button type="button" onClick={cancelClose} className="min-h-11 rounded-full px-5 font-semibold text-primary hover:bg-surface">
+            <button type="button" onClick={cancelClose} className="min-h-11 rounded-[10px] px-4 font-medium text-text hover:bg-fill">
               Cancel
             </button>
           </div>

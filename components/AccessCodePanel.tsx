@@ -52,20 +52,20 @@ export function AccessCodePanel({ studentId }: { studentId: string }) {
       {active ? (
         <div className="space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <span className="font-mono text-[28px] font-bold tracking-[0.12em]">{active.code}</span>
+            <span className="font-mono text-[28px] font-semibold tracking-[0.12em]">{active.code}</span>
             <span className="text-[13px] text-text-muted">Works once · until {dateFormat.format(new Date(active.expiresAt))}</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => printSlip(active)} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-primary px-4 font-semibold text-white">
+            <button type="button" onClick={() => printSlip(active)} className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover">
               <Printer aria-hidden size={16} /> Print slip
             </button>
-            <button type="button" onClick={() => void makeCode()} className="min-h-11 rounded-full bg-fill px-4 font-medium">
+            <button type="button" onClick={() => void makeCode()} className="min-h-11 rounded-[10px] border border-separator-strong bg-surface px-4 font-medium hover:bg-fill">
               New code
             </button>
             <button
               type="button"
               onClick={async () => setMessage((await revoke(active.code)) ? "Code revoked. It no longer works." : "Couldn't revoke. Try again.")}
-              className="min-h-11 rounded-full px-4 font-medium text-primary"
+              className="min-h-11 rounded-[10px] px-4 font-medium text-urgent-ink hover:bg-fill"
             >
               Revoke
             </button>
@@ -76,7 +76,7 @@ export function AccessCodePanel({ studentId }: { studentId: string }) {
           type="button"
           disabled={!ready}
           onClick={() => void makeCode()}
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-primary px-4 font-semibold text-white disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover disabled:opacity-50"
         >
           <KeyRound aria-hidden size={16} /> Make a code
         </button>

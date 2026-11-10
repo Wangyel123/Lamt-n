@@ -6,17 +6,17 @@ import type { RateColumn } from "@/lib/supervisorSummary";
 export function CheckInRates({ rows, demo }: { rows: SafeTableRow<RateColumn>[]; demo: boolean }) {
   return (
     <section aria-labelledby="rates-heading" className="space-y-2">
-      <h2 id="rates-heading" className="px-4 text-[13px] font-medium tracking-wide text-text-muted uppercase">
+      <h2 id="rates-heading" className="px-4 text-[14px] font-semibold tracking-[-0.01em] text-text">
         Check-in response rates
       </h2>
       {demo || rows.length === 0 ? (
-        <p className="rounded-2xl bg-surface p-4 text-[15px] text-text-muted">
+        <p className="rounded-[14px] border border-separator bg-surface p-4 text-[15px] text-text-muted">
           {demo
             ? "In this demo, check-ins are saved only in the browser, so the server can't count them here. In live mode this shows, for each school, how many students answered the check-ins they were sent."
             : "No check-ins have been sent yet."}
         </p>
       ) : (
-        <ul className="divide-y divide-separator rounded-2xl bg-surface">
+        <ul className="divide-y divide-separator rounded-[14px] border border-separator bg-surface">
           {rows.map((r) => {
             const a = r.cells.Answered;
             const t = r.cells.Total;

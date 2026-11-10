@@ -10,16 +10,16 @@ const cell = (c: SafeCell) =>
 export function InterventionCounts({ rows, demo }: { rows: SafeTableRow<InterventionType>[]; demo: boolean }) {
   return (
     <section aria-labelledby="support-heading" className="space-y-2">
-      <h2 id="support-heading" className="px-4 text-[13px] font-medium tracking-wide text-text-muted uppercase">
+      <h2 id="support-heading" className="px-4 text-[14px] font-semibold tracking-[-0.01em] text-text">
         Support given, by school
       </h2>
       {demo ? (
-        <p className="rounded-2xl bg-surface p-4 text-[15px] text-text-muted">
+        <p className="rounded-[14px] border border-separator bg-surface p-4 text-[15px] text-text-muted">
           In this demo, counsellors&apos; actions are saved only in their own browser, so the server can&apos;t count them here. In live mode this
           table shows how many meetings, referrals and other actions each school logged, with small numbers hidden.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl bg-surface">
+        <div className="overflow-x-auto rounded-[14px] border border-separator bg-surface">
           <table className="w-full min-w-[560px] border-collapse text-left text-[14px]">
             <caption className="sr-only">Number of support actions by type and school. Small numbers are not shown.</caption>
             <thead>

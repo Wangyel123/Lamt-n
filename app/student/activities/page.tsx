@@ -13,13 +13,13 @@ export default function ActivitiesPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-2">
-        <h1 className="text-[32px] leading-tight font-bold tracking-tight">Self-care activities</h1>
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">Self-care activities</h1>
         <p className="text-text-muted">Short things you can try when you feel worried, sad or stressed. Each one takes 1 to 3 minutes.</p>
       </header>
       <ul className="space-y-3">
         {ACTIVITIES.map((a) => (
           <li key={a.slug}>
-            <Link href={`/student/activities/${a.slug}`} className="flex min-h-12 items-center gap-4 rounded-3xl bg-surface p-5">
+            <Link href={`/student/activities/${a.slug}`} className="flex min-h-12 items-center gap-4 rounded-[18px] border border-separator bg-surface p-5">
               <span className="flex-1">
                 <span className="block font-semibold">{a.title}</span>
                 <span className="text-[16px] text-text-muted">{a.summary}</span>

@@ -20,14 +20,14 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         <ArrowLeft aria-hidden size={18} /> All activities
       </Link>
       <header className="space-y-2">
-        <h1 className="text-[32px] leading-tight font-bold tracking-tight">{activity.title}</h1>
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">{activity.title}</h1>
         <p className="text-text-muted">
           {activity.summary} About {activity.minutes} {activity.minutes === 1 ? "minute" : "minutes"}.
         </p>
       </header>
 
       {activity.breathing && (
-        <div className="flex flex-col items-center gap-3 rounded-3xl bg-surface p-6">
+        <div className="flex flex-col items-center gap-3 rounded-[18px] border border-separator bg-surface p-6">
           <div aria-hidden className="breathe size-40 rounded-full bg-student-accent/25 ring-8 ring-student-accent/15" />
           <p className="text-[16px] text-text-muted">Breathe in as the circle grows, hold, then breathe out as it shrinks.</p>
         </div>
@@ -35,8 +35,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
       <ol className="space-y-3">
         {activity.steps.map((step, i) => (
-          <li key={step} className="flex gap-4 rounded-3xl bg-surface p-5">
-            <span aria-hidden className="tabular flex size-9 shrink-0 items-center justify-center rounded-full bg-student-bg font-bold text-student-accent">
+          <li key={step} className="flex gap-4 rounded-[18px] border border-separator bg-surface p-5">
+            <span aria-hidden className="tabular flex size-9 shrink-0 items-center justify-center rounded-full bg-student-bg font-semibold text-student-accent">
               {i + 1}
             </span>
             <span>
@@ -48,7 +48,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       </ol>
 
       {isEnabled("messaging") && (
-        <Link href="/student/messages" className="flex min-h-12 items-center gap-3 rounded-3xl border border-border p-5 font-semibold text-student-accent">
+        <Link href="/student/messages" className="flex min-h-12 items-center gap-3 rounded-[18px] border border-border p-5 font-semibold text-student-accent">
           <MessageCircle aria-hidden size={20} /> Want to talk about it? Message your counsellor
         </Link>
       )}

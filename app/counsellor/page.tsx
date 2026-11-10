@@ -30,13 +30,10 @@ async function CounsellorContent() {
   return (
     <>
       <TopBar profile={profile} />
-      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl space-y-8 px-4 py-8 outline-none">
-        <header className="space-y-2 px-1">
-          <h1 className="text-[34px] leading-tight font-bold tracking-tight">Students to see</h1>
-          <p className="max-w-prose text-text-muted">
-            From this year&apos;s wellbeing survey. These flags come from students&apos; answers and help you decide who to
-            see first. They are not a diagnosis. Your own judgement comes first.
-          </p>
+      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl space-y-6 px-5 py-10 outline-none">
+        <header>
+          <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.02em]">Students to see</h1>
+          <p className="mt-1 text-[14px] text-text-muted">From this year&apos;s wellbeing survey. Flags help you choose who to see first; they are not a diagnosis.</p>
         </header>
         <CounsellorBoard students={students} report={report} flaggedSince={flaggedSince} />
       </main>

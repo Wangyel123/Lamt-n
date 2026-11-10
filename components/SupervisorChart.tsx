@@ -13,10 +13,10 @@ export function SupervisorChart({ rows }: { rows: SafeRow[] }) {
 
   return (
     <section aria-labelledby="chart-heading" className="space-y-2">
-      <h2 id="chart-heading" className="px-4 text-[13px] font-medium tracking-wide text-text-muted uppercase">
+      <h2 id="chart-heading" className="px-4 text-[14px] font-semibold tracking-[-0.01em] text-text">
         Need follow-up, by school
       </h2>
-      <ul className="divide-y divide-separator rounded-2xl bg-surface">
+      <ul className="divide-y divide-separator rounded-[14px] border border-separator bg-surface">
         {schools.map((school) => {
           const total = school.cells.Total;
           const need = followUpCell(school);

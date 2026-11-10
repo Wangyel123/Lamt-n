@@ -39,7 +39,7 @@ function Chat({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6">
       <header className="space-y-2">
-        <h1 className="text-[32px] leading-tight font-bold tracking-tight">Talk to my counsellor</h1>
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">Talk to my counsellor</h1>
         <p className="flex items-start gap-2 text-[16px] text-text-muted">
           <Clock aria-hidden size={18} className="mt-0.5 shrink-0" />
           Only your school counsellor reads these messages. Hours: Monday to Friday, 9:00 to 16:00.
@@ -49,10 +49,10 @@ function Chat({ studentId }: { studentId: string }) {
       {loadError && <p role="alert">We couldn&apos;t load your messages. Please try again in a moment.</p>}
 
       <ol aria-label="Messages" className="space-y-3">
-        {ready && mine.length === 0 && <li className="rounded-3xl bg-surface p-5 text-text-muted">{EMPTY_STATE}</li>}
+        {ready && mine.length === 0 && <li className="rounded-[18px] border border-separator bg-surface p-5 text-text-muted">{EMPTY_STATE}</li>}
         {mine.map((m) => (
           <li key={m.id} className={`flex ${m.sender === "student" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[85%] rounded-3xl px-4 py-3 ${m.sender === "student" ? "bg-student-accent text-white" : "bg-surface"}`}>
+            <div className={`max-w-[85%] rounded-[18px] px-4 py-3 ${m.sender === "student" ? "bg-student-accent text-white" : "bg-surface"}`}>
               <p className="text-[13px] opacity-80">{m.sender === "student" ? "You" : "Your counsellor"} · {formatTime(m.createdAt)}</p>
               <p className="whitespace-pre-wrap">{m.body}</p>
             </div>
@@ -61,14 +61,14 @@ function Chat({ studentId }: { studentId: string }) {
       </ol>
 
       {showCaring && (
-        <p role="status" className="rounded-3xl border-2 border-student-accent bg-surface p-5">
+        <p role="status" className="rounded-[18px] border-2 border-student-accent bg-surface p-5">
           {CARING_REPLY}
         </p>
       )}
-      {away && <p className="rounded-3xl bg-surface p-5 text-[16px] text-text-muted">{AWAY_NOTE}</p>}
+      {away && <p className="rounded-[18px] border border-separator bg-surface p-5 text-[16px] text-text-muted">{AWAY_NOTE}</p>}
 
       <form
-        className="space-y-3 rounded-3xl bg-surface p-5"
+        className="space-y-3 rounded-[18px] border border-separator bg-surface p-5"
         onSubmit={(e) => {
           e.preventDefault();
           void send();
@@ -84,14 +84,14 @@ function Chat({ studentId }: { studentId: string }) {
           onChange={(e) => setText(e.target.value)}
           rows={3}
           autoComplete="off"
-          className="w-full rounded-2xl border border-border bg-surface p-3"
+          className="w-full rounded-[12px] border border-border bg-surface p-3"
         />
         {status === "error" && <p role="alert">Your message didn&apos;t send. Please try again.</p>}
         {status === "limit" && <p role="alert">You&apos;ve sent a lot of messages this hour. Please wait a little, or tap Get help now.</p>}
         <button
           type="submit"
           disabled={!text.trim() || status === "sending"}
-          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-student-accent font-semibold text-white disabled:opacity-50"
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[12px] bg-student-accent font-semibold text-white disabled:opacity-50"
         >
           <Send aria-hidden size={18} /> {status === "sending" ? "Sending…" : "Send"}
         </button>

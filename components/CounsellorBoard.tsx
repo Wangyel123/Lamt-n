@@ -19,7 +19,7 @@ import { CaseloadView } from "./CaseloadView";
 import { CheckInsView } from "./CheckInsView";
 import { InboxView } from "./InboxView";
 import { ModerationView } from "./ModerationView";
-import { LEVEL_STYLE } from "./FlagBadge";
+import { PriorityDot } from "./FlagBadge";
 import { FilterSheet } from "./FilterSheet";
 import { ActiveFilters, FilterPickers, SearchField } from "./Filters";
 import { StudentDrawer } from "./StudentDrawer";
@@ -101,10 +101,27 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
     (g) => g.rows.length > 0,
   );
 
+  // The board's opening line: one plain sentence about today (the most important thing first).
+  const urgentCount = rows.filter((r) => r.flag.level === "Urgent").length;
+  const brief =
+    overdue.length > 0
+      ? `${overdue.length} urgent ${overdue.length === 1 ? "student has" : "students have"} no contact logged yet.`
+      : urgentCount > 0
+        ? `${urgentCount} urgent ${urgentCount === 1 ? "student" : "students"}, and every one has contact logged.`
+        : "No urgent students right now.";
+  const extras = [
+    `${openCount} open follow-ups`,
+    ...(unreadMessages > 0 ? [`${unreadMessages} new ${unreadMessages === 1 ? "message" : "messages"}`] : []),
+  ].join(" · ");
+
   return (
     <div className="space-y-8">
+      <p className="-mt-2 text-[17px] leading-snug">
+        <span className={overdue.length > 0 ? "font-medium text-urgent-ink" : "font-medium"}>{brief}</span>{" "}
+        <span className="text-text-muted">{extras}.</span>
+      </p>
       {loadError && (
-        <p role="alert" className="rounded-2xl bg-urgent-tint p-4 font-medium text-urgent-ink">
+        <p role="alert" className="rounded-[14px] border border-separator bg-surface p-4 font-medium text-urgent-ink">
           Couldn&apos;t load follow-ups. Please refresh the page. You can&apos;t change follow-ups until they load.
         </p>
       )}
@@ -173,14 +190,15 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
             </div>
 
             {hiddenUrgent > 0 && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-urgent-tint p-4">
+              <div className="relative flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[14px] border border-separator bg-surface py-3 pr-3 pl-6">
+                <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-urgent" />
                 <p className="font-medium text-urgent-ink">
                   {hiddenUrgent} urgent {hiddenUrgent === 1 ? "student is" : "students are"} hidden by your search or filters.
                 </p>
                 <button
                   type="button"
                   onClick={() => setFilters(EMPTY_FILTERS)}
-                  className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white"
+                  className="min-h-11 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover"
                 >
                   Show everyone
                 </button>
@@ -188,7 +206,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
             )}
 
             {groups.length === 0 && (
-              <div className="rounded-2xl bg-surface p-8 text-center">
+              <div className="rounded-[14px] border border-separator bg-surface p-8 text-center">
                 <p className="font-medium">No students match your search.</p>
                 <button
                   type="button"
@@ -210,14 +228,14 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
                     <button
                       type="button"
                       onClick={() => setShowNoConcerns(true)}
-                      className="flex min-h-12 w-full items-center justify-between rounded-2xl bg-surface px-4 font-medium text-primary"
+                      className="flex min-h-12 w-full items-center justify-between rounded-[14px] border border-separator bg-surface px-4 font-medium text-primary"
                     >
                       Show {groupRows.length} students with no concerns
                       <ChevronDown aria-hidden size={18} />
                     </button>
                   ) : (
                     <>
-                      <ol className="divide-y divide-separator overflow-hidden rounded-2xl bg-surface">
+                      <ol className="divide-y divide-separator overflow-hidden rounded-[14px] border border-separator bg-surface">
                         {groupRows.map((row) => (
                           <StudentRow
                             key={row.student.studentId}
@@ -287,17 +305,16 @@ function PriorityGroup({
   meaning: string;
   children: React.ReactNode;
 }) {
-  const { icon: Icon, ink } = LEVEL_STYLE[level];
   const id = `group-${level}`;
   return (
-    <section aria-labelledby={id} className="space-y-2">
-      <div className="px-4">
-        <h2 id={id} className={`flex items-center gap-2 text-[20px] font-semibold ${level === "Urgent" ? ink : ""}`}>
-          <Icon aria-hidden size={20} strokeWidth={2.25} className={ink} />
+    <section aria-labelledby={id} className="space-y-3">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <h2 id={id} className={`flex items-center gap-2 text-[17px] font-semibold tracking-[-0.01em] ${level === "Urgent" ? "text-urgent-ink" : ""}`}>
+          <PriorityDot level={level} />
           {LEVEL_NAME[level]}
           <span className="tabular font-normal text-text-muted">{count}</span>
         </h2>
-        <p className="text-[15px] text-text-muted">{level === "Urgent" ? `${meaning}. See these students first.` : meaning}</p>
+        <p className="text-[14px] text-text-muted">{level === "Urgent" ? `${meaning}. See these students first.` : meaning}</p>
       </div>
       {children}
     </section>

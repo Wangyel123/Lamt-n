@@ -5,7 +5,7 @@
 import type { SafeCell } from "./suppression";
 
 /** Single-hue teal scale, light to dark (colour-blind safe, reads in order). Text: dark on 1–4, white on 5. */
-export const HEAT_SCALE = ["#E8F3F4", "#C7E2E5", "#94C5CB", "#5A9FA7", "#1F6F78"] as const;
+export const HEAT_SCALE = ["#EEF4F1", "#D4E5DD", "#AECBBF", "#7FA89A", "#2F5F53"] as const;
 export const HEAT_STEPS = [
   { upTo: 0.1, label: "up to 10%" },
   { upTo: 0.25, label: "10–25%" },

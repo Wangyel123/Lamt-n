@@ -1,6 +1,6 @@
 import { FLAG_LEVELS, LEVEL_NAME } from "@/lib/flags";
 import { COLUMNS, MIN_GROUP_SIZE, type SafeCell, type SafeRow } from "@/lib/suppression";
-import { LEVEL_STYLE } from "./FlagBadge";
+import { LEVEL_STYLE, PriorityDot } from "./FlagBadge";
 
 // Server component (no "use client"): renders already-suppressed counts to HTML.
 // It never receives student rows, so it cannot leak them.
@@ -28,10 +28,10 @@ const pad = "px-1.5 py-2.5 sm:px-3";
 export function SupervisorTable({ rows }: { rows: SafeRow[] }) {
   return (
     <section aria-labelledby="table-heading" className="space-y-2">
-      <h2 id="table-heading" className="px-4 text-[13px] font-medium tracking-wide text-text-muted uppercase">
+      <h2 id="table-heading" className="px-4 text-[14px] font-semibold tracking-[-0.01em] text-text">
         By priority, school and class
       </h2>
-      <div className="overflow-hidden rounded-2xl bg-surface">
+      <div className="overflow-hidden rounded-[14px] border border-separator bg-surface">
         <table className="w-full border-collapse text-left text-[14px] sm:text-[15px]">
           <caption className="sr-only">Number of students at each priority, by school and class. Small numbers are not shown.</caption>
           <thead>
@@ -40,11 +40,11 @@ export function SupervisorTable({ rows }: { rows: SafeRow[] }) {
                 School / class
               </th>
               {FLAG_LEVELS.map((level) => {
-                const { icon: Icon, ink } = LEVEL_STYLE[level];
+                const { ink } = LEVEL_STYLE[level];
                 return (
                   <th key={level} scope="col" className={`${pad} text-right font-semibold ${ink}`}>
                     <span className="inline-flex flex-col items-end gap-0.5 sm:flex-row sm:items-center sm:gap-1">
-                      <Icon aria-hidden size={13} strokeWidth={2.5} />
+                      <PriorityDot level={level} />
                       {LEVEL_NAME[level]}
                     </span>
                   </th>

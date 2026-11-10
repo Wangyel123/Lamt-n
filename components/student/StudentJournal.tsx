@@ -57,18 +57,18 @@ function Journal({ studentId }: { studentId: string }) {
   return (
     <section className="space-y-5">
       <header className="space-y-2">
-        <h1 className="text-[32px] leading-tight font-bold tracking-tight">My journal</h1>
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">My journal</h1>
         <p className="flex items-start gap-2 text-text-muted">
           <Lock aria-hidden size={18} className="mt-1 shrink-0" />
           Your journal is private. Only you can read it, unless you choose to share an entry with your counsellor.
         </p>
       </header>
 
-      <div className="space-y-4 rounded-3xl bg-surface p-5">
+      <div className="space-y-4 rounded-[18px] border border-separator bg-surface p-5">
         <label htmlFor="entry" className="font-semibold">
           Write something
         </label>
-        <textarea id="entry" value={body} onChange={(e) => setBody(e.target.value)} rows={4} maxLength={2000} className="w-full rounded-2xl border border-border p-3" />
+        <textarea id="entry" value={body} onChange={(e) => setBody(e.target.value)} rows={4} maxLength={2000} className="w-full rounded-[12px] border border-border p-3" />
         <fieldset>
           <legend className="mb-2 text-[16px] font-medium">How do you feel? (optional)</legend>
           <div className="grid grid-cols-4 gap-2">
@@ -78,7 +78,7 @@ function Journal({ studentId }: { studentId: string }) {
                 type="button"
                 aria-pressed={mood === value}
                 onClick={() => setMood(mood === value ? null : value)}
-                className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl bg-student-bg text-[14px] ${mood === value ? "font-semibold ring-3 ring-student-accent" : ""}`}
+                className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-[12px] bg-student-bg text-[14px] ${mood === value ? "font-semibold ring-3 ring-student-accent" : ""}`}
               >
                 <Icon aria-hidden size={24} className="text-student-accent" />
                 {label}
@@ -94,7 +94,7 @@ function Journal({ studentId }: { studentId: string }) {
           <ShareSwitch shared={share} onChange={setShare} id="share-new" />
         </div>
         <div className="flex items-center gap-3">
-          <button type="button" disabled={!body.trim()} onClick={() => void save()} className="min-h-12 flex-1 rounded-full bg-student-accent font-semibold text-white disabled:opacity-50">
+          <button type="button" disabled={!body.trim()} onClick={() => void save()} className="min-h-12 flex-1 rounded-[12px] bg-student-accent font-semibold text-white disabled:opacity-50">
             Save
           </button>
           <span role="status" aria-live="polite" className="text-[15px]">
@@ -107,7 +107,7 @@ function Journal({ studentId }: { studentId: string }) {
       {mine.length > 0 && (
         <ol className="space-y-3" aria-label="Your entries">
           {mine.map((e) => (
-            <li key={e.id} className="space-y-3 rounded-3xl bg-surface p-5">
+            <li key={e.id} className="space-y-3 rounded-[18px] border border-separator bg-surface p-5">
               <p className="text-[14px] text-text-muted">
                 {formatTime(e.createdAt)}
                 {e.mood ? ` · ${MOODS.find((m) => m.value === e.mood)?.label}` : ""}
@@ -141,7 +141,7 @@ function Goals({ studentId }: { studentId: string }) {
   return (
     <section className="space-y-4">
       <header className="space-y-1">
-        <h2 className="text-[24px] font-bold">My goals</h2>
+        <h2 className="text-[24px] font-semibold">My goals</h2>
         <p className="text-text-muted">{GOAL_ENCOURAGEMENT}</p>
       </header>
       <form
@@ -154,13 +154,13 @@ function Goals({ studentId }: { studentId: string }) {
         <label htmlFor="goal" className="sr-only">
           A new goal
         </label>
-        <input id="goal" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="e.g. Go to bed before 10" className="min-h-12 flex-1 rounded-full border border-border bg-surface px-4" />
-        <button type="submit" disabled={!title.trim()} className="inline-flex min-h-12 items-center gap-1 rounded-full bg-student-accent px-5 font-semibold text-white disabled:opacity-50">
+        <input id="goal" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="e.g. Go to bed before 10" className="min-h-12 flex-1 rounded-[12px] border border-border bg-surface px-4" />
+        <button type="submit" disabled={!title.trim()} className="inline-flex min-h-12 items-center gap-1 rounded-[12px] bg-student-accent px-5 font-semibold text-white disabled:opacity-50">
           <Plus aria-hidden size={18} /> Add
         </button>
       </form>
       {mine.length > 0 && (
-        <ul className="divide-y divide-separator rounded-3xl bg-surface">
+        <ul className="divide-y divide-separator rounded-[18px] border border-separator bg-surface">
           {mine.map((g) => (
             <li key={g.id} className="flex items-center gap-3 px-4 py-2">
               <button

@@ -10,7 +10,7 @@ export function Reasons({ reasons }: { reasons: Reason[] }) {
         <span key={r.id}>
           {i > 0 && <span className="text-text-muted"> · </span>}
           <span className={r.primary ? "text-text" : "text-text-muted"}>{r.text}</span>
-          {r.extra && <span className="text-text-muted"> (extra check)</span>}
+          {r.extra && <span className="text-[13px] text-text-muted"> · extra check</span>}
         </span>
       ))}
     </span>

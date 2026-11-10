@@ -25,7 +25,7 @@ export default function AboutPage() {
 
   return (
     <article className="space-y-8">
-      <h1 className="text-[32px] leading-tight font-bold tracking-tight">About this space</h1>
+      <h1 className="text-[32px] leading-tight font-semibold tracking-tight">About this space</h1>
 
       <section className="space-y-3">
         <h2 className="text-[22px] font-semibold">What this is</h2>
@@ -52,7 +52,7 @@ export default function AboutPage() {
           <Eye aria-hidden size={22} className="text-student-accent" />
           Who can see what
         </h2>
-        <dl className="divide-y divide-separator overflow-hidden rounded-3xl bg-surface">
+        <dl className="divide-y divide-separator overflow-hidden rounded-[18px] border border-separator bg-surface">
           {whoSees.map((row) => (
             <div key={row.what} className="flex flex-col gap-1 p-5 sm:flex-row sm:justify-between sm:gap-6">
               <dt className="font-semibold">{row.what}</dt>
@@ -66,7 +66,7 @@ export default function AboutPage() {
         <p className="text-[16px] text-text-muted">Your teachers, parents and classmates cannot see any of this.</p>
       </section>
 
-      <section className="space-y-3 rounded-3xl bg-surface p-5">
+      <section className="space-y-3 rounded-[18px] border border-separator bg-surface p-5">
         <h2 className="flex items-center gap-2 text-[22px] font-semibold">
           <ShieldCheck aria-hidden size={22} className="text-student-accent" />
           One thing we must tell you

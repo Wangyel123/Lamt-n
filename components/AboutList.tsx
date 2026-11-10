@@ -24,10 +24,10 @@ export function AboutList({ useExtraRules, extraFlaggedCount, onToggleExtraRules
 
   return (
     <section aria-labelledby="about-heading" className="space-y-2">
-      <h2 id="about-heading" className="px-4 text-[13px] font-medium tracking-wide text-text-muted uppercase">
+      <h2 id="about-heading" className="px-4 text-[14px] font-semibold tracking-[-0.01em] text-text">
         About this list
       </h2>
-      <div className="divide-y divide-separator overflow-hidden rounded-2xl bg-surface">
+      <div className="divide-y divide-separator overflow-hidden rounded-[14px] border border-separator bg-surface">
         {/* AC-08: our extra checks, switchable so reviewers can compare with the basic rules */}
         <div className="flex items-start justify-between gap-4 p-4">
           <div>

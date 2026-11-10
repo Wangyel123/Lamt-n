@@ -55,8 +55,8 @@ function scale(value: number | null, low: string, high: string): string | null {
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-1.5">
-      <h3 className="px-4 text-[13px] font-medium tracking-wide text-text-muted uppercase">{title}</h3>
-      <div className="rounded-2xl bg-surface">{children}</div>
+      <h3 className="px-1 text-[13px] font-medium text-text-muted">{title}</h3>
+      <div className="rounded-[14px] border border-separator bg-surface">{children}</div>
     </section>
   );
 }
@@ -79,7 +79,7 @@ export function StudentDrawer({ row, onClose, ...rest }: Props) {
       ref={dialogRef}
       onClose={onClose}
       aria-labelledby="drawer-title"
-      className="m-0 ml-auto h-full max-h-none w-full max-w-lg bg-bg p-0 text-text backdrop:bg-black/30"
+      className="m-0 ml-auto h-full max-h-none w-full max-w-lg border-l border-separator bg-bg p-0 text-text shadow-2xl backdrop:bg-[#16191d]/25 backdrop:backdrop-blur-[2px]"
     >
       {row && <DrawerContent key={row.student.studentId} row={row} onClose={onClose} {...rest} />}
     </dialog>
@@ -104,7 +104,7 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
     <div className="flex flex-col gap-6 p-4 pb-10 sm:p-6">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h2 id="drawer-title" className="tabular text-[28px] leading-tight font-bold">
+          <h2 id="drawer-title" tabIndex={-1} autoFocus className="font-mono text-[26px] leading-tight font-semibold tracking-[-0.02em] outline-none focus-visible:outline-none">
             {student.studentId}
           </h2>
           <p className="text-text-muted">
@@ -115,13 +115,13 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
           type="button"
           onClick={onClose}
           aria-label="Close details"
-          className="flex size-11 items-center justify-center rounded-full bg-fill"
+          className="flex size-10 items-center justify-center rounded-[10px] border border-separator bg-surface text-text-muted hover:text-text"
         >
           <X aria-hidden size={18} />
         </button>
       </header>
 
-      <div className="space-y-2 px-1">
+      <div className="space-y-1.5 rounded-[14px] border border-separator bg-surface px-4 py-3.5">
         <FlagBadge level={flag.level} />
         <p className="text-[15px] text-text-muted">{levelMeaning(flag.level, useExtraRules)}</p>
         {flag.level !== flag.baselineLevel && (
@@ -236,14 +236,14 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
               }}
               rows={3}
               disabled={!ready}
-              className="mt-1.5 w-full rounded-xl border border-border bg-surface p-3 text-[15px]"
+              className="mt-1.5 w-full rounded-[10px] border border-border bg-surface p-3 text-[15px]"
             />
             <div className="mt-2 flex items-center gap-3">
               <button
                 type="button"
                 onClick={async () => setNoteState((await onNoteSave(note)) ? "saved" : "error")}
                 disabled={!ready}
-                className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white disabled:opacity-50"
+                className="min-h-11 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover disabled:opacity-50"
               >
                 Save note
               </button>

@@ -39,7 +39,7 @@ function Board({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 className="text-[32px] leading-tight font-bold tracking-tight">Student board</h1>
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">Student board</h1>
         <p className="flex items-start gap-2 text-text-muted">
           <ShieldCheck aria-hidden size={18} className="mt-1 shrink-0" />
           A counsellor reads every post before anyone sees it. Your name and ID are never shown. No links or pictures.
@@ -47,9 +47,9 @@ function Board({ studentId }: { studentId: string }) {
       </header>
 
       <section className="space-y-3" aria-label="Posts">
-        {approved.length === 0 && <p className="rounded-3xl bg-surface p-5 text-text-muted">No posts yet.</p>}
+        {approved.length === 0 && <p className="rounded-[18px] border border-separator bg-surface p-5 text-text-muted">No posts yet.</p>}
         {approved.map((p) => (
-          <article key={p.id} className="rounded-3xl bg-surface p-5">
+          <article key={p.id} className="rounded-[18px] border border-separator bg-surface p-5">
             <p className="text-[14px] text-text-muted">
               {p.alias} · {p.topic} · {formatTime(p.createdAt)}
             </p>
@@ -63,13 +63,13 @@ function Board({ studentId }: { studentId: string }) {
           e.preventDefault();
           void post();
         }}
-        className="space-y-3 rounded-3xl bg-surface p-5"
+        className="space-y-3 rounded-[18px] border border-separator bg-surface p-5"
       >
         <h2 className="text-[22px] font-semibold">Share something kind or helpful</h2>
         <fieldset className="flex flex-wrap gap-2">
           <legend className="sr-only">Topic</legend>
           {TOPICS.map((t) => (
-            <button key={t} type="button" aria-pressed={topic === t} onClick={() => setTopic(t)} className={`min-h-12 rounded-full px-4 ${topic === t ? "bg-student-accent font-semibold text-white" : "bg-student-bg"}`}>
+            <button key={t} type="button" aria-pressed={topic === t} onClick={() => setTopic(t)} className={`min-h-12 rounded-[12px] px-4 ${topic === t ? "bg-student-accent font-semibold text-white" : "bg-student-bg"}`}>
               {t}
             </button>
           ))}
@@ -77,10 +77,10 @@ function Board({ studentId }: { studentId: string }) {
         <label htmlFor="post" className="sr-only">
           Your post
         </label>
-        <textarea id="post" value={body} onChange={(e) => setBody(e.target.value)} rows={3} maxLength={POST_MAX_LENGTH} className="w-full rounded-2xl border border-border p-3" />
+        <textarea id="post" value={body} onChange={(e) => setBody(e.target.value)} rows={3} maxLength={POST_MAX_LENGTH} className="w-full rounded-[12px] border border-border p-3" />
         {message && <p role="status">{message}</p>}
-        {caring && <p className="rounded-2xl border-2 border-student-accent p-4">{CARING_REPLY}</p>}
-        <button type="submit" disabled={!body.trim()} className="min-h-12 w-full rounded-full bg-student-accent font-semibold text-white disabled:opacity-50">
+        {caring && <p className="rounded-[12px] border-2 border-student-accent p-4">{CARING_REPLY}</p>}
+        <button type="submit" disabled={!body.trim()} className="min-h-12 w-full rounded-[12px] bg-student-accent font-semibold text-white disabled:opacity-50">
           Send to the board
         </button>
       </form>
@@ -88,7 +88,7 @@ function Board({ studentId }: { studentId: string }) {
       {mine.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-[22px] font-semibold">Your posts</h2>
-          <ul className="divide-y divide-separator rounded-3xl bg-surface">
+          <ul className="divide-y divide-separator rounded-[18px] border border-separator bg-surface">
             {mine.map((p) => (
               <li key={p.id} className="px-5 py-3">
                 <p className="whitespace-pre-wrap">{p.body}</p>

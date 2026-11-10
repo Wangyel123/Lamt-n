@@ -17,7 +17,7 @@ export function StudentHome({ liveStudentId }: { liveStudentId?: string }) {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 className="text-[32px] leading-tight font-bold tracking-tight">You&apos;re in</h1>
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">You&apos;re in</h1>
         <p className="text-text-muted">This is your private space. Your counsellor is here for you.</p>
       </header>
 
@@ -26,9 +26,9 @@ export function StudentHome({ liveStudentId }: { liveStudentId?: string }) {
         {isEnabled("checkIns") && <CheckInTile liveStudentId={liveStudentId} />}
         {TILES.filter((t) => isEnabled(t.feature)).map(({ href, icon: Icon, title, text }) => (
           <li key={href}>
-            <Link href={href} className="flex min-h-12 items-center gap-4 rounded-3xl bg-surface p-5">
-              <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-student-bg text-student-accent">
-                <Icon size={24} />
+            <Link href={href} className="flex min-h-12 items-center gap-4 rounded-[18px] border border-separator bg-surface p-5">
+              <span aria-hidden className="flex shrink-0 text-student-accent">
+                <Icon size={22} strokeWidth={1.75} />
               </span>
               <span className="flex-1">
                 <span className="block font-semibold">{title}</span>

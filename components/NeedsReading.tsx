@@ -8,7 +8,7 @@ import { KEYWORD_NOTICE } from "@/lib/sensitiveText";
 /** The chip on a student's row: calm (not red), with the category in words. */
 export function NeedsReadingChip({ categories }: { categories: string[] }) {
   return (
-    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-review-tint px-2 py-0.5 align-middle text-[12px] font-medium text-review-ink">
+    <span className="inline-flex items-center gap-1 rounded-md border border-review/25 px-1.5 text-[12px] font-medium text-review-ink">
       <BookOpen aria-hidden size={12} /> Needs reading: {categories.join(", ")}
     </span>
   );
@@ -34,7 +34,7 @@ export function NeedsReadingList({ items, onMarkRead }: { items: ReadingItem[]; 
           <button
             type="button"
             onClick={async () => setError(!(await onMarkRead(item)))}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-fill px-4 font-medium"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border border-separator-strong px-4 text-[15px] font-medium hover:bg-fill"
           >
             <Check aria-hidden size={16} /> Mark as read
           </button>

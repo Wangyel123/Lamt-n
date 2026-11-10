@@ -57,9 +57,9 @@ async function SupervisorContent() {
   return (
     <>
       <TopBar profile={profile} />
-      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-3xl space-y-8 px-4 py-8 outline-none">
+      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl space-y-8 px-5 py-10 outline-none">
         <header className="space-y-3 px-1">
-          <h1 className="text-[34px] leading-tight font-bold tracking-tight">Schools overview</h1>
+          <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.02em]">Schools overview</h1>
           <p className="flex max-w-prose items-start gap-2 text-text-muted">
             <ShieldCheck aria-hidden size={20} className="mt-0.5 shrink-0 text-primary" />
             Numbers only. No names or student IDs, and small numbers are hidden, so no child can be identified.
@@ -73,8 +73,8 @@ async function SupervisorContent() {
             { label: "Need follow-up", value: show(followUpCell(all)) },
             { label: "Schools", value: String(schoolCount) },
           ].map((tile) => (
-            <li key={tile.label} className="rounded-2xl bg-surface p-4">
-              <p className="tabular text-[28px] leading-tight font-bold sm:text-[34px]">{tile.value}</p>
+            <li key={tile.label} className="rounded-[14px] border border-separator bg-surface p-4">
+              <p className="tabular text-[26px] leading-none font-semibold tracking-[-0.02em]">{tile.value}</p>
               <p className="mt-1 text-[13px] text-text-muted sm:text-[15px]">{tile.label}</p>
             </li>
           ))}

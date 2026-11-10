@@ -49,18 +49,18 @@ export function CodeForm({ mode }: { mode: "demo" | "live" }) {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 className="text-[32px] leading-tight font-bold tracking-tight">Welcome to your space</h1>
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">Welcome to your space</h1>
         <p className="text-text-muted">A private place to check in with your school counsellor. You never need to type your name.</p>
       </header>
 
       {idle && (
-        <p role="status" className="rounded-3xl bg-surface p-5">
+        <p role="status" className="rounded-[18px] border border-separator bg-surface p-5">
           You were signed out because the page was left alone for {STUDENT_IDLE_MINUTES} minutes. This keeps your space private on
           shared computers.
         </p>
       )}
 
-      <form action={mode === "live" ? liveAction : demoSubmit} className="space-y-4 rounded-3xl bg-surface p-5">
+      <form action={mode === "live" ? liveAction : demoSubmit} className="space-y-4 rounded-[18px] border border-separator bg-surface p-5">
         <label htmlFor="code" className="flex items-center gap-2 font-semibold">
           <KeyRound aria-hidden size={20} className="text-student-accent" />
           Type the code from your slip
@@ -78,7 +78,7 @@ export function CodeForm({ mode }: { mode: "demo" | "live" }) {
           inputMode="text"
           maxLength={9}
           aria-describedby="code-help"
-          className="min-h-14 w-full rounded-2xl border border-border bg-surface px-4 text-center font-mono text-[24px] tracking-[0.2em] uppercase placeholder:tracking-[0.2em] placeholder:text-text-muted/60"
+          className="min-h-14 w-full rounded-[12px] border border-border bg-surface px-4 text-center font-mono text-[24px] tracking-[0.2em] uppercase placeholder:tracking-[0.2em] placeholder:text-text-muted/60"
         />
         <p id="code-help" className="text-[16px] text-text-muted">
           6 letters and numbers. Your counsellor gives you a new code if this one doesn&apos;t work.
@@ -88,13 +88,13 @@ export function CodeForm({ mode }: { mode: "demo" | "live" }) {
             {error}
           </p>
         )}
-        <button type="submit" disabled={pending} className="min-h-12 w-full rounded-full bg-student-accent font-semibold text-white disabled:opacity-60">
+        <button type="submit" disabled={pending} className="min-h-12 w-full rounded-[12px] bg-student-accent font-semibold text-white disabled:opacity-60">
           {pending ? "Checking…" : "Go to my space"}
         </button>
       </form>
 
       {mode === "demo" && (
-        <div className="space-y-2 rounded-3xl border border-dashed border-border p-5">
+        <div className="space-y-2 rounded-[18px] border border-dashed border-border p-5">
           <p className="text-[16px] text-text-muted">
             Reviewing the demo? Counsellors make real codes from a student&apos;s details. Or skip that and try it right away:
           </p>
@@ -108,7 +108,7 @@ export function CodeForm({ mode }: { mode: "demo" | "live" }) {
                 signInDemoStudent(result.studentId);
               }
             }}
-            className="inline-flex min-h-12 items-center gap-2 rounded-full bg-surface px-5 font-semibold text-student-accent"
+            className="inline-flex min-h-12 items-center gap-2 rounded-[12px] border border-separator bg-surface px-5 font-semibold text-student-accent"
           >
             <Sparkles aria-hidden size={18} />
             Try as a demo student <span className="whitespace-nowrap">({DEMO_STUDENT_ID})</span>

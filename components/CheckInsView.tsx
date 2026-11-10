@@ -9,7 +9,7 @@ import { newId } from "@/lib/collectionStore";
 import { formatTime } from "@/lib/format";
 import { checkIns as checkInStore } from "@/lib/stores";
 
-const select = "min-h-11 w-full appearance-none rounded-xl border border-border bg-surface py-2 pr-9 pl-3 text-[15px]";
+const select = "min-h-11 w-full appearance-none rounded-[10px] border border-border bg-surface py-2 pr-9 pl-3 text-[15px]";
 
 // P-04, counsellor side: send a short check-in to a school or class, and see how many answered.
 export function CheckInsView({ rows, sent, responses }: { rows: BoardRow[]; sent: CheckIn[]; responses: CheckInResponse[] }) {
@@ -35,7 +35,7 @@ export function CheckInsView({ rows, sent, responses }: { rows: BoardRow[]; sent
 
   return (
     <div className="space-y-6">
-      <section className="space-y-4 rounded-2xl bg-surface p-4">
+      <section className="space-y-4 rounded-[14px] border border-separator bg-surface p-4">
         <h2 className="text-[20px] font-semibold">Send a quick check-in</h2>
         <p className="text-[15px] text-text-muted">
           2–3 short questions between surveys. Students can skip any question. Answers appear on each student&apos;s timeline.
@@ -104,7 +104,7 @@ export function CheckInsView({ rows, sent, responses }: { rows: BoardRow[]; sent
             type="button"
             disabled={ordered.length === 0 || !school}
             onClick={() => void send()}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-primary px-5 font-semibold text-white disabled:opacity-50"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             <Send aria-hidden size={16} /> Send check-in
           </button>
@@ -116,11 +116,11 @@ export function CheckInsView({ rows, sent, responses }: { rows: BoardRow[]; sent
       </section>
 
       <section className="space-y-2">
-        <h2 className="px-4 text-[13px] font-medium tracking-wide text-text-muted uppercase">Sent check-ins</h2>
+        <h2 className="px-4 text-[14px] font-semibold tracking-[-0.01em] text-text">Sent check-ins</h2>
         {sent.length === 0 ? (
-          <p className="rounded-2xl bg-surface p-6 text-center text-text-muted">None sent yet.</p>
+          <p className="rounded-[14px] border border-separator bg-surface p-6 text-center text-text-muted">None sent yet.</p>
         ) : (
-          <ul className="divide-y divide-separator rounded-2xl bg-surface">
+          <ul className="divide-y divide-separator rounded-[14px] border border-separator bg-surface">
             {[...sent]
               .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
               .map((c) => (

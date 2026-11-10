@@ -21,13 +21,13 @@ interface Props {
 // check-in date. Overdue is shown with an icon AND words, never colour alone.
 export function CaseloadView({ rows, interventions, ready, onOpen, onStatusChange, chips }: Props) {
   const list = caseload(rows, interventions);
-  if (list.length === 0) return <p className="rounded-2xl bg-surface p-8 text-center font-medium">No open follow-ups. Everything is closed.</p>;
+  if (list.length === 0) return <p className="rounded-[14px] border border-separator bg-surface p-8 text-center font-medium">No open follow-ups. Everything is closed.</p>;
   return (
     <section className="space-y-2">
       <p className="px-4 text-[15px] text-text-muted">
         {list.length} students with an open follow-up. Most urgent first, then the check-in date that&apos;s due soonest.
       </p>
-      <ol className="divide-y divide-separator overflow-hidden rounded-2xl bg-surface">
+      <ol className="divide-y divide-separator overflow-hidden rounded-[14px] border border-separator bg-surface">
         {list.map((row) => {
           const next = nextFollowUp(row.student.studentId, interventions);
           const overdue = isOverdue(next);

@@ -16,9 +16,9 @@ function Tile({ studentId }: { studentId: string }) {
   if (pending.length === 0) return null;
   return (
     <li>
-      <Link href="/student/checkin" className="flex min-h-12 items-center gap-4 rounded-3xl bg-surface p-5 ring-2 ring-student-accent">
-        <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-student-bg text-student-accent">
-          <CalendarHeart size={24} />
+      <Link href="/student/checkin" className="flex min-h-12 items-center gap-4 rounded-[18px] border border-separator bg-surface p-5 ring-2 ring-student-accent">
+        <span aria-hidden className="flex shrink-0 text-student-accent">
+          <CalendarHeart size={22} strokeWidth={1.75} />
         </span>
         <span className="flex-1">
           <span className="block font-semibold">Your counsellor sent a quick check-in</span>

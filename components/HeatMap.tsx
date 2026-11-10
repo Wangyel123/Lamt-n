@@ -5,7 +5,7 @@ import { useState } from "react";
 import { FLAG_LEVELS, LEVEL_NAME } from "@/lib/flags";
 import { HEAT_SCALE, HEAT_STEPS, heatCell, percent, type HeatCell } from "@/lib/heatmap";
 import { MIN_GROUP_SIZE, type SafeRow } from "@/lib/suppression";
-import { LEVEL_STYLE } from "./FlagBadge";
+import { LEVEL_STYLE, PriorityDot } from "./FlagBadge";
 
 const HATCH = "repeating-linear-gradient(135deg, var(--fill) 0 6px, var(--surface) 6px 12px)";
 
@@ -14,7 +14,7 @@ function Cell({ cell, showPercent }: { cell: HeatCell; showPercent: boolean }) {
     return (
       <td className="p-1">
         <div
-          className="flex min-h-11 items-center justify-center rounded-lg px-1 text-center text-[12px] text-text-muted"
+          className="flex min-h-11 items-center justify-center rounded-[8px] px-1 text-center text-[12px] text-text-muted"
           style={{ background: HATCH }}
         >
           {cell.kind === "small" ? `under ${MIN_GROUP_SIZE}` : "not shown"}
@@ -27,7 +27,7 @@ function Cell({ cell, showPercent }: { cell: HeatCell; showPercent: boolean }) {
   return (
     <td className="p-1">
       <div
-        className={`tabular flex min-h-11 items-center justify-center rounded-lg border border-separator font-semibold ${cell.step === 4 ? "text-white" : "text-text"}`}
+        className={`tabular flex min-h-11 items-center justify-center rounded-[8px] border border-separator font-semibold ${cell.step === 4 ? "text-white" : "text-text"}`}
         style={{ background: bg }}
         title={cell.share === null ? `${cell.value} students` : `${cell.value} students (${percent(cell.share)})`}
       >
@@ -80,7 +80,7 @@ export function HeatMap({ rows }: { rows: SafeRow[] }) {
   return (
     <section aria-labelledby="heat-heading" className="space-y-2">
       <div className="flex flex-wrap items-end justify-between gap-2 px-4">
-        <h2 id="heat-heading" className="text-[13px] font-medium tracking-wide text-text-muted uppercase">
+        <h2 id="heat-heading" className="text-[14px] font-semibold tracking-[-0.01em] text-text">
           Where flags are concentrated
         </h2>
         <div role="group" aria-label="Show as" className="inline-flex rounded-[10px] bg-fill p-0.5 text-[14px]">
@@ -90,14 +90,14 @@ export function HeatMap({ rows }: { rows: SafeRow[] }) {
               type="button"
               aria-pressed={showPercent === p}
               onClick={() => setShowPercent(p)}
-              className={`min-h-11 rounded-lg px-3 ${showPercent === p ? "bg-surface font-semibold shadow-[0_1px_3px_hsla(0,0%,0%,.15)]" : ""}`}
+              className={`min-h-11 rounded-[8px] px-3 ${showPercent === p ? "bg-surface font-semibold shadow-[0_1px_3px_hsla(0,0%,0%,.15)]" : ""}`}
             >
               {p ? "Percent" : "Numbers"}
             </button>
           ))}
         </div>
       </div>
-      <div className="overflow-x-auto rounded-2xl bg-surface p-2">
+      <div className="overflow-x-auto rounded-[14px] border border-separator bg-surface p-2">
         <table className="w-full min-w-[420px] border-collapse text-[14px]">
           <caption className="sr-only">Share of students at each priority, by school. Small numbers are hidden.</caption>
           <thead>
@@ -106,11 +106,11 @@ export function HeatMap({ rows }: { rows: SafeRow[] }) {
                 School
               </th>
               {FLAG_LEVELS.map((level) => {
-                const { icon: Icon, ink } = LEVEL_STYLE[level];
+                const { ink } = LEVEL_STYLE[level];
                 return (
                   <th key={level} scope="col" className={`px-1 py-2 text-[12px] font-semibold ${ink}`}>
                     <span className="inline-flex items-center gap-1">
-                      <Icon aria-hidden size={13} />
+                      <PriorityDot level={level} />
                       {LEVEL_NAME[level]}
                     </span>
                   </th>

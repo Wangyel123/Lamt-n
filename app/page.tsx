@@ -1,35 +1,36 @@
-import { BarChart3, ChevronRight, HeartHandshake, Sprout, UserRound } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/LoginForm";
+import { Wordmark } from "@/components/Wordmark";
 import { getCurrentProfile } from "@/lib/auth";
 import { isEnabled } from "@/lib/features";
 import { isDemoMode } from "@/lib/mode";
+import { ui } from "@/lib/ui";
 
-// Start page: choose a role (demo mode) or sign in (live mode).
+// Start page: sign in (live mode) or choose a role (demo mode). One calm column, nothing else.
 export default function Home() {
   return (
-    <main id="main" tabIndex={-1} className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-12 outline-none">
-      <div className="mb-8 text-center">
-        <span aria-hidden className="mx-auto mb-4 flex size-16 items-center justify-center rounded-[18px] bg-primary text-white shadow-[0_4px_6px_hsla(0,0%,0%,.1)]">
-          <HeartHandshake size={32} />
-        </span>
-        <h1 className="text-[34px] leading-tight font-bold tracking-tight">Student Wellbeing</h1>
-        <p className="mx-auto mt-2 max-w-sm text-text-muted">
-          Helps school counsellors see which students may need support first, from this year&apos;s wellbeing survey.
+    <div className="flex min-h-screen flex-col">
+      <main id="main" tabIndex={-1} className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center px-5 py-16 outline-none">
+        <Wordmark size="lg" />
+        <p className="mt-6 text-[17px] leading-snug text-text-muted">
+          Wellbeing follow-up for school counsellors. See who needs you first, and keep track of every conversation.
         </p>
-      </div>
-
-      {isDemoMode() ? (
-        <RoleChooser />
-      ) : (
-        // Reading the login cookie is per-request, so it streams in behind a Suspense boundary.
-        <Suspense fallback={<p role="status" className="text-center text-text-muted">Loading…</p>}>
-          <LiveLogin />
-        </Suspense>
-      )}
-    </main>
+        <div className="mt-10">
+          {isDemoMode() ? (
+            <RoleChooser />
+          ) : (
+            // Reading the login cookie is per-request, so it streams in behind a Suspense boundary.
+            <Suspense fallback={<p role="status" className={ui.muted}>Loading…</p>}>
+              <LiveLogin />
+            </Suspense>
+          )}
+        </div>
+      </main>
+      <footer className="px-5 pb-8 text-center text-[13px] text-text-muted">Prototype · synthetic data only · no real student is shown</footer>
+    </div>
   );
 }
 
@@ -38,14 +39,12 @@ async function LiveLogin() {
   if (profile) redirect(`/${profile.role}`); // already signed in
   return (
     <>
+      <h1 className="mb-5 text-[20px] font-semibold tracking-[-0.01em]">Sign in</h1>
       <LoginForm />
       {isEnabled("studentPortal") && (
-        <p className="mt-6 text-center text-[15px] text-text-muted">
-          Are you a student?{" "}
-          <Link href="/student" className="font-medium text-primary underline-offset-2 hover:underline">
-            Go to your space
-          </Link>
-        </p>
+        <Link href="/student" className={`${ui.ghost} mt-6 -ml-3`}>
+          I&apos;m a student, I have a code <ArrowRight aria-hidden size={16} />
+        </Link>
       )}
     </>
   );
@@ -53,34 +52,27 @@ async function LiveLogin() {
 
 function RoleChooser() {
   const roles = [
-    { href: "/counsellor", icon: UserRound, title: "I'm a counsellor", text: "See which students to meet first and track follow-ups" },
-    { href: "/supervisor", icon: BarChart3, title: "I'm a supervisor", text: "See numbers for each school. No names." },
-    // Phase 2 (K-01/K-05): the student area, shown only when its feature switch is on
-    ...(isEnabled("studentPortal")
-      ? [{ href: "/student", icon: Sprout, title: "I'm a student", text: "A private space to check in with your counsellor" }]
-      : []),
+    { href: "/counsellor", title: "Counsellor", text: "See who to meet first and track follow-ups" },
+    { href: "/supervisor", title: "Supervisor", text: "Numbers for each school, never names" },
+    ...(isEnabled("studentPortal") ? [{ href: "/student", title: "Student", text: "A private space to talk to your counsellor" }] : []),
   ];
   return (
     <>
-      <ul className="divide-y divide-separator overflow-hidden rounded-2xl bg-surface">
-        {roles.map(({ href, icon: Icon, title, text }) => (
+      <h1 className="mb-4 text-[20px] font-semibold tracking-[-0.01em]">Continue as</h1>
+      <ul className={`${ui.panel} divide-y divide-separator overflow-hidden`}>
+        {roles.map(({ href, title, text }) => (
           <li key={href}>
-            <Link href={href} className="flex min-h-11 items-center gap-3 px-4 py-4 hover:bg-bg/60">
-              <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-full bg-fill text-primary">
-                <Icon size={18} />
-              </span>
+            <Link href={href} className="group flex min-h-11 items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-fill">
               <span className="flex-1">
-                <span className="block font-semibold">{title}</span>
-                <span className="text-[15px] text-text-muted">{text}</span>
+                <span className="block font-medium">{title}</span>
+                <span className="text-[14px] text-text-muted">{text}</span>
               </span>
-              <ChevronRight aria-hidden size={18} className="text-border" />
+              <ArrowRight aria-hidden size={18} className="text-text-muted transition-transform duration-150 group-hover:translate-x-0.5" />
             </Link>
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-center text-[13px] text-text-muted">
-        This demo uses made-up students. Anything you change is saved only in this browser.
-      </p>
+      <p className="mt-4 text-[13px] text-text-muted">Demo mode: made-up students, and anything you change stays in this browser.</p>
     </>
   );
 }

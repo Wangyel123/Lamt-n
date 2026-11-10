@@ -6,7 +6,7 @@ import { newId } from "@/lib/collectionStore";
 import { INTERVENTION_TYPES, OUTCOMES, type InterventionOutcome, type InterventionType } from "@/lib/interventions";
 import { interventions } from "@/lib/stores";
 
-const field = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-[15px]";
+const field = "min-h-11 w-full rounded-[10px] border border-border bg-surface px-3 text-[15px]";
 
 function Select<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Record<T, string>; onChange: (v: T) => void }) {
   return (
@@ -66,7 +66,7 @@ export function InterventionForm({ studentId }: { studentId: string }) {
         <input type="date" value={followUpDate} onChange={(e) => setFollowUpDate(e.target.value)} className={`${field} mt-1 font-normal`} />
       </label>
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => void save()} className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white">
+        <button type="button" onClick={() => void save()} className="min-h-11 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover">
           Add to timeline
         </button>
         <span role="status" aria-live="polite" className="text-[13px]">

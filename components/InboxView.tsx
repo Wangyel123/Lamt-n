@@ -25,11 +25,11 @@ export function InboxView({ rows, messages, onOpenStudent }: Props) {
   const open = list.find((c) => c.studentId === openId);
 
   if (list.length === 0)
-    return <p className="rounded-2xl bg-surface p-8 text-center font-medium">No messages yet. Students can write to you from their space.</p>;
+    return <p className="rounded-[14px] border border-separator bg-surface p-8 text-center font-medium">No messages yet. Students can write to you from their space.</p>;
 
   return (
     <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-      <ul className={`divide-y divide-separator self-start overflow-hidden rounded-2xl bg-surface ${open ? "hidden md:block" : ""}`} aria-label="Conversations">
+      <ul className={`divide-y divide-separator self-start overflow-hidden rounded-[14px] border border-separator bg-surface ${open ? "hidden md:block" : ""}`} aria-label="Conversations">
         {list.map((c) => {
           const row = rowOf(c.studentId);
           const urgentWords = c.messages.some((m) => m.sender === "student" && !m.readAt && needsAlert(scanText(m.body)));
@@ -62,7 +62,7 @@ export function InboxView({ rows, messages, onOpenStudent }: Props) {
       {open ? (
         <Conversation key={open.studentId} studentId={open.studentId} items={open.messages} onBack={() => setOpenId(null)} onOpenStudent={onOpenStudent} />
       ) : (
-        <p className="hidden rounded-2xl bg-surface p-8 text-center text-text-muted md:block">Choose a conversation.</p>
+        <p className="hidden rounded-[14px] border border-separator bg-surface p-8 text-center text-text-muted md:block">Choose a conversation.</p>
       )}
     </div>
   );
@@ -87,7 +87,7 @@ function Conversation({ studentId, items, onBack, onOpenStudent }: { studentId: 
   }
 
   return (
-    <section aria-label={`Conversation with ${studentId}`} className="space-y-3 rounded-2xl bg-surface p-4">
+    <section aria-label={`Conversation with ${studentId}`} className="space-y-3 rounded-[14px] border border-separator bg-surface p-4">
       <div className="flex items-center justify-between gap-2">
         <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-1 font-medium text-primary md:hidden">
           <ArrowLeft aria-hidden size={16} /> All messages
@@ -117,9 +117,9 @@ function Conversation({ studentId, items, onBack, onOpenStudent }: { studentId: 
         <label htmlFor="reply" className="sr-only">
           Reply to {studentId}
         </label>
-        <textarea id="reply" value={text} maxLength={MESSAGE_MAX_LENGTH} onChange={(e) => setText(e.target.value)} rows={2} placeholder="Write a reply" className="w-full rounded-xl border border-border p-3 text-[15px]" />
+        <textarea id="reply" value={text} maxLength={MESSAGE_MAX_LENGTH} onChange={(e) => setText(e.target.value)} rows={2} placeholder="Write a reply" className="w-full rounded-[10px] border border-border p-3 text-[15px]" />
         {error && <p role="alert" className="text-[13px] font-semibold text-urgent-ink">Couldn&apos;t send. Try again.</p>}
-        <button type="submit" disabled={!text.trim()} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-primary px-5 font-semibold text-white disabled:opacity-50">
+        <button type="submit" disabled={!text.trim()} className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover disabled:opacity-50">
           <Send aria-hidden size={16} /> Send reply
         </button>
       </form>

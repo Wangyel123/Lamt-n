@@ -1,7 +1,7 @@
-import { Sprout } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Mark } from "@/components/Wordmark";
 import { GetHelpSheet } from "@/components/student/GetHelpSheet";
 import { LeaveButton } from "@/components/student/StudentSessionControls";
 import { isEnabled } from "@/lib/features";
@@ -22,10 +22,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
       <header className="sticky top-0 z-30 border-b border-separator bg-student-bg/85 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-2xl items-center justify-between gap-2 px-4">
           <Link href="/student" className="inline-flex min-h-12 shrink-0 items-center gap-2 font-semibold">
-            <span aria-hidden className="flex size-8 items-center justify-center rounded-xl bg-student-accent text-white">
-              <Sprout size={18} />
-            </span>
-            <span className="max-[419px]:sr-only">My space</span>
+            <Mark size={28} tone="student" />
+            <span className="tracking-[-0.02em] max-[419px]:sr-only">My space</span>
           </Link>
           <div className="flex items-center gap-1">
             <GetHelpSheet />
