@@ -1,9 +1,11 @@
-import { DoorOpen, Sprout } from "lucide-react";
+import { Sprout } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GetHelpSheet } from "@/components/student/GetHelpSheet";
+import { LeaveButton } from "@/components/student/StudentSessionControls";
 import { isEnabled } from "@/lib/features";
+import { isDemoMode } from "@/lib/mode";
 
 export const metadata: Metadata = { title: "My Wellbeing Space" };
 
@@ -27,11 +29,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           </Link>
           <div className="flex items-center gap-1">
             <GetHelpSheet />
-            {/* Step 2 turns this into a real sign-out once students can sign in with a code */}
-            <Link href="/" className="inline-flex min-h-12 items-center gap-1.5 rounded-full px-3 font-medium text-student-accent hover:bg-surface">
-              <DoorOpen aria-hidden size={18} />
-              Leave
-            </Link>
+            <LeaveButton mode={isDemoMode() ? "demo" : "live"} />
           </div>
         </div>
       </header>

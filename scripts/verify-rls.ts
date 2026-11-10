@@ -3,6 +3,7 @@
 // Prints only counts and PASS/FAIL, never student data. Cleans up the one test write it makes.
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { generateCode } from "../lib/accessCodes";
 
 try {
   process.loadEnvFile(".env.local");
@@ -32,9 +33,14 @@ async function signedIn(email: string, password: string): Promise<SupabaseClient
   return client;
 }
 
-/** Row count a client can see (an error counts as 0 visible rows). */
+/**
+ * Row count a client can see. "Permission denied" counts as 0 visible rows, but a MISSING table
+ * returns -1 so the check fails loudly instead of passing by accident.
+ * (Not a HEAD request: HEAD responses have no body, so they hide "table not found" errors.)
+ */
 async function visible(client: SupabaseClient, table: string): Promise<number> {
-  const { count, error } = await client.from(table).select("*", { count: "exact", head: true });
+  const { count, error } = await client.from(table).select("*", { count: "exact" }).range(0, 0);
+  if (error?.code === "PGRST205" || error?.code === "42P01") return -1; // table doesn't exist
   return error ? 0 : (count ?? 0);
 }
 
@@ -86,8 +92,65 @@ async function main() {
   await admin.from("follow_up_events").delete().eq("note", MARKER);
   if (!existing?.length) await admin.from("follow_ups").delete().eq("student_id", "S-038");
 
+  // 6. Phase 2: students signing in with a one-time code (needs migration 002 + anonymous sign-ins)
+  await studentChecks(admin, counsellorB, supervisor);
+
   console.log(failures === 0 ? "\nAll RLS checks passed." : `\n${failures} RLS check(s) FAILED.`);
   process.exit(failures === 0 ? 0 : 1);
+}
+
+async function studentChecks(admin: SupabaseClient, counsellorB: SupabaseClient, supervisor: SupabaseClient) {
+  const { error: missing } = await admin.from("access_codes").select("code").limit(1); // not HEAD: it would hide the error
+  if (missing) return console.log("SKIP  student checks: run supabase/migrations/002_student_access.sql first");
+  const probe = newClient();
+  const { data: probeUser, error: anonOff } = await probe.auth.signInAnonymously();
+  if (anonOff) return console.log("SKIP  student checks: turn on Authentication → Sign In / Providers → Allow anonymous sign-ins");
+
+  const codes: string[] = [];
+  const anonIds: string[] = [probeUser.user!.id];
+  const { data: me } = await counsellorB.auth.getUser();
+  const makeCode = async (studentId: string) => {
+    const code = generateCode();
+    const res = await counsellorB.from("access_codes").insert({ code, student_id: studentId, created_by: me.user!.id });
+    if (!res.error) codes.push(code);
+    return { code, error: res.error };
+  };
+  const anonStudent = async () => {
+    const c = newClient();
+    const { data } = await c.auth.signInAnonymously();
+    anonIds.push(data.user!.id);
+    return c;
+  };
+
+  try {
+    const good = await makeCode("S-038");
+    check("School B counsellor CAN make a code for a School B student", !good.error);
+    check("School B counsellor cannot make a code for a School A student", Boolean((await makeCode("S-001")).error));
+    check("supervisor sees 0 access codes", (await visible(supervisor, "access_codes")) === 0);
+
+    check("student: a wrong code is refused", (await probe.rpc("redeem_access_code", { p_code: "ZZ-ZZZZ" })).data === "invalid_code");
+    const student = await anonStudent();
+    check("student: the right code works", (await student.rpc("redeem_access_code", { p_code: good.code })).data === "ok");
+    const { data: link } = await student.from("student_accounts").select("student_id");
+    check("student: sees only their own link (S-038)", link?.length === 1 && link[0].student_id === "S-038");
+    for (const table of ["students", "follow_ups", "follow_up_events", "access_codes"]) {
+      check(`student: sees 0 rows in ${table} (never flags or counsellor notes)`, (await visible(student, table)) === 0);
+    }
+    const second = await anonStudent();
+    check("the same code can't be used twice", (await second.rpc("redeem_access_code", { p_code: good.code })).data === "invalid_code");
+    check("a staff account can't redeem a student code", (await counsellorB.rpc("redeem_access_code", { p_code: good.code })).data === "not_anonymous");
+
+    const revoked = await makeCode("S-039");
+    await counsellorB.from("access_codes").update({ revoked_at: new Date().toISOString() }).eq("code", revoked.code);
+    const third = await anonStudent();
+    check("a revoked code doesn't work", (await third.rpc("redeem_access_code", { p_code: revoked.code })).data === "invalid_code");
+  } finally {
+    // Clean up everything this check created (secret key bypasses RLS).
+    if (codes.length) await admin.from("access_codes").delete().in("code", codes);
+    await admin.from("student_accounts").delete().in("auth_uid", anonIds);
+    await admin.from("code_attempts").delete().in("auth_uid", anonIds);
+    for (const id of anonIds) await admin.auth.admin.deleteUser(id);
+  }
 }
 
 main().catch((err: Error) => {

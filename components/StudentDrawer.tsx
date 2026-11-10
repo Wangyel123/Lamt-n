@@ -7,6 +7,8 @@ import { levelMeaning, LEVEL_NAME } from "@/lib/flags";
 import { formatTime } from "@/lib/format";
 import { STATUS_LABELS, type FollowUpStatus } from "@/lib/followUps";
 import type { Student } from "@/lib/parseCsv";
+import { isEnabled } from "@/lib/features";
+import { AccessCodePanel } from "./AccessCodePanel";
 import { FlagBadge } from "./FlagBadge";
 import { StatusControl } from "./StatusControl";
 
@@ -157,6 +159,13 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
               </li>
             ))}
           </ul>
+        </Group>
+      )}
+
+      {/* Phase 2 (K-01): the student's one-time code, only when the student area is switched on */}
+      {isEnabled("studentPortal") && (
+        <Group title="Student access">
+          <AccessCodePanel studentId={student.studentId} />
         </Group>
       )}
 
