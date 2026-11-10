@@ -4,7 +4,8 @@ import { CounsellorBoard } from "@/components/CounsellorBoard";
 import { LoadingState } from "@/components/LoadingState";
 import { TopBar } from "@/components/TopBar";
 import { requireRole } from "@/lib/auth";
-import { loadStudentsForCounsellor, loadStudentsFromCsv } from "@/lib/loadStudents";
+import { DEMO_SURVEY_LOADED_AT } from "@/lib/interventions";
+import { loadStudentsForCounsellor, loadStudentsFromCsv, loadSurveyDate } from "@/lib/loadStudents";
 import { isDemoMode } from "@/lib/mode";
 
 export const metadata: Metadata = { title: "Students to see · Student Wellbeing" };
@@ -24,6 +25,7 @@ async function CounsellorContent() {
   const demo = isDemoMode();
   const profile = demo ? null : await requireRole("counsellor");
   const { students, report } = demo ? await loadStudentsFromCsv() : await loadStudentsForCounsellor();
+  const flaggedSince = demo ? DEMO_SURVEY_LOADED_AT : await loadSurveyDate();
 
   return (
     <>
@@ -36,7 +38,7 @@ async function CounsellorContent() {
             see first. They are not a diagnosis. Your own judgement comes first.
           </p>
         </header>
-        <CounsellorBoard students={students} report={report} />
+        <CounsellorBoard students={students} report={report} flaggedSince={flaggedSince} />
       </main>
     </>
   );

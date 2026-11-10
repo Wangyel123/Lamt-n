@@ -2,14 +2,15 @@ import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoadingState } from "@/components/LoadingState";
+import { InterventionCounts } from "@/components/InterventionCounts";
 import { SupervisorChart } from "@/components/SupervisorChart";
 import { SupervisorTable } from "@/components/SupervisorTable";
 import { TopBar } from "@/components/TopBar";
 import { requireRole } from "@/lib/auth";
-import { loadStudentsForAggregation, loadStudentsFromCsv } from "@/lib/loadStudents";
+import { loadInterventionsForAggregation, loadStudentsForAggregation, loadStudentsFromCsv } from "@/lib/loadStudents";
 import { isDemoMode } from "@/lib/mode";
 import type { SafeCell } from "@/lib/suppression";
-import { buildSupervisorSummary, followUpCell } from "@/lib/supervisorSummary";
+import { buildSupervisorSummary, followUpCell, interventionTable } from "@/lib/supervisorSummary";
 
 export const metadata: Metadata = { title: "Schools overview · Student Wellbeing" };
 
@@ -31,6 +32,13 @@ async function SupervisorContent() {
   const profile = demo ? null : await requireRole("supervisor");
   const { students } = demo ? await loadStudentsFromCsv() : await loadStudentsForAggregation();
   const summary = buildSupervisorSummary(students);
+  // P-01: support counts by school (live mode only; demo actions live in the counsellor's browser)
+  const support = demo
+    ? []
+    : interventionTable(
+        students.map((s) => ({ studentId: s.studentId, school: s.school })),
+        await loadInterventionsForAggregation(),
+      );
   const all = summary.rows.find((r) => r.kind === "all")!;
   const schoolCount = summary.rows.filter((r) => r.kind === "school").length;
 
@@ -62,6 +70,7 @@ async function SupervisorContent() {
 
         <SupervisorChart rows={summary.rows} />
         <SupervisorTable rows={summary.rows} />
+        <InterventionCounts rows={support} demo={demo} />
 
         <p className="px-1 text-[13px] text-text-muted">
           Priorities use the recommended rules, including the extra checks for skipped and worrying answers.

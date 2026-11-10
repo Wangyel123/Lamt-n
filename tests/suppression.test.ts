@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { GET } from "@/app/api/supervisor/summary/route";
 import { COLUMNS, LEVEL_COLUMNS, MIN_GROUP_SIZE, suppress, type CountRow, type SafeCell, type SafeRow } from "@/lib/suppression";
 import { romanToNumber } from "@/lib/classOrder";
-import { buildSupervisorSummary, countRows, followUpCell } from "@/lib/supervisorSummary";
+import { buildSupervisorSummary, countRows, followUpCell, interventionTable } from "@/lib/supervisorSummary";
 import { loadDataset } from "./helpers";
 
 const { students } = loadDataset();
@@ -215,5 +215,32 @@ describe("followUpCell: students who need follow-up, per school", () => {
   });
   it("is hidden when either number it needs is hidden", () => {
     expect(followUpCell(row(rows, "School A", "VIII"))).toEqual({ kind: "hidden" });
+  });
+});
+
+describe("support given, by school (P-01): counts only, same suppression rules", () => {
+  const people = students.map((s) => ({ studentId: s.studentId, school: s.school }));
+  const many = [
+    ...Array.from({ length: 6 }, () => ({ studentId: "S-001", type: "check_in_meeting" as const })),
+    ...Array.from({ length: 5 }, () => ({ studentId: "S-030", type: "check_in_meeting" as const })),
+    { studentId: "S-070", type: "referral_external" as const },
+  ];
+  const table = interventionTable(people, many);
+
+  it("has one row per school plus all schools", () => {
+    expect(table.map((r) => r.school)).toEqual(["School A", "School B", "School C", "School D", "All schools"]);
+  });
+
+  it("never shows a count from 1 to 4 (School D's single referral is hidden)", () => {
+    for (const r of table) for (const c of Object.values(r.cells)) if (c.kind === "count") expect(c.value === 0 || c.value >= 5).toBe(true);
+    expect(table.find((r) => r.school === "School D")!.cells.referral_external.kind).toBe("small");
+  });
+
+  it("contains no student IDs and no notes", () => {
+    expect(JSON.stringify(table)).not.toMatch(/S-\d/);
+  });
+
+  it("shows bigger counts (School A: 6 meetings)", () => {
+    expect(table.find((r) => r.school === "School A")!.cells.check_in_meeting).toEqual({ kind: "count", value: 6 });
   });
 });

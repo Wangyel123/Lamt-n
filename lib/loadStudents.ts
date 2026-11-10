@@ -4,6 +4,7 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import type { InterventionType } from "./interventions";
 import { parseCsv, type ParseResult } from "./parseCsv";
 import { fromDbRows, type StudentDbRow } from "./studentRecords";
 import { getAdminSupabase, getServerSupabase } from "./supabase/server";
@@ -27,6 +28,13 @@ export async function loadStudentsForCounsellor(): Promise<ParseResult> {
   return fromDbRows(data as StudentDbRow[]);
 }
 
+/** Live mode: when the survey results were loaded (the moment students were flagged). */
+export async function loadSurveyDate(): Promise<string> {
+  const supabase = await getServerSupabase();
+  const { data } = await supabase.from("students").select("imported_at").order("imported_at", { ascending: false }).limit(1);
+  return (data?.[0]?.imported_at as string | undefined) ?? new Date().toISOString();
+}
+
 /**
  * Live mode, for the supervisor's COUNTS ONLY. Uses the secret key because supervisors have no
  * RLS access to student rows. Callers must check the role first and must only return
@@ -37,4 +45,11 @@ export async function loadStudentsForAggregation(): Promise<ParseResult> {
   const { data, error } = await getAdminSupabase().from("students").select("*");
   if (error) throw new Error("Could not load counts.");
   return fromDbRows(data as StudentDbRow[]);
+}
+
+/** Live mode, supervisor COUNTS ONLY: which students got which kind of support (no notes, no outcomes). */
+export async function loadInterventionsForAggregation(): Promise<{ studentId: string; type: InterventionType }[]> {
+  const { data, error } = await getAdminSupabase().from("interventions").select("student_id, type");
+  if (error) return []; // table not created yet (migration 003): show nothing rather than fail
+  return (data ?? []).map((r) => ({ studentId: r.student_id as string, type: r.type as InterventionType }));
 }

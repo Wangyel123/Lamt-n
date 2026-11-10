@@ -4,7 +4,8 @@
 import { compareClasses } from "./classOrder";
 import { flagStudent, type FlagOptions } from "./flags";
 import type { Student } from "./parseCsv";
-import { MIN_GROUP_SIZE, suppress, type CountRow, type SafeCell, type SafeRow } from "./suppression";
+import { INTERVENTION_TYPES, type InterventionType } from "./interventions";
+import { MIN_GROUP_SIZE, suppress, suppressTable, type CountRow, type SafeCell, type SafeRow, type SafeTableRow, type TableRow } from "./suppression";
 
 export interface SupervisorSummary {
   rows: SafeRow[];
@@ -66,4 +67,32 @@ export function followUpCell(row: SafeRow): SafeCell {
   if (total.kind !== "count" || none.kind !== "count") return { kind: "hidden" };
   const value = total.value - none.value;
   return value > 0 && value < MIN_GROUP_SIZE ? { kind: "small" } : { kind: "count", value };
+}
+
+// ---------------------------------------------------------------------------
+// P-01: support given, by school. Counts of interventions by type, never notes, never IDs.
+// Uses the SAME suppression rules as the flag table.
+// ---------------------------------------------------------------------------
+export const INTERVENTION_TYPE_KEYS = Object.keys(INTERVENTION_TYPES) as InterventionType[];
+
+export function interventionTable(
+  students: { studentId: string; school: string }[],
+  interventions: { studentId: string; type: InterventionType }[],
+): SafeTableRow<InterventionType>[] {
+  const schoolOf = new Map(students.map((s) => [s.studentId, s.school]));
+  const empty = () => Object.fromEntries([...INTERVENTION_TYPE_KEYS, "Total"].map((k) => [k, 0])) as Record<InterventionType | "Total", number>;
+  const bySchool = new Map<string, Record<InterventionType | "Total", number>>();
+  for (const school of new Set(students.map((s) => s.school))) bySchool.set(school, empty());
+  const all = empty();
+  for (const i of interventions) {
+    const school = schoolOf.get(i.studentId);
+    if (!school) continue;
+    for (const counts of [bySchool.get(school)!, all]) {
+      counts[i.type] += 1;
+      counts.Total += 1;
+    }
+  }
+  const rows: TableRow<InterventionType>[] = [...bySchool.keys()].sort().map((school) => ({ kind: "school", school, className: null, counts: bySchool.get(school)! }));
+  rows.push({ kind: "all", school: ALL_SCHOOLS, className: null, counts: all });
+  return suppressTable(rows, INTERVENTION_TYPE_KEYS);
 }

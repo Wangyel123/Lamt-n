@@ -4,12 +4,15 @@ import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { BoardRow } from "@/lib/board";
 import { levelMeaning, LEVEL_NAME } from "@/lib/flags";
-import { formatTime } from "@/lib/format";
-import { STATUS_LABELS, type FollowUpStatus } from "@/lib/followUps";
+import type { FollowUpStatus } from "@/lib/followUps";
+import { interventions } from "@/lib/stores";
+import { buildTimeline } from "@/lib/timeline";
 import type { Student } from "@/lib/parseCsv";
 import { isEnabled } from "@/lib/features";
 import { AccessCodePanel } from "./AccessCodePanel";
 import { FlagBadge } from "./FlagBadge";
+import { InterventionForm } from "./InterventionForm";
+import { Timeline } from "./Timeline";
 import { StatusControl } from "./StatusControl";
 
 interface Props {
@@ -73,6 +76,8 @@ export function StudentDrawer({ row, onClose, ...rest }: Props) {
 
 function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave }: Props & { row: BoardRow }) {
   const { student, flag, followUp, status } = row;
+  const allInterventions = interventions.use().items;
+  const timeline = buildTimeline({ followUp, interventions: allInterventions.filter((i) => i.studentId === student.studentId) });
   const [note, setNote] = useState(followUp?.note ?? "");
   const [noteState, setNoteState] = useState<"idle" | "saved" | "error">("idle");
 
@@ -209,22 +214,19 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
               </span>
             </div>
           </div>
-          <div>
-            <h4 className="text-[15px] font-medium">History</h4>
-            {followUp && followUp.history.length > 0 ? (
-              <ol className="mt-1 space-y-1 text-[15px] text-text-muted">
-                {[...followUp.history].reverse().map((e, i) => (
-                  <li key={`${e.at}-${i}`}>
-                    {formatTime(e.at)}: {e.from ? `${STATUS_LABELS[e.from]} → ` : "Started: "}
-                    {STATUS_LABELS[e.to]}
-                    {e.note && <> · &ldquo;{e.note}&rdquo;</>}
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="mt-1 text-[15px] text-text-muted">No changes yet.</p>
-            )}
-          </div>
+        </div>
+      </Group>
+
+      {/* P-01: log what you did, and see everything that happened, newest first */}
+      <Group title="Add what you did">
+        <div className="p-4">
+          <InterventionForm studentId={student.studentId} />
+        </div>
+      </Group>
+
+      <Group title="Timeline">
+        <div className="p-4">
+          <Timeline entries={timeline} />
         </div>
       </Group>
     </div>

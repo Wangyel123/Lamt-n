@@ -25,23 +25,29 @@ export type Column = (typeof COLUMNS)[number];
 
 export type RowKind = "class" | "school" | "all";
 
-/** Raw counts for one table row. Server-side only: never send these to the browser. */
-export interface CountRow {
+/**
+ * Raw counts for one table row. Server-side only: never send these to the browser.
+ * Generic over the columns, so the same rules protect any table that adds up to a "Total"
+ * (flag levels, interventions by type, check-in responses...).
+ */
+export interface TableRow<C extends string> {
   kind: RowKind;
   school: string; // "All schools" for the grand total row
   className: string | null; // null for school and "All schools" rows
-  counts: Record<Column, number>;
+  counts: Record<C | "Total", number>;
 }
+export type CountRow = TableRow<(typeof LEVEL_COLUMNS)[number]>;
 
 /** What the browser is allowed to see for one cell. Hidden cells carry no value at all. */
 export type SafeCell = { kind: "count"; value: number } | { kind: "small" } | { kind: "hidden" };
 
-export interface SafeRow {
+export interface SafeTableRow<C extends string> {
   kind: RowKind;
   school: string;
   className: string | null;
-  cells: Record<Column, SafeCell>;
+  cells: Record<C | "Total", SafeCell>;
 }
+export type SafeRow = SafeTableRow<(typeof LEVEL_COLUMNS)[number]>;
 
 // ---------------------------------------------------------------------------
 // Internal working cell: the real value plus what an outsider could know about it.
@@ -67,10 +73,18 @@ function markSmall(cell: WorkCell, min: number) {
   cell.max = MIN_GROUP_SIZE - 1;
 }
 
+/** The flag-level table (AC-05). */
 export function suppress(rows: CountRow[]): SafeRow[] {
+  return suppressTable(rows, LEVEL_COLUMNS);
+}
+
+/** Any table whose `parts` columns add up to "Total" in every row. */
+export function suppressTable<C extends string>(rows: TableRow<C>[], parts: readonly C[]): SafeTableRow<C>[] {
+  type Col = C | "Total";
+  const columns: Col[] = [...parts, "Total"];
   const grid = rows.map((row) => {
-    const cells = {} as Record<Column, WorkCell>;
-    for (const col of COLUMNS) cells[col] = shownCell(row.counts[col]);
+    const cells = {} as Record<Col, WorkCell>;
+    for (const col of columns) cells[col] = shownCell(row.counts[col]);
     return cells;
   });
 
@@ -78,20 +92,20 @@ export function suppress(rows: CountRow[]): SafeRow[] {
   // Each level count could be 0–4; the total is 1–4.
   rows.forEach((row, i) => {
     if (row.counts.Total < MIN_GROUP_SIZE) {
-      for (const col of COLUMNS) markSmall(grid[i][col], col === "Total" ? 1 : 0);
+      for (const col of columns) markSmall(grid[i][col], col === "Total" ? 1 : 0);
     }
   });
 
   // Rule 2 — small count: any 1–4 becomes "<5".
   for (const cells of grid) {
-    for (const col of COLUMNS) {
+    for (const col of columns) {
       const cell = cells[col];
       if (cell.status === "shown" && cell.value > 0 && cell.value < MIN_GROUP_SIZE) markSmall(cell, 1);
     }
   }
 
   // Rule 3 — complementary suppression: keep hiding until no hidden number can be worked out.
-  const lines = buildLines(rows, grid);
+  const lines = buildLines(rows, grid, parts);
   let changed = true;
   while (changed) {
     changed = false;
@@ -102,8 +116,8 @@ export function suppress(rows: CountRow[]): SafeRow[] {
 
   // Only now convert to what the browser may see. Hidden values are dropped here.
   return rows.map((row, i) => {
-    const cells = {} as Record<Column, SafeCell>;
-    for (const col of COLUMNS) cells[col] = toSafeCell(grid[i][col]);
+    const cells = {} as Record<Col, SafeCell>;
+    for (const col of columns) cells[col] = toSafeCell(grid[i][col]);
     return { kind: row.kind, school: row.school, className: row.className, cells };
   });
 }
@@ -115,23 +129,24 @@ function toSafeCell(cell: WorkCell): SafeCell {
 }
 
 /** Every row, and every column within each school and across schools, must add up. */
-function buildLines(rows: CountRow[], grid: Record<Column, WorkCell>[]): Line[] {
+function buildLines<C extends string>(rows: TableRow<C>[], grid: Record<C | "Total", WorkCell>[], parts: readonly C[]): Line[] {
   const lines: Line[] = [];
-  const indexes = (pred: (r: CountRow) => boolean) => rows.flatMap((r, i) => (pred(r) ? [i] : []));
+  const columns: (C | "Total")[] = [...parts, "Total"];
+  const indexes = (pred: (r: TableRow<C>) => boolean) => rows.flatMap((r, i) => (pred(r) ? [i] : []));
 
-  // Across each row: Urgent + High + Review + None = Total
-  grid.forEach((cells) => lines.push({ parts: LEVEL_COLUMNS.map((c) => cells[c]), whole: cells.Total }));
+  // Across each row: the parts (e.g. Urgent + High + Review + None) = Total
+  grid.forEach((cells) => lines.push({ parts: parts.map((c) => cells[c]), whole: cells.Total }));
 
   // Down each column: a school's classes add up to the school row
   for (const s of indexes((r) => r.kind === "school")) {
     const classes = indexes((r) => r.kind === "class" && r.school === rows[s].school);
-    for (const col of COLUMNS) lines.push({ parts: classes.map((i) => grid[i][col]), whole: grid[s][col] });
+    for (const col of columns) lines.push({ parts: classes.map((i) => grid[i][col]), whole: grid[s][col] });
   }
 
   // Down each column: the schools add up to "All schools"
   for (const a of indexes((r) => r.kind === "all")) {
     const schools = indexes((r) => r.kind === "school");
-    for (const col of COLUMNS) lines.push({ parts: schools.map((i) => grid[i][col]), whole: grid[a][col] });
+    for (const col of columns) lines.push({ parts: schools.map((i) => grid[i][col]), whole: grid[a][col] });
   }
   return lines;
 }
