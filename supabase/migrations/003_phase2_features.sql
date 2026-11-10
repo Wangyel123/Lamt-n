@@ -190,3 +190,46 @@ create policy "students manage own goals" on public.goals
   for all to authenticated using (student_id = public.current_student_id()) with check (student_id = public.current_student_id());
 revoke update on public.goals from authenticated;
 grant update (done) on public.goals to authenticated;
+
+-- ===========================================================================
+-- K-06: pre-moderated peer board (OFF by default in the app). Posts go live ONLY after a
+-- counsellor approves them, and other students never see who wrote them.
+-- ===========================================================================
+create table public.board_posts (
+  id uuid primary key default gen_random_uuid(),
+  student_id text not null references public.students (student_id) on delete cascade,
+  topic text not null check (topic in ('Exam stress', 'Friendships', 'Things that help me')),
+  body text not null check (char_length(body) between 1 and 500 and body !~* '(https?://|www\.)'),
+  alias text not null,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamptz not null default now(),
+  moderated_by uuid null references auth.users (id),
+  moderated_at timestamptz null
+);
+create index board_posts_status_idx on public.board_posts (status, created_at);
+
+alter table public.board_posts enable row level security;
+revoke all on public.board_posts from anon;
+
+create policy "students post (always pending)" on public.board_posts
+  for insert to authenticated with check (student_id = public.current_student_id() and status = 'pending');
+create policy "students read own posts" on public.board_posts for select to authenticated using (student_id = public.current_student_id());
+create policy "counsellors read queue" on public.board_posts for select to authenticated using (public.can_see_student(student_id));
+create policy "counsellors moderate" on public.board_posts
+  for update to authenticated using (public.can_see_student(student_id)) with check (public.can_see_student(student_id));
+revoke update, delete on public.board_posts from authenticated;
+grant update (status, moderated_at) on public.board_posts to authenticated;
+
+/** Approved posts for the signed-in student's school. NEVER returns a student ID. */
+create function public.approved_board_posts()
+returns table (id uuid, topic text, body text, alias text, created_at timestamptz)
+language sql stable security definer set search_path = '' as $$
+  select p.id, p.topic, p.body, p.alias, p.created_at
+  from public.board_posts p
+  join public.students author on author.student_id = p.student_id
+  join public.students me on me.student_id = public.current_student_id()
+  where p.status = 'approved' and author.school = me.school
+  order by p.created_at desc;
+$$;
+revoke all on function public.approved_board_posts() from public, anon;
+grant execute on function public.approved_board_posts() to authenticated;

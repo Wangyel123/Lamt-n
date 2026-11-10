@@ -1,4 +1,4 @@
-import { ChevronRight, Info, MessageCircle, NotebookPen, Sparkles, type LucideIcon } from "lucide-react";
+import { ChevronRight, Info, MessageCircle, NotebookPen, Sparkles, Users, type LucideIcon } from "lucide-react";
 import { isEnabled, type FeatureName } from "@/lib/features";
 import Link from "next/link";
 import { STUDENT_IDLE_MINUTES } from "@/lib/accessCodes";
@@ -40,6 +40,11 @@ export function StudentHome({ liveStudentId }: { liveStudentId?: string }) {
         ))}
       </ul>
 
+      {isEnabled("peerBoard") && (
+        <Link href="/student/board" className="flex min-h-12 items-center gap-2 font-medium text-student-accent">
+          <Users aria-hidden size={18} /> Student board: kind posts from others, read by a counsellor first
+        </Link>
+      )}
       <Link href="/student/about" className="inline-flex min-h-12 items-center gap-2 font-medium text-student-accent">
         <Info aria-hidden size={18} /> About this space: what it is, and who can see what
       </Link>

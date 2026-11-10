@@ -11,13 +11,14 @@ import type { DataReport, Student } from "@/lib/parseCsv";
 import { overdueUrgentStudents, URGENT_CONTACT_WINDOW_HOURS } from "@/lib/interventions";
 import { isEnabled } from "@/lib/features";
 import { visibleToCounsellor } from "@/lib/journal";
-import { checkInResponses, checkIns, interventions, journalEntries, messages } from "@/lib/stores";
+import { boardPosts, checkInResponses, checkIns, interventions, journalEntries, messages } from "@/lib/stores";
 import { useReadingQueue } from "@/lib/useReadingQueue";
 import { AboutList } from "./AboutList";
 import { AlertBanner } from "./AlertBanner";
 import { CaseloadView } from "./CaseloadView";
 import { CheckInsView } from "./CheckInsView";
 import { InboxView } from "./InboxView";
+import { ModerationView } from "./ModerationView";
 import { LEVEL_STYLE } from "./FlagBadge";
 import { FilterSheet } from "./FilterSheet";
 import { ActiveFilters, FilterPickers, SearchField } from "./Filters";
@@ -32,7 +33,7 @@ interface Props {
   flaggedSince: string; // when the survey was loaded: the start of the urgent-contact window
 }
 
-type Tab = "board" | "caseload" | "inbox" | "checkins";
+type Tab = "board" | "caseload" | "inbox" | "checkins" | "moderation";
 
 export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   const { followUps, ready, loadError, save } = useFollowUps();
@@ -51,11 +52,16 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   const answers = isEnabled("checkIns") ? allAnswers : [];
   // K-04: only entries the student CHOSE to share ever reach the counsellor's screens.
   const sharedJournal = visibleToCounsellor(journalEntries.use().items);
+  // K-06 (off by default): posts waiting for approval also feed "Needs reading".
+  const allPosts = boardPosts.use().items;
+  const posts = isEnabled("peerBoard") ? allPosts : [];
+  const pendingPosts = posts.filter((p) => p.status === "pending");
   const reading = useReadingQueue(students, [
     ...studentMessages.map((m) => ({ sourceId: `message:${m.id}`, studentId: m.studentId, at: m.createdAt, source: { kind: "message" as const, text: m.body } })),
     ...answers
       .filter((a) => a.comment)
       .map((a) => ({ sourceId: `checkin:${a.id}`, studentId: a.studentId, at: a.createdAt, source: { kind: "checkin" as const, text: a.comment } })),
+    ...pendingPosts.map((p) => ({ sourceId: `post:${p.id}`, studentId: p.studentId, at: p.createdAt, source: { kind: "board_post" as const, text: p.body } })),
     ...sharedJournal.map((e) => ({ sourceId: `journal:${e.id}`, studentId: e.studentId, at: e.createdAt, source: { kind: "journal" as const, text: e.body, shared: e.shared } })),
   ]);
   const checkInReasonsFor = (studentId: string) => checkInReasons(answers.filter((a) => a.studentId === studentId));
@@ -122,6 +128,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
           { key: "caseload", label: "My caseload", count: openCount },
           ...(isEnabled("messaging") ? [{ key: "inbox" as const, label: "Inbox", count: unreadMessages }] : []),
           ...(isEnabled("checkIns") ? [{ key: "checkins" as const, label: "Check-ins" }] : []),
+          ...(isEnabled("peerBoard") ? [{ key: "moderation" as const, label: "Moderation", count: pendingPosts.length }] : []),
         ]}
         active={tab}
         onChange={setTab}
@@ -140,6 +147,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
         )}
         {tab === "inbox" && <InboxView rows={rows} messages={allMessages} onOpenStudent={setSelectedId} />}
         {tab === "checkins" && <CheckInsView rows={rows} sent={sentCheckIns} responses={answers} />}
+        {tab === "moderation" && <ModerationView posts={posts} onOpenStudent={setSelectedId} />}
         {tab === "board" && (
           <>
             <SummaryCards

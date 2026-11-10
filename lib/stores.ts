@@ -9,6 +9,7 @@ import type { Intervention, InterventionOutcome, InterventionType } from "./inte
 import type { CheckIn, CheckInResponse, Feeling, QuestionId, Worry } from "./checkins";
 import type { Goal, JournalEntry } from "./journal";
 import type { Message } from "./messages";
+import type { BoardPost, PostStatus, Topic } from "./peerBoard";
 
 const str = (v: unknown) => (v == null ? "" : String(v));
 const strOrNull = (v: unknown) => (v == null ? null : String(v));
@@ -109,4 +110,16 @@ export const goals = createCollection<Goal>({
   fromRow: (r) => ({ id: str(r.id), studentId: str(r.student_id), title: str(r.title), done: Boolean(r.done), createdAt: str(r.created_at) }),
   toRow: (g) => ({ id: g.id, student_id: g.studentId, title: g.title, done: g.done }),
   patchRow: (p) => ({ done: p.done }),
+});
+
+// K-06: peer-board posts. Students: insert their own (always 'pending') and read their own.
+// Counsellors: their school's queue. Other students read APPROVED posts only through the
+// approved_board_posts() function, which never returns a student ID.
+export const boardPosts = createCollection<BoardPost>({
+  key: "sa-board-posts-v1",
+  table: "board_posts",
+  columns: "id, student_id, topic, body, alias, status, created_at",
+  fromRow: (r) => ({ id: str(r.id), studentId: str(r.student_id), topic: r.topic as Topic, body: str(r.body), alias: str(r.alias), status: r.status as PostStatus, createdAt: str(r.created_at) }),
+  toRow: (p) => ({ id: p.id, student_id: p.studentId, topic: p.topic, body: p.body, alias: p.alias, status: "pending" }),
+  patchRow: (p) => ({ status: p.status, moderated_at: new Date().toISOString() }), // counsellors approve / reject
 });
