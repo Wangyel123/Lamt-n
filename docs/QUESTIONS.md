@@ -10,5 +10,4 @@ Ask these between 08:00 and 20:00. Each one shows the reviewers a gap or ambigui
 6. **Counsellor scope:** in the real platform, does each counsellor see only their own school? For the demo I plan one counsellor account that sees all four schools, clearly labelled demo-only.
 7. **Supervisor level:** is the supervisor a CECD (national) role seeing all schools, or a Dzongkhag-level role seeing a subset?
 8. **Who can close an Urgent case?** Should closing an Urgent case require a note (my plan), or a second person's sign-off?
-9. **Dzongkha labels:** is there a CECD-approved glossary for terms like "Urgent", "Follow-up" and "Counsellor"? Otherwise I will mark my labels as unverified.
-10. **Helpline:** is there an official helpline or referral contact CECD wants shown to students and counsellors? I will not invent a number.
+9. **Helpline:** is there an official helpline or referral contact CECD wants shown to students and counsellors? I will not invent a number.
