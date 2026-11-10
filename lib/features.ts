@@ -3,6 +3,12 @@
 // Anything not finished stays OFF, so a half-built feature can never appear in front of a child.
 
 export const FEATURES = {
+  /** P-01: "Add what you did", the timeline, My caseload, the overdue-urgent banner, support counts. */
+  interventions: true,
+  /** P-02: "Needs reading" chips, the read-now alert banner and "Mark as read". */
+  needsReading: true,
+  /** P-03: the supervisor heat map. */
+  heatMap: true,
   /** K-01/K-05: the student area at /student (About this space, Get help now). */
   studentPortal: true,
   /** K-02: "Talk to my counsellor" messaging. */

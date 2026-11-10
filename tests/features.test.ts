@@ -3,6 +3,9 @@ import { FEATURES, isEnabled } from "@/lib/features";
 
 describe("feature switches (lib/features.ts)", () => {
   it("built features are on", () => {
+    expect(isEnabled("interventions")).toBe(true);
+    expect(isEnabled("needsReading")).toBe(true);
+    expect(isEnabled("heatMap")).toBe(true);
     expect(isEnabled("studentPortal")).toBe(true);
     expect(isEnabled("messaging")).toBe(true);
     expect(isEnabled("checkIns")).toBe(true);

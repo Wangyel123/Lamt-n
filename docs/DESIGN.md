@@ -65,3 +65,19 @@ The first version worked but users found it confusing: engineer words ("flag lev
 ## For the future student survey (not built)
 
 Trauma-informed: say plainly who sees the answers and the honest limits ("If you tell us you might be in danger, your counsellor will talk with you"). One question per screen with progress, "Prefer not to say" everywhere, a gentle lead-in before the feelings questions, no red and no scores shown to students, a kind ending with a helpline (`TODO(confirm helpline with CECD)`; never an invented number), and nothing left on a shared device afterwards.
+
+## Phase 2 additions (choice → why)
+
+| Choice | Why |
+|---|---|
+| **Student screens use their own palette** (soft sage `#EEF5F1`, green `#2E6B4F`), 18 px text, 48 px targets, **no red anywhere** (checked by a test) | Younger readers and a calm, non-alarming space; red is reserved for counsellor safety alerts |
+| **At most 4 big tiles** on the student home; About is a small link | Hick's law: fewer, clearer choices |
+| **"Get help now" is calm green, always in the header**, and lists real people first | It should feel safe to open, and the app is not an emergency service |
+| **One question per screen** in check-ins, progress shown, every question skippable, faces always with words | Lower effort, visible end, choice and control (trauma-informed); never colour or icon alone |
+| **Codes avoid look-alike characters** (no 0/O, 1/I/L) and are shown large in a monospace font | Read off paper by children; fewer typing mistakes |
+| **Tabs (Board · Caseload · Inbox · Check-ins)** as an Apple-style segmented control; short labels on phones | Familiar pattern; every tab fits at 360 px; counts shown as numbers, not colour dots |
+| **Safety banners are the only red on the counsellor's board**, with an icon, words and a button per student | Red keeps its meaning (alarm fatigue is real) and is never the only cue |
+| **"Needs reading" chips are violet, not red** | Calls for reading, not panic; the counsellor decides what it means |
+| **Heat map: one teal hue, light → dark, every cell prints its number; hidden cells are hatched grey** | Single-hue scales read in order and are colour-blind safe; a pattern + words mark hidden cells |
+| **One shared `Switch`** with explicit knob positions | The first version's knob could render outside its track; one component means one fix everywhere |
+| **Plain, fixed wording for every automatic message** to students | No AI talks to children; the words were written in advance and can be reviewed by CECD |

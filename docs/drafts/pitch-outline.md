@@ -27,5 +27,8 @@
 - "I measured colour contrast and colour-blind separation. The suggested High colour was nearly identical to Urgent, so I changed it."
 - Works on a phone; keyboard and screen reader tested (axe: 0 issues).
 
+### 5b. What I learned from Kooth and Panorama (30 s, if time allows)
+"I studied Kooth and Panorama. I borrowed anonymous code sign-in, a private journal, check-ins, caseload tracking and a heat map. What I deliberately did **not** copy: no AI chat with children, ever; private journal entries stay private and are never scanned; and the peer board only works with a counsellor approving every post, so it's switched off until a school is ready."
+
 ### 6. What's next: 4:30–5:00
 "Next: the student survey with one-time codes instead of logins, verified Dzongkha, and testing with two or three real counsellors. A smaller thing that works, built so the next pieces can stand on it."

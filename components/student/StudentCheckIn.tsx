@@ -67,6 +67,7 @@ function Questions({ checkIn, studentId }: { checkIn: CheckIn; studentId: string
 
   return (
     <div className="space-y-6">
+      <h1 className="text-[20px] font-semibold text-text-muted">Check-in from your counsellor</h1>
       <p className="text-[16px] text-text-muted" aria-live="polite">
         Question {step + 1} of {steps.length} · You can skip any question
       </p>

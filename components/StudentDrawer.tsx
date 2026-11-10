@@ -257,11 +257,13 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
       </Group>
 
       {/* P-01: log what you did, and see everything that happened, newest first */}
-      <Group title="Add what you did">
-        <div className="p-4">
-          <InterventionForm studentId={student.studentId} />
-        </div>
-      </Group>
+      {isEnabled("interventions") && (
+        <Group title="Add what you did">
+          <div className="p-4">
+            <InterventionForm studentId={student.studentId} />
+          </div>
+        </Group>
+      )}
 
       <Group title="Timeline">
         <div className="p-4">

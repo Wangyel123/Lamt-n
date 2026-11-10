@@ -94,7 +94,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
 
   // P-01 safety net: Urgent students with no contact logged within the window. Worked out only once
   // the interventions have loaded, so it never flashes up wrongly.
-  const overdue = logged.ready ? overdueUrgentStudents(rows, logged.items, new Date(flaggedSince)) : [];
+  const overdue = isEnabled("interventions") && logged.ready ? overdueUrgentStudents(rows, logged.items, new Date(flaggedSince)) : [];
   const openCount = rows.filter((r) => r.status === "not_started" || r.status === "in_progress").length;
 
   const groups = FLAG_LEVELS.map((level) => ({ level, rows: visible.filter((r) => r.flag.level === level) })).filter(
@@ -118,14 +118,14 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
       <AlertBanner
         title="Please read now: possible self-harm, violence or abuse mentioned"
         help="Keyword matching found these. It can be wrong, so read the words in context. Nothing has been changed automatically."
-        studentIds={[...new Set(reading.items.filter((i) => i.alert).map((i) => i.studentId))]}
+        studentIds={isEnabled("needsReading") ? [...new Set(reading.items.filter((i) => i.alert).map((i) => i.studentId))] : []}
         onOpen={setSelectedId}
       />
 
       <WorkspaceTabs<Tab>
         tabs={[
           { key: "board", label: "Board" },
-          { key: "caseload", label: "My caseload", shortLabel: "Caseload", count: openCount },
+          ...(isEnabled("interventions") ? [{ key: "caseload" as const, label: "My caseload", shortLabel: "Caseload", count: openCount }] : []),
           ...(isEnabled("messaging") ? [{ key: "inbox" as const, label: "Inbox", count: unreadMessages }] : []),
           ...(isEnabled("checkIns") ? [{ key: "checkins" as const, label: "Check-ins" }] : []),
           ...(isEnabled("peerBoard") ? [{ key: "moderation" as const, label: "Moderation", shortLabel: "Posts", count: pendingPosts.length }] : []),
@@ -135,14 +135,14 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
       />
 
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="space-y-8">
-        {tab === "caseload" && (
+        {tab === "caseload" && isEnabled("interventions") && (
           <CaseloadView
             rows={rows}
             interventions={logged.items}
             ready={ready}
             onOpen={setSelectedId}
             onStatusChange={changeStatusFor}
-            chips={reading.chips}
+            chips={isEnabled("needsReading") ? reading.chips : new Map()}
           />
         )}
         {tab === "inbox" && <InboxView rows={rows} messages={allMessages} onOpenStudent={setSelectedId} />}
@@ -225,7 +225,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
                             ready={ready}
                             onOpen={() => setSelectedId(row.student.studentId)}
                             onStatusChange={changeStatusFor(row)}
-                          reading={reading.chips.get(row.student.studentId)}
+                          reading={isEnabled("needsReading") ? reading.chips.get(row.student.studentId) : undefined}
                           extraReasons={checkInReasonsFor(row.student.studentId)}
                           />
                         ))}
@@ -261,7 +261,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
         checkIns={answers.filter((a) => a.studentId === selectedId)}
         sharedJournal={sharedJournal.filter((e) => e.studentId === selectedId)}
         extraReasons={selectedId ? checkInReasonsFor(selectedId) : []}
-        reading={reading.items.filter((i) => i.studentId === selectedId)}
+        reading={isEnabled("needsReading") ? reading.items.filter((i) => i.studentId === selectedId) : []}
         onMarkRead={reading.markRead}
         ready={ready}
         useExtraRules={useExtraRules}

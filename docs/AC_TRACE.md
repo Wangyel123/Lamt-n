@@ -22,3 +22,20 @@
 | Supervisor API returns suppressed counts only | `tests/suppression.test.ts` (no `S-` IDs); role checked before the secret-key query |
 | Audit log can't be edited or deleted | `verify:rls` |
 | Comments visible to counsellors only | Comments are only rendered in `components/StudentDrawer.tsx`; never in supervisor output |
+
+## Phase 2 features (inspired by Kooth and Panorama)
+
+Each feature can be switched off in `lib/features.ts`. Live mode needs `002_student_access.sql`, `003_phase2_features.sql` and anonymous sign-ins.
+
+| ID | Feature | Where it lives | Proof | How to demo |
+|---|---|---|---|---|
+| K-05 | About this space + Get help now | `app/student/about/page.tsx`, `components/student/GetHelpSheet.tsx`, `app/student/layout.tsx` | browser checks: no red, 48 px targets, no invented numbers | *I'm a student* → *Get help now*; *About this space* |
+| K-01 | Anonymous code sign-in | `lib/accessCodes.ts`, `components/AccessCodePanel.tsx`, `components/student/CodeForm.tsx`, `app/actions/student.ts`, migration 002 (`redeem_access_code`) | `tests/accessCodes.test.ts`; `verify:rls` student checks | Student's details → *Make a code* → *Print slip*; type it at `/student` |
+| P-01 | Interventions, caseload, overdue-urgent banner | `lib/interventions.ts`, `lib/timeline.ts`, `components/InterventionForm.tsx`, `components/CaseloadView.tsx`, `components/InterventionCounts.tsx` | `tests/interventions.test.ts`; support table in `tests/suppression.test.ts` | Banner "Overdue: urgent, no contact logged" → open S-005 → *Add what you did*; *My caseload* tab |
+| P-02 | "Needs reading" categories + reviewed | `lib/sensitiveText.ts`, `lib/readingQueue.ts`, `components/NeedsReading.tsx` | `tests/sensitiveText.test.ts` (word boundaries, **private journal never scanned**, counts unchanged) | S-023's row chip "Needs reading: safety at home" → open → *Mark as read* |
+| K-02 | Talk to my counsellor (human) | `lib/messages.ts`, `components/student/StudentMessages.tsx`, `components/InboxView.tsx` | `tests/messages.test.ts`; `verify:rls` message checks | Student sends a message → counsellor *Inbox* → reply |
+| P-03 | Supervisor heat map | `lib/heatmap.ts`, `components/HeatMap.tsx` (same suppressed rows as AC-05) | heat-map tests in `tests/suppression.test.ts` | Supervisor → *Where flags are concentrated*; *Numbers / Percent* |
+| P-04 | Pulse check-ins | `lib/checkins.ts`, `components/CheckInsView.tsx`, `components/student/StudentCheckIn.tsx`, `checkInReasons` in `lib/flags.ts` | `tests/checkins.test.ts` (never changes levels; rates suppressed) | *Check-ins* tab → send to School A, Class VI → demo student answers |
+| K-03 | Self-care activities | `lib/activities.ts`, `app/student/activities/` | `tests/journal.test.ts` (no medical claims) | *Self-care activities* → *Box breathing* |
+| K-04 | Private journal + goals | `lib/journal.ts`, `components/student/StudentJournal.tsx` | `tests/journal.test.ts`; `verify:rls` (counsellor can't read a private entry) | Write an entry (private) and one shared → only the shared one appears in the counsellor's details |
+| K-06 | Pre-moderated peer board (OFF) | `lib/peerBoard.ts`, `components/student/StudentBoard.tsx`, `components/ModerationView.tsx`, `approved_board_posts()` | `tests/peerBoard.test.ts` | Set `peerBoard: true` in `lib/features.ts` → student posts → *Moderation* tab |
