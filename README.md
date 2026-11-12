@@ -2,16 +2,16 @@
 
 Helps school counsellors see which students may need support first, from the Situational Analysis (SA) survey, and track every follow-up. Supervisors see numbers by school, never a student's identity. **Synthetic data only.** It supports counsellors; it is not an emergency service and does not diagnose ([safeguarding](docs/SAFEGUARDING.md)). Anyone can get help at `/help` with no sign-in: PEMA Helpline 1098, free and open 24/7.
 
-**Live:** https://lamtoen.vercel.app · **Demo logins** (synthetic data, so passwords are shared here on purpose): `counsellor@demo.bt` / `Counsellor-Demo-2026` (all schools, demo only) · `counsellor.b@demo.bt` / same (School B only) · `supervisor@demo.bt` / `Supervisor-Demo-2026` (counts only). Students sign in with a one-time code from a counsellor.
+**Live:** https://lamtoen.vercel.app · **Demo logins** (synthetic data, so passwords are shared here on purpose): `counsellor@demo.bt` / `Counsellor-Demo-2026` (all schools, demo only) · `counsellor.b@demo.bt` / same (School B only) · `supervisor@demo.bt` / `Supervisor-Demo-2026` (counts only). Students sign in with a code from their counsellor plus a 4-number PIN they choose; the same code and PIN work all year.
 
 ## How to run
 
 ```bash
 npm install && npm run dev      # demo mode: no setup → http://localhost:3000
-npm test                        # 168 unit tests (rules, exact counts, privacy, codes, safeguarding logic)
+npm test                        # 178 unit tests (rules, exact counts, privacy, codes, safeguarding logic)
 ```
 
-**Live mode (Supabase):** 1) copy `.env.example` to `.env.local` (URL, publishable key, secret key) · 2) run `supabase/migrations/001_init.sql`, `002_student_access.sql` and `003_phase2_features.sql` in the SQL Editor, and turn on *Allow anonymous sign-ins* · 3) `npm run seed` · 4) `npm run dev`. `npm run verify:rls` proves the privacy rules by trying to break them. `npm run dev:demo` forces demo mode.
+**Live mode (Supabase):** 1) copy `.env.example` to `.env.local` (URL, publishable key, secret key) · 2) run `supabase/all_in_one.sql` (or migrations 001–004 in order) in the SQL Editor, and turn on *Allow anonymous sign-ins* · 3) `npm run seed` · 4) `npm run dev`. `npm run verify:rls` proves the privacy rules by trying to break them. `npm run dev:demo` forces demo mode.
 
 **Demo tour:** Counsellor → the board, a student's details (make a code, add what you did, timeline), *Inbox*, *Check-ins*. Then *I'm a student* → *Try as a demo student* → message the counsellor, write a private journal entry, try an activity, answer a check-in. Supervisor → headline numbers, heat map.
 
@@ -23,7 +23,7 @@ From **Kooth** (UK, anonymous support for young people): anonymous code sign-in,
 
 **Works:** all 9 acceptance criteria and the Phase 2 features ([trace](docs/AC_TRACE.md)); privacy enforced by the database, not just the screens; small numbers hidden on the server; Lighthouse accessibility 100; phone layouts.
 
-**Limits:** live mode for Phase 2 needs migrations 002/003 and anonymous sign-ins turned on (the student and Phase 2 security checks skip until then). In demo mode everything is saved in the browser, so the supervisor's support and check-in tables stay empty there, and a shared school computer is a privacy risk (live mode fixes this). Keyword matching can miss things or match innocently. Each single number is protected; totals already implied by shown numbers can still be worked out. Codes work once, so a student needs a new code after leaving. Browser tests were run during development but aren't committed.
+**Limits:** live mode for Phase 2 needs migrations 002–004 and anonymous sign-ins turned on (the student and Phase 2 security checks skip until then). In demo mode everything is saved in the browser, so the supervisor's support and check-in tables stay empty there, and a shared school computer is a privacy risk (live mode fixes this). Keyword matching can miss things or match innocently. Each single number is protected; totals already implied by shown numbers can still be worked out. A forgotten PIN means a new code from the counsellor. Browser tests were run during development but aren't committed.
 
 ## Rules and assumptions
 

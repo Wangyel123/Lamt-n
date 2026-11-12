@@ -14,12 +14,14 @@ interface Props {
   rows: BoardRow[];
   messages: Message[];
   onOpenStudent: (studentId: string) => void;
+  /** The open conversation, owned by the board so the student panel can jump straight to it. */
+  openId: string | null;
+  onOpenChange: (studentId: string | null) => void;
 }
 
 // K-02, counsellor side: one conversation per student. The counsellor sees the student's ID,
 // school, class and flag (counsellor-only context) and replies as themselves.
-export function InboxView({ rows, messages, onOpenStudent }: Props) {
-  const [openId, setOpenId] = useState<string | null>(null);
+export function InboxView({ rows, messages, onOpenStudent, openId, onOpenChange: setOpenId }: Props) {
   const list = conversations(messages);
   const rowOf = (id: string) => rows.find((r) => r.student.studentId === id);
   const open = list.find((c) => c.studentId === openId);

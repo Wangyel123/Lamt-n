@@ -73,7 +73,7 @@ Feedback on the first redesign: "looks AI generated", "not a system I would want
 
 - **Chart without a chart library.** The first chart library silently dropped labels for hidden numbers. A plain bar per school ("14 of 26 students") is clearer, server-rendered, and can't hint at a hidden value.
 - **Dzongkha labels removed.** They were drafts nobody had verified; showing unverified translations to counsellors could mislead. Verified Dzongkha is on the "next" list.
-- **No student login.** Students as young as class IV, shared devices, and the need for them to feel safe point to one-time survey codes, not accounts (next step).
+- **No student login.** Students as young as class IV, shared devices, and the need for them to feel safe point to codes, not accounts: a code from the counsellor plus the student's own 4-number PIN, valid for the school year, so students come and go without asking the counsellor each time.
 
 ## For the future student survey (not built)
 

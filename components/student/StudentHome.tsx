@@ -3,6 +3,7 @@ import { isEnabled, type FeatureName } from "@/lib/features";
 import Link from "next/link";
 import { STUDENT_IDLE_MINUTES } from "@/lib/accessCodes";
 import { CheckInTile } from "./CheckInTile";
+import { NewKeyNote } from "./NewKeyNote";
 
 const TILES: { feature: FeatureName; href: string; icon: LucideIcon; title: string; text: string }[] = [
   { feature: "messaging", href: "/student/messages", icon: MessageCircle, title: "Talk to my counsellor", text: "Send a private message. A real person replies." },
@@ -20,6 +21,8 @@ export function StudentHome({ liveStudentId }: { liveStudentId?: string }) {
         <h1 className="text-[32px] leading-tight font-semibold tracking-tight">You&apos;re in</h1>
         <p className="text-text-muted">This is your private space. Your counsellor is here for you.</p>
       </header>
+
+      <NewKeyNote />
 
       <ul className="space-y-3">
         {/* Phase 2 tiles, each shown only when its feature switch is on (at most 4 big tiles) */}
@@ -50,7 +53,8 @@ export function StudentHome({ liveStudentId }: { liveStudentId?: string }) {
       </Link>
 
       <p className="text-[16px] text-text-muted">
-        When you&apos;re done, tap &ldquo;Leave&rdquo;. If you forget, you&apos;ll be signed out after {STUDENT_IDLE_MINUTES} minutes.
+        On a school or shared computer, tap &ldquo;Leave&rdquo; when you&apos;re done. If you forget, you&apos;ll be signed out after{" "}
+        {STUDENT_IDLE_MINUTES} minutes.
       </p>
     </div>
   );

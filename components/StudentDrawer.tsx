@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { MessageSquare, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { BoardRow } from "@/lib/board";
 import { levelMeaning, LEVEL_NAME } from "@/lib/flags";
@@ -23,7 +23,8 @@ import { StatusControl } from "./StatusControl";
 
 interface Props {
   row: BoardRow | null;
-  messages: { createdAt: string; sender: "student" | "counsellor" }[]; // timeline shows WHEN only
+  messages: { createdAt: string; sender: "student" | "counsellor"; readAt: string | null }[]; // the panel shows WHEN only
+  onOpenConversation: () => void; // K-02: the words live in the Inbox; this jumps there
   checkIns: CheckInResponse[]; // P-04 answers, summarised on the timeline
   sharedJournal: JournalEntry[]; // K-04: ONLY entries the student chose to share
   extraReasons: Reason[]; // P-04: e.g. "Check-in: needs follow-up"
@@ -86,7 +87,7 @@ export function StudentDrawer({ row, onClose, ...rest }: Props) {
   );
 }
 
-function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead, messages, checkIns, extraReasons, sharedJournal }: Props & { row: BoardRow }) {
+function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onNoteSave, reading, onMarkRead, messages, onOpenConversation, checkIns, extraReasons, sharedJournal }: Props & { row: BoardRow }) {
   const { student, flag, followUp, status } = row;
   const allInterventions = interventions.use().items;
   const timeline = buildTimeline({
@@ -97,6 +98,9 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
     sharedJournal,
   });
   const reasons = [...flag.reasons, ...extraReasons];
+  const fromStudent = messages.filter((m) => m.sender === "student");
+  const unread = fromStudent.filter((m) => !m.readAt).length;
+  const lastAt = messages.reduce<string | null>((latest, m) => (!latest || m.createdAt > latest ? m.createdAt : latest), null);
   const [note, setNote] = useState(followUp?.note ?? "");
   const [noteState, setNoteState] = useState<"idle" | "saved" | "error">("idle");
 
@@ -133,6 +137,30 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
       {reading.length > 0 && (
         <Group title="Needs reading">
           <NeedsReadingList items={reading} onMarkRead={onMarkRead} />
+        </Group>
+      )}
+
+      {/* K-02: a message must never be a dead end. Shown near the top so a new one is seen first. */}
+      {messages.length > 0 && (
+        <Group title="Messages">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <p className="flex items-start gap-2">
+              <MessageSquare aria-hidden size={18} className="mt-0.5 shrink-0 text-text-muted" />
+              <span>
+                <span className={unread > 0 ? "font-semibold" : "font-medium"}>
+                  {unread > 0 ? `${unread} new ${unread === 1 ? "message" : "messages"}` : `${messages.length} ${messages.length === 1 ? "message" : "messages"}, all read`}
+                </span>
+                {lastAt && <span className="block text-[13px] text-text-muted">Last one {formatTime(lastAt)}</span>}
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={onOpenConversation}
+              className="min-h-11 rounded-[10px] bg-primary px-4 font-medium text-white hover:bg-primary-hover"
+            >
+              {unread > 0 ? "Read and reply" : "Open conversation"}
+            </button>
+          </div>
         </Group>
       )}
 
@@ -267,7 +295,7 @@ function DrawerContent({ row, ready, useExtraRules, onClose, onStatusChange, onN
 
       <Group title="Timeline">
         <div className="p-4">
-          <Timeline entries={timeline} />
+          <Timeline entries={timeline} onOpenMessages={onOpenConversation} />
         </div>
       </Group>
     </div>

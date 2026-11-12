@@ -42,6 +42,13 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
   const [showNoConcerns, setShowNoConcerns] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("board");
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  // From a student's panel straight to their conversation: close the panel, open the Inbox on them.
+  const openConversation = (studentId: string) => {
+    setSelectedId(null);
+    setConversationId(studentId);
+    setTab("inbox");
+  };
   const logged = interventions.use();
   // K-02: messages (only when the feature is on). Student messages also go through "Needs reading".
   const allMessages = messages.use().items;
@@ -162,7 +169,7 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
             chips={isEnabled("needsReading") ? reading.chips : new Map()}
           />
         )}
-        {tab === "inbox" && <InboxView rows={rows} messages={allMessages} onOpenStudent={setSelectedId} />}
+        {tab === "inbox" && <InboxView rows={rows} messages={allMessages} onOpenStudent={setSelectedId} openId={conversationId} onOpenChange={setConversationId} />}
         {tab === "checkins" && <CheckInsView rows={rows} sent={sentCheckIns} responses={answers} />}
         {tab === "moderation" && <ModerationView posts={posts} onOpenStudent={setSelectedId} />}
         {tab === "board" && (
@@ -275,7 +282,8 @@ export function CounsellorBoard({ students, report, flaggedSince }: Props) {
 
       <StudentDrawer
         row={selectedRow}
-        messages={allMessages.filter((m) => m.studentId === selectedId)}
+        messages={isEnabled("messaging") ? allMessages.filter((m) => m.studentId === selectedId) : []}
+        onOpenConversation={() => selectedId && openConversation(selectedId)}
         checkIns={answers.filter((a) => a.studentId === selectedId)}
         sharedJournal={sharedJournal.filter((e) => e.studentId === selectedId)}
         extraReasons={selectedId ? checkInReasonsFor(selectedId) : []}

@@ -38,7 +38,7 @@ Survey answers follow the same idea: flags sort students for the counsellor; the
 
 ## Students' privacy
 
-- **No names, no passwords.** Students sign in with a one-time code from their counsellor (14 days, works once, revocable). The slip shows only the student ID.
+- **No names.** Students sign in with a code from their counsellor plus a 4-number PIN they choose the first time (the code must be used within 14 days). After that the same code and PIN work for a year, with no counsellor needed. PINs are stored only as bcrypt hashes that nobody can read; easy PINs (1234, 1111) are refused; 5 wrong PINs means a 15-minute wait and 10 locks the code. A new code from the counsellor stops the old one and signs out every device that used it (forgotten PIN, lost slip or phone). Shared computers sign out after 10 idle minutes, even if the tab was closed; "This is my own phone" keeps a student signed in for 30 days. The slip shows only the student ID.
 - **Shared devices:** "Leave" on every screen; automatic sign-out after 10 minutes without activity.
 - **Students never see flags, reasons or counsellor notes.** The database blocks it, not just the screens.
 - **Private journal guarantee:** a journal entry is private unless the student turns on "Share this entry with my counsellor" for that entry. Private entries are **never** shown to counsellors (database rule) and **never** scanned for keywords (scanning private writing would be surveillance). Both are covered by tests.

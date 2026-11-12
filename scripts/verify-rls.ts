@@ -92,7 +92,7 @@ async function main() {
   await admin.from("follow_up_events").delete().eq("note", MARKER);
   if (!existing?.length) await admin.from("follow_ups").delete().eq("student_id", "S-038");
 
-  // 6. Phase 2: students signing in with a one-time code (needs migration 002 + anonymous sign-ins)
+  // 6. Phase 2: students signing in with code + PIN (needs migrations 002 + 004 + anonymous sign-ins)
   await studentChecks(admin, counsellorB, supervisor);
   // 7. Phase 2 features (needs migration 003 too)
   await phase2Checks(admin, counsellorB, supervisor);
@@ -104,6 +104,8 @@ async function main() {
 async function studentChecks(admin: SupabaseClient, counsellorB: SupabaseClient, supervisor: SupabaseClient) {
   const { error: missing } = await admin.from("access_codes").select("code").limit(1); // not HEAD: it would hide the error
   if (missing) return console.log("SKIP  student checks: run supabase/migrations/002_student_access.sql first");
+  const { error: noPins } = await admin.from("access_codes").select("pin_set_at").limit(1);
+  if (noPins) return console.log("SKIP  student checks: run supabase/migrations/004_student_keys.sql first");
   const probe = newClient();
   const { data: probeUser, error: anonOff } = await probe.auth.signInAnonymously();
   if (anonOff) return console.log("SKIP  student checks: turn on Authentication → Sign In / Providers → Allow anonymous sign-ins");
@@ -130,22 +132,29 @@ async function studentChecks(admin: SupabaseClient, counsellorB: SupabaseClient,
     check("School B counsellor cannot make a code for a School A student", Boolean((await makeCode("S-001")).error));
     check("supervisor sees 0 access codes", (await visible(supervisor, "access_codes")) === 0);
 
-    check("student: a wrong code is refused", (await probe.rpc("redeem_access_code", { p_code: "ZZ-ZZZZ" })).data === "invalid_code");
+    const signIn = async (c: SupabaseClient, code: string, pin: string) => (await c.rpc("sign_in_with_code", { p_code: code, p_pin: pin })).data;
+    check("student: a wrong code is refused", (await signIn(probe, "ZZ-ZZZZ", "2580")) === "invalid_code");
     const student = await anonStudent();
-    check("student: the right code works", (await student.rpc("redeem_access_code", { p_code: good.code })).data === "ok");
+    check("student: a too-easy first PIN (1234) is refused", (await signIn(student, good.code, "1234")) === "weak_pin");
+    check("student: first time, code + their own PIN works", (await signIn(student, good.code, "2580")) === "ok_new");
     const { data: link } = await student.from("student_accounts").select("student_id");
     check("student: sees only their own link (S-038)", link?.length === 1 && link[0].student_id === "S-038");
-    for (const table of ["students", "follow_ups", "follow_up_events", "access_codes"]) {
+    for (const table of ["students", "follow_ups", "follow_up_events", "access_codes", "code_pins"]) {
       check(`student: sees 0 rows in ${table} (never flags or counsellor notes)`, (await visible(student, table)) === 0);
     }
     const second = await anonStudent();
-    check("the same code can't be used twice", (await second.rpc("redeem_access_code", { p_code: good.code })).data === "invalid_code");
-    check("a staff account can't redeem a student code", (await counsellorB.rpc("redeem_access_code", { p_code: good.code })).data === "not_anonymous");
+    check("a wrong PIN is refused (same answer as a wrong code)", (await signIn(second, good.code, "1111")) === "invalid_code");
+    check("coming back: the same code + PIN works again, on another device", (await signIn(second, good.code, "2580")) === "ok");
+    check("a staff account can't use a student code", (await signIn(counsellorB, good.code, "2580")) === "not_anonymous");
+    check("counsellor can't read PINs (not even hashes)", (await visible(counsellorB, "code_pins")) === 0);
+    check("counsellor sees the key is set up (no PIN)", (await counsellorB.from("access_codes").select("pin_set_at").eq("code", good.code)).data?.[0]?.pin_set_at != null);
+    await counsellorB.from("access_codes").update({ revoked_at: new Date().toISOString() }).eq("code", good.code);
+    check("stopping a code signs out every device that used it", ((await student.from("student_accounts").select("student_id")).data?.length ?? 1) === 0 && ((await second.from("student_accounts").select("student_id")).data?.length ?? 1) === 0);
 
     const revoked = await makeCode("S-039");
     await counsellorB.from("access_codes").update({ revoked_at: new Date().toISOString() }).eq("code", revoked.code);
     const third = await anonStudent();
-    check("a revoked code doesn't work", (await third.rpc("redeem_access_code", { p_code: revoked.code })).data === "invalid_code");
+    check("a revoked code doesn't work", (await signIn(third, revoked.code, "2580")) === "invalid_code");
   } finally {
     // Clean up everything this check created (secret key bypasses RLS).
     if (codes.length) await admin.from("access_codes").delete().in("code", codes);
@@ -173,7 +182,7 @@ async function phase2Checks(admin: SupabaseClient, counsellorB: SupabaseClient, 
     const { data, error } = await c.auth.signInAnonymously();
     if (error) return null;
     anonIds.push(data.user!.id);
-    await c.rpc("redeem_access_code", { p_code: code });
+    await c.rpc("sign_in_with_code", { p_code: code, p_pin: "2580" });
     return c;
   };
   try {

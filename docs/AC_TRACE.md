@@ -25,7 +25,7 @@
 
 ## Phase 2 features (inspired by Kooth and Panorama)
 
-Each feature can be switched off in `lib/features.ts`. Live mode needs `002_student_access.sql`, `003_phase2_features.sql` and anonymous sign-ins.
+Each feature can be switched off in `lib/features.ts`. Live mode needs migrations `002`–`004` (or `supabase/all_in_one.sql`) and anonymous sign-ins.
 
 | ID | Feature | Where it lives | Proof | How to demo |
 |---|---|---|---|---|
