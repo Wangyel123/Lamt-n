@@ -1,45 +1,50 @@
-# Student Wellbeing: Counsellor Flag Board
+# Lamtön: Counsellor Flag Board
 
-Helps school counsellors see which students may need support first, from the Situational Analysis (SA) survey, and track every follow-up. Supervisors see numbers by school, never a student's identity. **Synthetic data only.** It supports counsellors; it is not an emergency service and does not diagnose ([safeguarding](docs/SAFEGUARDING.md)). Anyone can get help at `/help` with no sign-in: PEMA Helpline 1098, free and open 24/7.
+Helps school counsellors see which students to support first after the Situational Analysis survey, and track every follow-up. Supervisors see counts only, never identities. **Synthetic data only.** Not an emergency service or a diagnosis ([safeguarding](docs/SAFEGUARDING.md)). Anyone can get help at `/help` with no sign-in (PEMA Helpline 1098, free, 24/7).
 
-**Live:** https://lamtoen.vercel.app · **Demo logins** (synthetic data, so passwords are shared here on purpose): `counsellor@demo.bt` / `Counsellor-Demo-2026` (all schools, demo only) · `counsellor.b@demo.bt` / same (School B only) · `supervisor@demo.bt` / `Supervisor-Demo-2026` (counts only). Students sign in with a code from their counsellor plus a 4-number PIN they choose; the same code and PIN work all year.
+**Live:** https://lamtoen.vercel.app · **Demo logins** (synthetic, shared on purpose): `counsellor@demo.bt` / `Counsellor-Demo-2026` (all schools) · `counsellor.b@demo.bt` / same (School B) · `supervisor@demo.bt` / `Supervisor-Demo-2026`.
 
 ## How to run
 
 ```bash
-npm install && npm run dev      # demo mode: no setup → http://localhost:3000
-npm test                        # 178 unit tests (rules, exact counts, privacy, codes, safeguarding logic)
+npm install && npm run dev   # demo mode, no setup → http://localhost:3000
+npm test                     # 178 unit tests
 ```
 
-**Live mode (Supabase):** 1) copy `.env.example` to `.env.local` (URL, publishable key, secret key) · 2) run `supabase/all_in_one.sql` (or migrations 001–004 in order) in the SQL Editor, and turn on *Allow anonymous sign-ins* · 3) `npm run seed` · 4) `npm run dev`. `npm run verify:rls` proves the privacy rules by trying to break them. `npm run dev:demo` forces demo mode.
-
-**Demo tour:** Counsellor → the board, a student's details (make a code, add what you did, timeline), *Inbox*, *Check-ins*. Then *I'm a student* → *Try as a demo student* → message the counsellor, write a private journal entry, try an activity, answer a check-in. Supervisor → headline numbers, heat map.
-
-## Phase 2: inspired by Kooth and Panorama
-
-From **Kooth** (UK, anonymous support for young people): anonymous code sign-in, "Talk to my counsellor" with a real person, self-care activities, a private journal and goals, an honest About page, and a pre-moderated peer board (built, switched off). From **Panorama Education** (US): interventions and caseload tracking, keyword "Needs reading" alerts, a supervisor heat map, and short check-ins between surveys. Four lessons shaped every decision: **anonymity by default**, **a human in the loop** (no AI talks to students; nothing automatic replaces the counsellor), **honesty** about what the tool is and isn't, and **being one part of a wider system**. Every feature can be switched off in `lib/features.ts`.
+Live mode: copy `.env.example` to `.env.local`, run `supabase/all_in_one.sql` in Supabase, turn on anonymous sign-ins, then `npm run seed`. `npm run verify:rls` tries 57 ways to break the privacy rules.
 
 ## What works and what doesn't
 
-**Works:** all 9 acceptance criteria and the Phase 2 features ([trace](docs/AC_TRACE.md)); privacy enforced by the database, not just the screens; small numbers hidden on the server; Lighthouse accessibility 100; phone layouts.
+**Works:** all 9 acceptance criteria ([trace](docs/AC_TRACE.md)). Privacy is enforced by the database, not just the screens. Students sign in with a counsellor's code plus their own 4-digit PIN, valid all year. They can message their counsellor (always a real person), keep a journal and answer check-ins. Counsellors log what they did and print codes for a whole class. Supervisors get a heat map. Every extra feature can be switched off in `lib/features.ts`.
 
-**Limits:** live mode for Phase 2 needs migrations 002–004 and anonymous sign-ins turned on (the student and Phase 2 security checks skip until then). In demo mode everything is saved in the browser, so the supervisor's support and check-in tables stay empty there, and a shared school computer is a privacy risk (live mode fixes this). Keyword matching can miss things or match innocently. Each single number is protected; totals already implied by shown numbers can still be worked out. A forgotten PIN means a new code from the counsellor. Browser tests were run during development but aren't committed.
+**Limits:** demo mode saves data in the browser only. Keyword alerts can miss things or misfire. Totals implied by other shown numbers could still be worked out. The survey itself is still loaded from the CSV.
 
 ## Rules and assumptions
 
-- **Baseline rules exactly as the brief** (`lib/flags.ts`); every condition met is shown as a reason. Messy answers are tidied (`often` → High for S-045); a blank answer is unknown, never "fine" (S-010); no row is dropped.
-- **Gap I found (AC-08):** 7 of 8 students who chose "Prefer not to say" on self-harm get **no flag**. Extra rules (on by default): **E1** → at least High; **E2** worrying words in the comment → at least Review (S-023). 2/9/17/44 → 2/17/17/36. New keyword categories and check-ins only add reasons and "Needs reading"; they never change levels.
-- **"<5" = both** a class under 5 *and* any count of 1–4 (stricter reading), plus hiding numbers that would let someone subtract back to a small one, checked by a brute-force test.
+- **Baseline rules exactly as the brief** (`lib/flags.ts`), with every reason shown. Messy answers are tidied, a blank counts as unknown (never "fine"), and no row is dropped.
+- **Gap found (AC-08):** 7 of 8 students who chose "Prefer not to say" on self-harm got no flag. **E1** raises them to at least High; **E2** raises worrying comments to at least Review. Counts change from 2/9/17/44 to 2/17/17/36. Extra rules only raise flags, never lower them.
+- **"<5"** applies to classes under 5 and to any count of 1–4, and also hides numbers that would let someone subtract back to a small group.
 
 ## How I used AI tools
 
-> ✍️ **TODO (candidate to fill in honestly):** list every tool used.
-> Known: **Claude Code** (Anthropic, Claude Opus 5.5) for planning, code, tests and docs, phase by phase from my build prompts; I reviewed and directed every step.
->
-> **A prompt that worked:** _TODO_ · **A prompt that failed (and what I learned):** _TODO_
+**Tools:** Claude Code (Anthropic, Claude Opus 5.5) for planning, code, tests and docs. I wrote a
+build prompt (`docs/BUILD_PROMPT.md`) that split the work into phases, Must items first, and made
+Claude stop after each phase so I could run the app, review the changes and commit. I checked the
+flag counts against the brief by hand, tested every screen myself, and made the product decisions
+(the "Prefer not to say" rule, privacy by the database, code + PIN sign-in).
+
+**A prompt that worked:** "Read docs/BUILD_PROMPT.md, the brief and the CSV. Then do Phase 0 only
+and stop for my review." Small, reviewable steps meant I understood each part before the next one,
+and the rules stayed in one file I can change live.
+
+**A prompt that failed:** "The whole system looks totally AI generated, I want it smoother, cleaner
+and more premium." It was too vague: the first redesign still felt generic and needed a second full
+round. I learned to describe the look I want (calm, warm, fewer colours, real type) instead of only
+what I dislike.
+
 
 ## What I'd build next
 
-The **survey itself** inside the student space (one question per screen, same code sign-in). Per-school counsellor accounts. Verified Dzongkha with a native speaker. Encrypted counsellor notes. A referral pathway to health services. Offline support for rural schools. Rules and keyword lists tuned with CECD counsellors.
+The survey itself in the student space, using the same code sign-in. A "worried about a student" referral for teachers. Same-day checks for Urgent students. Dzongkha checked by a native speaker. Offline use for rural schools. Rules tuned with CECD counsellors.
 
-[Design](docs/DESIGN.md) · [Research: what the system needs](docs/RESEARCH.md) · [Acceptance criteria → code](docs/AC_TRACE.md) · [Safeguarding](docs/SAFEGUARDING.md)
+[Design](docs/DESIGN.md) · [Research](docs/RESEARCH.md) · [Safeguarding](docs/SAFEGUARDING.md) · [AC trace](docs/AC_TRACE.md)
